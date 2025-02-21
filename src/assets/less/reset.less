@@ -1,0 +1,102 @@
+/* Eric Meyer Reset CSS */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+.scroll-auto {
+  scrollbar-color: #441887 #441887;
+  scrollbar-width: 6px;
+  scrollbar-width: thin;
+  overflow-y: auto !important;
+  &::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 10px; /*高宽分别对应横竖滚动条的尺寸*/
+    height: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 10px;
+    background: linear-gradient(0deg, #441887, #441887);
+  }
+  &::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    background: rgba(63, 27, 130, 0.21);
+    border-radius: 10px;
+  }
+}
+.scroll-none {
+  scrollbar-color: #441887 #441887;
+  scrollbar-width: 0px;
+  scrollbar-width: none;
+  overflow-y: auto !important;
+  &::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 0px; /*高宽分别对应横竖滚动条的尺寸*/
+    height: 0px;
+  }
+  &::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 0px;
+    background: linear-gradient(0deg, #441887, #441887);
+  }
+  &::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    background: #163527;
+    border-radius: 0px;
+  }
+}
+.text-over-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.text-over-2 {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.not-select {
+  span,
+  img {
+    cursor: default;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+}
