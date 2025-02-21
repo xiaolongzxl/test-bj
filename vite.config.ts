@@ -1,9 +1,9 @@
+import UnoCss from 'unocss/vite';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import legacy from '@vitejs/plugin-legacy';
-import UnoCss from 'unocss/vite';
 // import viteCompression from 'vite-plugin-compression';
 // https://vitejs.dev/config/
 

@@ -1,18 +1,13 @@
 // uno.config.ts
 import { defineConfig } from 'unocss';
 import presetAttributify from '@unocss/preset-attributify';
+import presetUno from '@unocss/preset-uno';
 export default defineConfig({
   presets: [
+    presetUno(),
     presetAttributify(), // 属性化模式支持
   ],
   rules: [
-    [
-      /^paa-(\d+)$/,
-      (match) => {
-        console.log(`Applying padding rule with value ${match[1]}px`);
-        return { padding: `${match[1]}px` };
-      },
-    ],
     [/^ma-(\d+)$/, (match) => ({ margin: `${match[1]}px` })],
     [/^pa-(\d+)$/, (match) => ({ padding: `${match[1]}px` })],
     [/^px-(\d+)$/, (match) => ({ 'padding-left': `${match[1]}px`, 'padding-right': `${match[1]}px` })],
@@ -33,7 +28,7 @@ export default defineConfig({
     'flex-center': 'flex justify-center items-center',
     'flex-start': 'flex justify-start items-center',
     'flex-end': 'flex justify-end items-center',
-    'flex-columns': 'flex justify-end items-center flex-col',
+    'flex-columns': 'flex flex-col',
     'text-overflow': 'truncate',
     'wh-full': 'w-full h-full',
   },
