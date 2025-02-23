@@ -10,20 +10,29 @@ routes = [
   {
     path: '/home',
     name: 'home',
+    redirect: '/price',
     meta: {
       keepAlive: false,
     },
     component: defineAsyncComponent(() => import('@/views/home/index.vue')),
-    // children: [
-    //   {
-    //     path: '/list',
-    //     name: 'list',
-    //     meta: {
-    //       keepAlive: false,
-    //     },
-    //     component: defineAsyncComponent(() => import('@/views/list/index.vue')),
-    //   },
-    // ],
+    children: [
+      {
+        path: '/price',
+        name: 'price',
+        meta: {
+          keepAlive: false,
+        },
+        component: defineAsyncComponent(() => import('@/views/home/price/price.vue')),
+      },
+      {
+        path: '/file',
+        name: 'file',
+        meta: {
+          keepAlive: false,
+        },
+        component: defineAsyncComponent(() => import('@/views/home/file/file.vue')),
+      },
+    ],
   },
   {
     path: '/about',

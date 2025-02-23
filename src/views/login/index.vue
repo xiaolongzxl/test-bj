@@ -139,6 +139,8 @@
     background: #ffffff;
     border-radius: 0px 0px 0px 0px;
     box-shadow: 0px 3px 6px 0px rgba(128, 128, 128, 0.2);
+    position: relative;
+    z-index: 9;
   }
   .login-body {
     padding: 0 334px;
