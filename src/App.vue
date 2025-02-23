@@ -1,13 +1,10 @@
 <template>
-  <v-app id="app-content">
-    <router-view v-slot="{ Component, route }">
-      <component :key="route.name" v-if="!route.meta.keepAlive" :is="Component" />
-      <keep-alive>
-        <component :key="route.name" v-if="route.meta.keepAlive" :is="Component" />
-      </keep-alive>
-    </router-view>
-  </v-app>
-  <Message ref="message" :duration="3000" :top="80" />
+  <router-view v-slot="{ Component, route }">
+    <component :key="route.name" v-if="!route.meta.keepAlive" :is="Component" />
+    <keep-alive>
+      <component :key="route.name" v-if="route.meta.keepAlive" :is="Component" />
+    </keep-alive>
+  </router-view>
 </template>
 
 <script setup lang="ts">
@@ -26,12 +23,6 @@
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, 1);
-    overflow: hidden;
-  }
-  :deep(.v-application__wrap) {
-    display: block;
-    width: 100%;
-    height: 100%;
     overflow: hidden;
   }
 </style>
