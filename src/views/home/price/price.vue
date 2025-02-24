@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
-  const data: Tree[] = [
+  const data = ref<any>([
     {
       id: 1,
       label: '铁附件',
@@ -114,13 +114,13 @@
         },
       ],
     },
-  ];
+  ]);
   const defaultProps = {
     children: 'children',
     label: 'label',
   };
   const expandedKeys = ref([3, 4]); // 默认展开 id 为 1 的节点
-  const handleNodeClick = (data: Tree) => {
+  const handleNodeClick = (data: any) => {
     console.log(data);
   };
   const keyword = ref<any>(null);
