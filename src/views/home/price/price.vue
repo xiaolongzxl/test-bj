@@ -1,9 +1,18 @@
 <template>
   <div class="left-navbar">
-    <div class="top-navbar-self flex-between pl-15 pr-11 cursor-pointer">
+    <div class="top-navbar-self flex-between pl-15 pr-11 cursor-pointer" @click="showCategoryBox">
       <div>电力金具</div>
       <img :src="$getAssetsImages('price/icon-more.png')" alt="" />
+      <div class="level-box" v-if="showCategory">
+        <div class="level-one px-8">Action 1</div>
+        <div class="level-one px-8">Action 2 </div>
+        <div class="level-one px-8 active">Action 3</div>
+        <div class="level-one px-8">Action 4</div>
+        <div class="level-one px-8">Action 5</div>
+      </div>
     </div>
+    <div class="level-box-bg" v-if="showCategory" @click="closeCategoryBox"> </div>
+
     <div>
       <el-tree
         :data="data"
@@ -56,13 +65,33 @@
           <span class="num">99</span>
         </div>
       </div>
+      <el-breadcrumb :separator-icon="ArrowRight">
+        <el-breadcrumb-item>铁附件</el-breadcrumb-item>
+        <el-breadcrumb-item>铁附件</el-breadcrumb-item>
+        <el-breadcrumb-item>耐张横担</el-breadcrumb-item>
+      </el-breadcrumb>
+      <div>
+        <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange" ref="multipleTableRef">
+          <el-table-column type="selection" :selectable="selectable" width="55" /> <el-table-column prop="date" label="Date" width="180" />
+          <el-table-column prop="name" label="Name" width="180" />
+          <el-table-column prop="address" label="Address" />
+        </el-table>
+      </div>
     </div>
     <div class="add-content"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { ArrowRight } from '@element-plus/icons-vue';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
+  const showCategory = ref<boolean>(false);
+  function showCategoryBox() {
+    showCategory.value = true;
+  }
+  function closeCategoryBox() {
+    showCategory.value = false;
+  }
   const data = ref<any>([
     {
       id: 1,
@@ -124,6 +153,49 @@
     console.log(data);
   };
   const keyword = ref<any>(null);
+  const tableData = ref<any>([
+    {
+      date: '2016-05-03',
+      name: 'Tom',
+      address: 'No. 189, Grove St, Los Angeles',
+    },
+    {
+      date: '2016-05-02',
+      name: 'Tom',
+      address: 'No. 189, Grove St, Los Angeles',
+    },
+    {
+      date: '2016-05-04',
+      name: 'Tom',
+      address: 'No. 189, Grove St, Los Angeles',
+    },
+    {
+      date: '2016-05-01',
+      name: 'Tom',
+      address: 'No. 189, Grove St, Los Angeles',
+    },
+    {
+      date: '2016-05-08',
+      name: 'Tom',
+      address: 'No. 189, Grove St, Los Angeles',
+    },
+    {
+      date: '2016-05-06',
+      name: 'Tom',
+      address: 'No. 189, Grove St, Los Angeles',
+    },
+    {
+      date: '2016-05-07',
+      name: 'Tom',
+      address: 'No. 189, Grove St, Los Angeles',
+    },
+  ]);
+  const selectable = (row: any) => ![1, 2].includes(row.id);
+  const multipleTableRef = ref<any>();
+  const multipleSelection = ref<any>([]);
+  const handleSelectionChange = (val: any) => {
+    multipleSelection.value = val;
+  };
 </script>
 
 <style scoped lang="less">
@@ -134,6 +206,7 @@
     box-shadow: 0px 0px 6px 0px rgba(128, 128, 128, 0.2);
     border-radius: 0px 0px 0px 0px;
     .top-navbar-self {
+      position: relative;
       margin: 11px;
       width: 238px;
       height: 38px;
@@ -143,6 +216,36 @@
       font-weight: 400;
       font-size: 16px;
       color: #333333;
+      .level-box {
+        max-height: 668px;
+        padding: 6px;
+        position: absolute;
+        right: -220px;
+        top: 0;
+        background: #cccccc;
+        width: 200px;
+        height: 668px;
+        background: #ffffff;
+        box-shadow:
+          0px 5px 5px -3px rgba(0, 0, 0, 0.1),
+          0px 8px 10px 1px rgba(0, 0, 0, 0.06),
+          0px 3px 14px 2px rgba(0, 0, 0, 0.05);
+        border-radius: 6px 6px 6px 6px;
+        border: 1px solid #dcdcdc;
+        z-index: 999;
+        .level-one {
+          height: 45px;
+          line-height: 45px;
+          font-family: Microsoft YaHei;
+          font-weight: 400;
+          font-size: 14px;
+          color: #333333;
+          border-radius: 3px 3px 3px 3px;
+          &.active {
+            background: #f2f5ff;
+          }
+        }
+      }
     }
     .text {
       font-family: Microsoft YaHei;
@@ -150,6 +253,15 @@
       font-size: 16px;
       color: #333333;
     }
+  }
+  .level-box-bg {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    top: 0;
+    left: 0;
+    z-index: 9;
   }
   .custom-tree-node {
     flex: 0 0 100%;
@@ -310,5 +422,38 @@
   .el-dropdown-menu__item:not(.is-disabled):hover {
     background: #fff;
     color: #333;
+  }
+  .el-breadcrumb {
+    margin: 15px 0 14px;
+    height: 22px;
+    .el-breadcrumb__inner,
+    .el-breadcrumb__item:last-child .el-breadcrumb__inner,
+    .el-breadcrumb__item:last-child .el-breadcrumb__inner a,
+    .el-breadcrumb__item:last-child .el-breadcrumb__inner a:hover,
+    .el-breadcrumb__item:last-child .el-breadcrumb__inner:hover {
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 14px;
+      color: #999999;
+      line-height: 22px;
+      cursor: default;
+    }
+  }
+  .el-table {
+    border-radius: 8px 8px 0px 0px;
+    border: 1px solid #ececec;
+    thead {
+      tr .el-table__cell {
+        height: 52px;
+        background: #f4f5f7;
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        font-size: 14px;
+        color: #31373d;
+        /**
+          text-align: center;
+          */
+      }
+    }
   }
 </style>
