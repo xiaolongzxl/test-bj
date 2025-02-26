@@ -73,16 +73,6 @@
           </div>
         </div>
         <div class="popup-box-bg z-66" v-if="showSearchTable" @click="closeSearchTable"> </div>
-
-        <!-- <el-autocomplete v-model="keyword" clearable popper-class="my-autocomplete" :fetch-suggestions="querySearch" @select="handleSelect">
-          <template #prefix>
-            <img :src="$getAssetsImages('price/icon-search.png')" alt="" />
-          </template>
-          <template #default="{ item }">
-            <div class="value">{{ item.value }}</div>
-            <span class="link">{{ item.link }}</span>
-          </template>
-        </el-autocomplete> -->
       </div>
       <div class="select-box flex-between">
         <el-dropdown trigger="click">
@@ -155,13 +145,54 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- <div class="add-content"></div> -->
+    <el-dialog v-model="dialogTableVisible" width="375" class="dialog-self" :show-close="false" align-center>
+      <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" />
+      <div class="dialog-title pt-27 pb-26">价格调整</div>
+      <div class="px-46 mb-40">
+        <div class="flex mb-20">
+          <div class="text1">调价1：</div>
+          <div class="flex-between operator-box mx-8">
+            <img v-if="adjustPriceFrom.type1 == 1" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
+            <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type1 = 1" />
+            <img v-if="adjustPriceFrom.type1 == 0" :src="$getAssetsImages('price/chu-select.png')" alt="" />
+            <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type1 = 0" />
+          </div>
+          <el-input v-model="adjustPriceFrom.number1" class="adjust-input" placeholder="请输入调价系数"> </el-input>
+        </div>
+        <div class="flex mb-20">
+          <div class="text1">调价2：</div>
+          <div class="flex-between operator-box mx-8">
+            <img v-if="adjustPriceFrom.type2 == 1" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
+            <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type2 = 1" />
+            <img v-if="adjustPriceFrom.type2 == 0" :src="$getAssetsImages('price/chu-select.png')" alt="" />
+            <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type2 = 0" />
+          </div>
+          <el-input v-model="adjustPriceFrom.number2" class="adjust-input" placeholder="请输入调价系数"> </el-input>
+        </div>
+        <div class="flex">
+          <div class="text1">调价3：</div>
+          <div class="flex-between operator-box mx-8">
+            <img v-if="adjustPriceFrom.type3 == 1" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
+            <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type3 = 1" />
+            <img v-if="adjustPriceFrom.type3 == 0" :src="$getAssetsImages('price/chu-select.png')" alt="" />
+            <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type3 = 0" />
+          </div>
+          <el-input v-model="adjustPriceFrom.number3" class="adjust-input" placeholder="请输入调价系数"> </el-input>
+        </div>
+      </div>
+      <div class="flex-center">
+        <div class="dialog-btn mr-20">取消</div>
+        <div class="dialog-btn confirm-btn">确定</div>
+      </div>
+    </el-dialog>
+    <div class="add-content"></div>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ArrowRight } from '@element-plus/icons-vue';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
+  const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   // 一级分类
   const showCategory = ref<boolean>(false);
   function showCategoryBox() {
@@ -228,9 +259,9 @@
     label: 'label',
   };
   const expandedKeys = ref([3, 4]);
-  const handleNodeClick = (data: any) => {
+  function handleNodeClick(data: any) {
     console.log(data);
-  };
+  }
   // 搜索
   const keyword = ref<any>(null);
   const showSearchTable = ref<boolean>(false);
@@ -305,16 +336,46 @@
   ]);
   const tableRef = ref<any>();
   const multipleSelection = ref<any>([]);
-  const handleSelectionChange = (val: any) => {
+  function handleSelectionChange(val: any) {
     multipleSelection.value = val;
-  };
+  }
   const currentRow = ref<any>();
-  const handleCurrentChange = (val: any) => {
+  function handleCurrentChange(val: any) {
     currentRow.value = val;
-  };
-  const handleCopy = (scope: any) => {
-    console.log(scope);
-  };
+  }
+  async function handleCopy(scope: any) {
+    let text = scope.row.name;
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      $message({
+        message: '复制成功',
+        type: 'success',
+      });
+    } else {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      $message({
+        message: '复制成功',
+        type: 'success',
+      });
+    }
+  }
+
+  // 价格
+  const dialogTableVisible = ref<boolean>(false);
+  const adjustPriceFrom = ref<any>({
+    number1: '',
+    type1: 1,
+    number2: '',
+    type2: 1,
+    number3: '',
+    type3: 1,
+  });
 </script>
 
 <style scoped lang="less">
@@ -622,6 +683,82 @@
   :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
     background: url('@/assets/images/price/Vector1.png');
   }
+  :deep(.el-dialog__header) {
+    padding: 0;
+    height: 0;
+  }
+
+  :deep(.dialog-self) {
+    position: relative;
+    padding: 0;
+    border-radius: 12px 12px 12px 12px;
+    height: 349px;
+    background: #ffffff;
+    box-shadow: 0px 6px 58px 0px rgba(121, 145, 173, 0.2);
+    background: linear-gradient(180deg, #e7f0fc 0%, #fff 56px, #fff 56px);
+    .dialog-title {
+      line-height: 44px;
+      font-family: Microsoft YaHei;
+      font-weight: bold;
+      font-size: 22px;
+      color: #0a1629;
+      text-align: center;
+      cursor: default;
+    }
+    .close {
+      position: absolute;
+      top: 27px;
+      right: 23px;
+      cursor: pointer;
+    }
+    .text1 {
+      width: 54px;
+      height: 30px;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 14px;
+      color: #333333;
+      line-height: 30px;
+      cursor: default;
+    }
+    .operator-box {
+      padding: 2px;
+      width: 54px;
+      height: 30px;
+      background: #eff2ff;
+      border-radius: 6px 6px 6px 6px;
+      cursor: pointer;
+    }
+    .adjust-input {
+      width: 160px;
+      height: 32px;
+      background: #ffffff;
+      border-radius: 0px 0px 0px 0px;
+      border: 1px solid #e9e9e9;
+      box-shadow: none;
+    }
+    .dialog-btn {
+      width: 120px;
+      height: 42px;
+      line-height: 42px;
+      background: #f2f3f5;
+      border-radius: 4px 4px 4px 4px;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 14px;
+      color: #717579;
+      text-align: center;
+      cursor: pointer;
+    }
+    .confirm-btn {
+      color: #ffffff;
+      background: #197cfa;
+    }
+  }
+  :deep(.adjust-input .el-input__wrapper) {
+    border: 0;
+    box-shadow: none;
+  }
 </style>
 <style>
   .select-type {
@@ -636,6 +773,9 @@
     &.active {
       background: #f2f5ff !important;
     }
+  }
+  :deep(.el-dialog) {
+    padding: 0;
   }
   .el-dropdown-menu__item:not(.is-disabled):focus {
     background: #f2f5ff;
