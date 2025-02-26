@@ -1,18 +1,34 @@
 <template>
   <div class="left-navbar">
-    <div class="top-navbar-self flex-between pl-15 pr-11 cursor-pointer" @click="showCategoryBox">
-      <div>电力金具</div>
-      <img :src="$getAssetsImages('price/icon-more.png')" alt="" />
-      <div class="level-box" v-if="showCategory">
-        <div class="level-one px-8">Action 1</div>
-        <div class="level-one px-8">Action 2 </div>
-        <div class="level-one px-8 active">Action 3</div>
-        <div class="level-one px-8">Action 4</div>
-        <div class="level-one px-8">Action 5</div>
+    <div class="top-navbar-self">
+      <div @click="showCategoryBox" class="flex-between pl-15 pr-11 cursor-pointer w-100% h-100%">
+        <div>电力金具</div>
+        <img :src="$getAssetsImages('price/icon-more.png')" alt="" />
       </div>
+      <div class="level-box scroll-none" v-if="showCategory" @click="closeCategoryBox">
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8 active">电力金具 </div>
+        <div class="level-one px-8">变压器</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+        <div class="level-one px-8">电缆电压</div>
+      </div>
+      <div class="popup-box-bg z-99" v-if="showCategory" @click="closeCategoryBox"> </div>
     </div>
-    <div class="level-box-bg" v-if="showCategory" @click="closeCategoryBox"> </div>
-
     <div>
       <el-tree
         :data="data"
@@ -37,32 +53,57 @@
   <div class="right-content flex">
     <div class="list mr-10">
       <div class="search">
-        <el-input placeholder="" v-model="keyword" clearable>
+        <el-input placeholder="" v-model="keyword" clearable @focus="showSearchTable = true" style="position: relative; z-index: 88">
           <template #prefix>
             <img :src="$getAssetsImages('price/icon-search.png')" alt="" />
           </template>
         </el-input>
+        <div class="search-table" v-if="showSearchTable">
+          <div class="table-head flex-center">
+            <div class="f-48 pl-30">产品名称</div>
+            <div class="xian f-26 pl-8">型号</div>
+            <div class="xian f-26 pl-8">规格</div>
+          </div>
+          <div class="table-body scroll-none">
+            <div v-for="item of 210" :key="item" class="table-tr flex-center">
+              <div class="f-48 pl-30">{{ item }}低压铜芯电缆</div>
+              <div class="f-26 pl-8">YJV</div>
+              <div class="f-26 pl-8">3×16+1×10</div>
+            </div>
+          </div>
+        </div>
+        <div class="popup-box-bg z-66" v-if="showSearchTable" @click="closeSearchTable"> </div>
+
+        <!-- <el-autocomplete v-model="keyword" clearable popper-class="my-autocomplete" :fetch-suggestions="querySearch" @select="handleSelect">
+          <template #prefix>
+            <img :src="$getAssetsImages('price/icon-search.png')" alt="" />
+          </template>
+          <template #default="{ item }">
+            <div class="value">{{ item.value }}</div>
+            <span class="link">{{ item.link }}</span>
+          </template>
+        </el-autocomplete> -->
       </div>
       <div class="select-box flex-between">
         <el-dropdown trigger="click">
           <div class="select-gg flex-between px-14 cursor-pointer el-dropdown-link">
-            <span class="text-over-1">阿三大苏打实打实啊实打实的全部</span>
+            <span class="text-over-1">全部</span>
             <img :src="$getAssetsImages('price/icon-shaixuan.png')" alt="" />
           </div>
           <template #dropdown>
             <el-dropdown-menu style="width: 210px">
-              <el-dropdown-item class="select-type">Action 1</el-dropdown-item>
-              <el-dropdown-item class="select-type">Action 2 </el-dropdown-item>
-              <el-dropdown-item class="select-type active">Action 3</el-dropdown-item>
-              <el-dropdown-item class="select-type">Action 4</el-dropdown-item>
-              <el-dropdown-item class="select-type">Action 5</el-dropdown-item>
+              <el-dropdown-item class="select-type">全部</el-dropdown-item>
+              <el-dropdown-item class="select-type">3+1芯</el-dropdown-item>
+              <el-dropdown-item class="select-type active">3+2芯</el-dropdown-item>
+              <el-dropdown-item class="select-type">4+1芯</el-dropdown-item>
+              <el-dropdown-item class="select-type">5芯</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
         <div class="select-btn flex-between cursor-pointer">
           <img :src="$getAssetsImages('price/icon-pltj.png')" alt="" />
           <span mx-6>批量添加</span>
-          <span class="num">99</span>
+          <div class="num">{{ multipleSelection.length ? multipleSelection.length : '' }}</div>
         </div>
       </div>
       <el-breadcrumb :separator-icon="ArrowRight">
@@ -70,21 +111,58 @@
         <el-breadcrumb-item>铁附件</el-breadcrumb-item>
         <el-breadcrumb-item>耐张横担</el-breadcrumb-item>
       </el-breadcrumb>
-      <div>
-        <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange" ref="multipleTableRef">
-          <el-table-column type="selection" :selectable="selectable" width="55" /> <el-table-column prop="date" label="Date" width="180" />
-          <el-table-column prop="name" label="Name" width="180" />
-          <el-table-column prop="address" label="Address" />
-        </el-table>
-      </div>
+      <el-table
+        :data="tableData"
+        style="width: 100%"
+        height="calc(100% - 216px)"
+        ref="tableRef"
+        table-layout="fixed"
+        highlight-current-row
+        @selection-change="handleSelectionChange"
+        @current-change="handleCurrentChange"
+      >
+        <el-table-column type="selection" width="60" />
+        <el-table-column label="产品名称">
+          <template #default="scope">
+            <div class="table-name">{{ scope.row.name }}</div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="单价" prop="price" width="90">
+          <template #default="scope">
+            <div class="flex-center">
+              <div v-if="scope.row.isChange">{{ scope.row.price }}</div>
+              <el-input class="table-input" v-model="scope.row.price" style="width: 60px" placeholder="1" v-else />
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="数量" prop="number" width="90">
+          <template #default="scope">
+            <div class="flex-center">
+              <el-input class="table-input" v-model="scope.row.number" style="width: 60px" placeholder="1" />
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="120">
+          <template #default="scope">
+            <div class="table-btn flex-center">
+              <div @click="handleCopy(scope)" class="flex-center">
+                <img :src="$getAssetsImages('price/icon-copy.png')" alt="" />
+              </div>
+              <div class="ml-4">加入报价单</div>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
-    <div class="add-content"></div>
+    <!-- <div class="add-content"></div> -->
   </div>
 </template>
 
 <script setup lang="ts">
   import { ArrowRight } from '@element-plus/icons-vue';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
+  // 一级分类
   const showCategory = ref<boolean>(false);
   function showCategoryBox() {
     showCategory.value = true;
@@ -92,6 +170,7 @@
   function closeCategoryBox() {
     showCategory.value = false;
   }
+  // 二级分类
   const data = ref<any>([
     {
       id: 1,
@@ -148,53 +227,93 @@
     children: 'children',
     label: 'label',
   };
-  const expandedKeys = ref([3, 4]); // 默认展开 id 为 1 的节点
+  const expandedKeys = ref([3, 4]);
   const handleNodeClick = (data: any) => {
     console.log(data);
   };
+  // 搜索
   const keyword = ref<any>(null);
+  const showSearchTable = ref<boolean>(false);
+  function closeSearchTable() {
+    showSearchTable.value = false;
+  }
+  // 表格
   const tableData = ref<any>([
     {
-      date: '2016-05-03',
-      name: 'Tom',
-      address: 'No. 189, Grove St, Los Angeles',
+      id: 1,
+      name: 'YJV22 26/35KV 3×120',
+      price: 168,
+      number: null,
+      selected: false,
+      isChange: false,
+      isActive: false,
     },
     {
-      date: '2016-05-02',
-      name: 'Tom',
-      address: 'No. 189, Grove St, Los Angeles',
+      id: 2,
+      name: 'YJV22 26/35KV 3×120',
+      price: 168,
+      number: null,
+      selected: false,
+      isChange: false,
+      isActive: false,
     },
     {
-      date: '2016-05-04',
-      name: 'Tom',
-      address: 'No. 189, Grove St, Los Angeles',
+      id: 3,
+      name: 'YJV22 26/35KV 3×120',
+      price: 168,
+      number: null,
+      selected: false,
+      isChange: false,
+      isActive: false,
     },
     {
-      date: '2016-05-01',
-      name: 'Tom',
-      address: 'No. 189, Grove St, Los Angeles',
+      id: 4,
+      name: 'YJV22 26/35KV 3×120',
+      price: 168,
+      number: null,
+      selected: false,
+      isChange: false,
+      isActive: false,
     },
     {
-      date: '2016-05-08',
-      name: 'Tom',
-      address: 'No. 189, Grove St, Los Angeles',
+      id: 5,
+      name: 'YJV22 26/35KV 3×120',
+      price: 168,
+      number: null,
+      selected: false,
+      isChange: false,
+      isActive: false,
     },
     {
-      date: '2016-05-06',
-      name: 'Tom',
-      address: 'No. 189, Grove St, Los Angeles',
+      id: 6,
+      name: 'YJV22 26/35KV 3×120',
+      price: 168,
+      number: null,
+      selected: false,
+      isChange: false,
+      isActive: false,
     },
     {
-      date: '2016-05-07',
-      name: 'Tom',
-      address: 'No. 189, Grove St, Los Angeles',
+      id: 7,
+      name: 'YJV22 26/35KV 3×120',
+      price: 168,
+      number: null,
+      selected: false,
+      isChange: false,
+      isActive: false,
     },
   ]);
-  const selectable = (row: any) => ![1, 2].includes(row.id);
-  const multipleTableRef = ref<any>();
+  const tableRef = ref<any>();
   const multipleSelection = ref<any>([]);
   const handleSelectionChange = (val: any) => {
     multipleSelection.value = val;
+  };
+  const currentRow = ref<any>();
+  const handleCurrentChange = (val: any) => {
+    currentRow.value = val;
+  };
+  const handleCopy = (scope: any) => {
+    console.log(scope);
   };
 </script>
 
@@ -241,6 +360,7 @@
           font-size: 14px;
           color: #333333;
           border-radius: 3px 3px 3px 3px;
+          cursor: pointer;
           &.active {
             background: #f2f5ff;
           }
@@ -254,14 +374,83 @@
       color: #333333;
     }
   }
-  .level-box-bg {
+  .popup-box-bg {
     position: fixed;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0);
     top: 0;
     left: 0;
-    z-index: 9;
+  }
+  .search {
+    position: relative;
+    margin: 8px 0 22px;
+    :deep(.el-icon) {
+      font-size: 18px;
+    }
+  }
+  .search-table {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    width: 100%;
+    max-height: 463px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow:
+      0px 2px 4px -1px rgba(0, 0, 0, 0.12),
+      0px 4px 5px 0px rgba(0, 0, 0, 0.08),
+      0px 1px 10px 0px rgba(0, 0, 0, 0.05);
+    border-radius: 6px 6px 6px 6px;
+    z-index: 991;
+    .table-head {
+      width: 100%;
+      height: 37px;
+      background: #f3f3f3;
+      border-radius: 6px 6px 0px 0px;
+      font-family: Microsoft YaHei;
+      font-weight: bold;
+      font-size: 12px;
+      color: #333333;
+      cursor: default;
+      .xian {
+        position: relative;
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          height: 14px;
+          width: 1px;
+          background-color: #999;
+        }
+      }
+    }
+    .table-body {
+      max-height: 426px;
+      overflow: hidden;
+      .table-tr {
+        height: 28px;
+        background: #ffffff;
+        border-radius: 0px 0px 0px 0px;
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        font-size: 12px;
+        cursor: pointer;
+        color: #333333;
+        &:hover {
+          color: #0066ff;
+          background: #f2f5ff;
+        }
+      }
+    }
+    .f-48 {
+      flex: 0 0 48%;
+    }
+    .f-26 {
+      flex: 0 0 26%;
+    }
   }
   .custom-tree-node {
     flex: 0 0 100%;
@@ -335,6 +524,7 @@
     .list {
       padding: 16px;
       flex: 0 0 calc(42% - 10px);
+      min-width: 680px;
       height: 100%;
       background: #ffffff;
       box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
@@ -348,12 +538,7 @@
       border-radius: 8px 8px 8px 8px;
     }
   }
-  .search {
-    margin: 8px 0 22px;
-    :deep(.el-icon) {
-      font-size: 18px;
-    }
-  }
+
   .select-box {
     .select-gg {
       width: 210px;
@@ -399,6 +584,44 @@
     box-shadow: none !important;
     border-radius: 0;
   }
+  .table-input {
+    :deep(.el-input__wrapper) {
+      width: 60px;
+      height: 32px;
+      background: #ffffff;
+      border-radius: 3px 3px 3px 3px;
+      border: 1px solid #dcdcdc;
+      box-shadow: none;
+    }
+    :deep(.el-input__inner) {
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 12px;
+      color: #333333;
+      text-align: center;
+    }
+  }
+  .table-name {
+    line-height: 22px;
+  }
+  :deep(.el-table-column--selection) {
+    text-align: center;
+  }
+  :deep(.el-checkbox__input .el-checkbox__inner) {
+    width: 17px;
+    height: 17px;
+    content: '';
+    border: 0;
+    size: 0;
+    background-color: transparent;
+    background: url('@/assets/images/price/Vector.png');
+  }
+  :deep(.el-checkbox__input.is-checked .el-checkbox__inner:after) {
+    display: none;
+  }
+  :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+    background: url('@/assets/images/price/Vector1.png');
+  }
 </style>
 <style>
   .select-type {
@@ -414,7 +637,6 @@
       background: #f2f5ff !important;
     }
   }
-
   .el-dropdown-menu__item:not(.is-disabled):focus {
     background: #f2f5ff;
     color: #333;
@@ -440,7 +662,7 @@
     }
   }
   .el-table {
-    border-radius: 8px 8px 0px 0px;
+    border-radius: 8px;
     border: 1px solid #ececec;
     thead {
       tr .el-table__cell {
@@ -450,10 +672,36 @@
         font-weight: 400;
         font-size: 14px;
         color: #31373d;
-        /**
-          text-align: center;
-          */
+        text-align: center;
       }
     }
+    tbody tr {
+      width: 644px;
+      height: 50px;
+      border: 1px solid #ececec;
+      .el-table__cell {
+        background: #ffffff;
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        font-size: 14px;
+        color: #31373d;
+        line-height: 14px;
+      }
+    }
+  }
+  .table-btn {
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    font-size: 14px;
+    color: #2d6cff;
+    cursor: pointer;
+  }
+  .active-row {
+    background: rgba(233, 239, 255, 0.6);
+    border: 1px solid #ececec;
+  }
+  .table-input input::placeholder {
+    font-size: 12px !important;
+    color: #333333 !important;
   }
 </style>

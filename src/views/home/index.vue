@@ -9,7 +9,24 @@
         <div :class="{ active: activePage == 'file' }" @click="changePage('file')" class="no-select cursor-pointer flex-center">文件管理</div>
       </div>
     </div>
-    <img :src="$getAssetsImages('home/img-tx.png')" alt="" />
+    <el-dropdown placement="bottom">
+      <img :src="$getAssetsImages('home/img-tx.png')" class="w-45px h-45px" alt="" />
+      <template #dropdown>
+        <div class="login-out">
+          <div class="info flex-center">
+            <div style="flex: 0 0 100px" class="flex-center">
+              <img :src="$getAssetsImages('home/img-tx.png')" alt="" class="w-66px h-66px" />
+            </div>
+            <div style="flex: 0 0 228px">
+              <div class="t1">北京万达电力工程有限公司</div>
+              <div class="t2 my-8">账号 : 15614063168</div>
+              <div class="t2">地区：北京市-丰台区</div>
+            </div>
+          </div>
+          <div class="h-55px flex-center t3"> 退出登录 </div>
+        </div>
+      </template>
+    </el-dropdown>
   </div>
   <div class="home-content flex">
     <router-view></router-view>
@@ -70,5 +87,40 @@
   .home-content {
     height: calc(100% - 70px);
     background: #f4f5f7;
+  }
+  .login-out {
+    width: 328px;
+    height: 164px;
+    background: #ffffff;
+    box-shadow: 0px 0px 10px 0px rgba(33, 52, 95, 0.3);
+    border-radius: 8px 8px 8px 8px;
+    .info {
+      height: 109px;
+      background: url('@/assets/images/home/bg-idcard.png') no-repeat;
+    }
+    .t1 {
+      height: 21px;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 16px;
+      color: #171b1e;
+    }
+    .t2 {
+      height: 16px;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 12px;
+      color: #4e6780;
+    }
+    .t3 {
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 16px;
+      color: #000000;
+      cursor: pointer;
+    }
+    div {
+      cursor: default;
+    }
   }
 </style>
