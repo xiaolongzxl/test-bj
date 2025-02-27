@@ -136,7 +136,7 @@
         <el-table-column label="操作" width="120">
           <template #default="scope">
             <div class="table-btn flex-center">
-              <div @click="handleCopy(scope)" class="flex-center">
+              <div @click="handleCopy(scope.row.name)" class="flex-center">
                 <img :src="$getAssetsImages('price/icon-copy.png')" alt="" />
               </div>
               <div class="ml-4">加入报价单</div>
@@ -145,6 +145,7 @@
         </el-table-column>
       </el-table>
     </div>
+    <div class="add-content"></div>
     <el-dialog v-model="dialogTableVisible" width="375" class="dialog-self" :show-close="false" align-center>
       <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" />
       <div class="dialog-title pt-27 pb-26">价格调整</div>
@@ -185,7 +186,114 @@
         <div class="dialog-btn confirm-btn">确定</div>
       </div>
     </el-dialog>
-    <div class="add-content"></div>
+    <el-dialog v-model="dialogInfoVisible" width="1138" class="dialog-self dialog-self2" :show-close="false" align-center>
+      <img :src="$getAssetsImages('price/icon-clos.png')" alt="" class="close2" />
+      <div class="dialog-title2 pt-24 pb-24">产品详情</div>
+      <div class="px-46 mb-40 flex">
+        <div>
+          <div class="big-img">
+            <img :src="$getAssetsImages('price/image-01.png')" alt="" />
+          </div>
+          <div class="flex mt-18">
+            <div class="left-btn flex-center cursor-pointer mr-7">
+              <img :src="$getAssetsImages('price/left-gray.png')" alt="" />
+            </div>
+            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
+            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
+            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
+            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
+            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
+            <div class="right-btn flex-center cursor-pointer">
+              <img :src="$getAssetsImages('price/right-gray.png')" alt="" />
+            </div>
+          </div>
+        </div>
+        <div class="ml-24 info">
+          <div class="info-title mb-16"
+            >铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆铜芯交联聚乙烯 绝缘聚氯乙烯护套电力电缆
+            <span class="cursor-pointer" @click="handleCopy('铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆铜芯交联聚乙烯 绝缘聚氯乙烯护套电力电缆')"
+              ><img :src="$getAssetsImages('price/icon-copy.png')" alt="" /> 一键复制</span
+            >
+          </div>
+          <div class="cate flex mb-7">
+            <div class="cate-item active">123</div>
+            <div class="cate-item">123</div>
+            <div class="cate-item">123</div>
+            <div class="cate-item">123</div>
+          </div>
+          <div class="price-box flex-between items-center px-20 mb-20">
+            <div class="text-center">
+              <span>单价：</span>
+              <span>7.2</span>
+            </div>
+            <div class="text-center">
+              <span>专票：</span>
+              <span>7.2</span>
+            </div>
+            <div class="text-center">
+              <span>普票：</span>
+              <span>7.2</span>
+            </div>
+          </div>
+          <div class="info-unit flex flex-wrap">
+            <div>
+              <span class="label">重量：</span>
+              <span class="value">10.4kg/根</span>
+              <span class="label">单位：</span>
+              <span class="value">根</span>
+            </div>
+            <div>
+              <span class="label">重量：</span>
+              <span class="value">10.4kg/根</span>
+              <span class="label">单位：</span>
+              <span class="value">根</span>
+            </div>
+            <div>
+              <span class="label">重量：</span>
+              <span class="value">10.4kg/根</span>
+              <span class="label">单位：</span>
+              <span class="value">根</span>
+            </div>
+            <div>
+              <span class="label">重量：</span>
+              <span class="value">10.4kg/根</span>
+              <span class="label">单位：</span>
+              <span class="value">根</span>
+            </div>
+            <div>
+              <span class="label">重量：</span>
+              <span class="value">10.4kg/根</span>
+              <span class="label">单位：</span>
+              <span class="value">根</span>
+            </div>
+            <div>
+              <span class="label">重量：</span>
+              <span class="value">10.4kg/根</span>
+              <span class="label">单位：</span>
+              <span class="value">根</span>
+            </div>
+          </div>
+          <div class="mt-20">
+            <div class="ml-20 dialog-num flex items-center">
+              <span>数量：</span>
+              <el-input placeholder="请输入验证码" v-model="dialog_num">
+                <template #suffix>
+                  <div class="flex-center flex-columns" style="height: 100%">
+                    <div @click="changDialogNum('+')" class="flex-center pt-4" style="flex: 0 0 50%" cursor-pointer>
+                      <img :src="$getAssetsImages('price/icon-up.png')" alt="" />
+                    </div>
+                    <div @click="changDialogNum('-')" class="flex-center pb-4" style="flex: 0 0 50%" cursor-pointer>
+                      <img :src="$getAssetsImages('price/icon-down.png')" alt="" />
+                    </div>
+                  </div>
+                </template>
+              </el-input>
+              <div class="add-btn cursor-pointer ml-20">加入报价单</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -343,8 +451,7 @@
   function handleCurrentChange(val: any) {
     currentRow.value = val;
   }
-  async function handleCopy(scope: any) {
-    let text = scope.row.name;
+  async function handleCopy(text: any) {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
       $message({
@@ -376,6 +483,19 @@
     number3: '',
     type3: 1,
   });
+  // 详情
+  const dialogInfoVisible = ref<boolean>(true);
+  const dialog_num = ref<number>(0);
+  function changDialogNum(type: any) {
+    if (type == '+') {
+      dialog_num.value += 1;
+    } else {
+      dialog_num.value -= 1;
+      if (dialog_num.value < 0) {
+        dialog_num.value = 0;
+      }
+    }
+  }
 </script>
 
 <style scoped lang="less">
@@ -687,7 +807,6 @@
     padding: 0;
     height: 0;
   }
-
   :deep(.dialog-self) {
     position: relative;
     padding: 0;
@@ -705,12 +824,14 @@
       text-align: center;
       cursor: default;
     }
+
     .close {
       position: absolute;
       top: 27px;
       right: 23px;
       cursor: pointer;
     }
+
     .text1 {
       width: 54px;
       height: 30px;
@@ -755,6 +876,170 @@
       background: #197cfa;
     }
   }
+  :deep(.dialog-self2) {
+    height: 80%;
+    .dialog-title2 {
+      line-height: 30px;
+      font-family: Microsoft YaHei;
+      font-weight: bold;
+      font-size: 22px;
+      color: #0a1629;
+      text-align: center;
+      cursor: default;
+    }
+    .close2 {
+      position: absolute;
+      top: 14px;
+      right: 26px;
+      cursor: pointer;
+    }
+    .right-btn,
+    .left-btn {
+      width: 19px;
+      height: 43px;
+      background: #eaeaea;
+      border-radius: 0px 6px 6px 0px;
+    }
+    .left-btn {
+      border-radius: 6px 0px 0px 6px;
+    }
+    .big-img {
+      width: 486px;
+      height: 258px;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .img-item {
+      width: 81px;
+      height: 43px;
+    }
+    .info {
+      width: 530px;
+      .info-title {
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        font-size: 20px;
+        color: #000000;
+        line-height: 30px;
+        cursor: default;
+        span {
+          font-family: Microsoft YaHei;
+          font-weight: 400;
+          font-size: 12px;
+          color: #2d6cff;
+          vertical-align: middle;
+        }
+      }
+      .cate {
+        height: 22px;
+        line-height: 22px;
+        .cate-item {
+          margin-right: 45px;
+          font-family: Microsoft YaHei;
+          font-weight: bold;
+          font-size: 14px;
+          color: #666666;
+          text-align: center;
+          font-style: normal;
+          text-transform: none;
+          &.active {
+            position: relative;
+            color: #2d6cff;
+            &::after {
+              content: '';
+              position: absolute;
+              width: 100%;
+              bottom: -7px;
+              left: 0;
+              height: 2px;
+              background: #2d6cff;
+              border-radius: 4px 4px 4px 4px;
+            }
+          }
+        }
+      }
+      .price-box {
+        width: 100%;
+        height: 56px;
+        background: #f8f8f8;
+        border-radius: 0px 0px 0px 0px;
+        border-top: 1px solid #ececec;
+        border-bottom: 1px solid #ececec;
+        div {
+          flex: 0 0 33%;
+          font-family: Microsoft YaHei;
+          font-weight: 400;
+          font-size: 16px;
+          color: #666666;
+          line-height: 14px;
+          span:last-of-type {
+            color: #121212;
+          }
+        }
+      }
+      .info-unit {
+        div {
+          line-height: 40px;
+          position: relative;
+          flex: 0 0 50%;
+          &:nth-child(2n - 1):after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 0;
+            width: 1px;
+            height: 42px;
+            background: #ececec;
+          }
+        }
+        span {
+          font-family: Microsoft YaHei;
+          font-weight: 400;
+          font-size: 14px;
+          color: #666666;
+        }
+        .label {
+          padding-left: 20px;
+        }
+        .value {
+          padding-left: 6px;
+          color: #121212;
+        }
+      }
+      .dialog-num {
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        font-size: 14px;
+        color: #666666;
+        .el-input {
+          width: 65px;
+          height: 30px;
+          background: #ffffff;
+          border-radius: 4px 4px 4px 4px;
+          border: 1px solid #d4d6d9;
+          .el-input__wrapper {
+            padding: 0 8px;
+            box-shadow: none;
+          }
+        }
+      }
+      .add-btn {
+        width: 100px;
+        height: 32px;
+        line-height: 32px;
+        background: linear-gradient(360deg, #ff4d00 0%, #ff7c44 100%);
+        border-radius: 4px 4px 4px 4px;
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        font-size: 14px;
+        color: #ffffff;
+        text-align: center;
+      }
+    }
+  }
+
   :deep(.adjust-input .el-input__wrapper) {
     border: 0;
     box-shadow: none;
@@ -776,6 +1061,10 @@
   }
   :deep(.el-dialog) {
     padding: 0;
+  }
+  .el-dropdown:focus-visible,
+  img:focus-visible {
+    outline: none;
   }
   .el-dropdown-menu__item:not(.is-disabled):focus {
     background: #f2f5ff;
