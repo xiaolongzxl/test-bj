@@ -3,10 +3,10 @@
     <div class="flex-between left-logo">
       <img :src="$getAssetsImages('logo/logo.png')" alt="" />
       <div class="card-tab flex">
-        <div :class="{ active: activePage == 'price' }" @click="changePage('price')" class="no-select cursor-pointer mr-50 ml-130 flex-center"
+        <div :class="{ active: activePage == '/price' }" @click="changePage('/price')" class="no-select cursor-pointer mr-50 ml-130 flex-center"
           >报价系统</div
         >
-        <div :class="{ active: activePage == 'file' }" @click="changePage('file')" class="no-select cursor-pointer flex-center">文件管理</div>
+        <div :class="{ active: activePage == '/file' }" @click="changePage('/file')" class="no-select cursor-pointer flex-center">文件管理</div>
       </div>
     </div>
     <el-dropdown placement="bottom">
@@ -38,14 +38,23 @@
   import { useRoute, useRouter } from 'vue-router';
   const route = useRoute();
   const router = useRouter();
-  const activePage = ref<any>(null);
+  // const activePage = ref<any>(null);
+  // 默认激活的菜单
+  const activePage = computed(() => {
+    const path = route.path;
+    let activePath = path;
+    if (path !== undefined && path.lastIndexOf('/') > 0) {
+      const tmpPath = path.substring(1, path.length);
+      activePath = '/' + tmpPath.substring(0, tmpPath.indexOf('/'));
+    }
+    return activePath;
+  });
   function changePage(path: any) {
-    activePage.value = path;
+    console.log(path);
     router.push(path);
   }
   onMounted(() => {
     // console.log(route.name);
-    activePage.value = route.name;
   });
 </script>
 

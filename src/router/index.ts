@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 
-let routes: RouteRecordRaw[] = [];
+export let routes: RouteRecordRaw[] = [];
 routes = [
   {
     path: '/',
@@ -30,6 +30,60 @@ routes = [
         meta: {
           keepAlive: false,
         },
+        redirect: '/file/recently-used',
+        children: [
+          {
+            path: '/file/commonly-used',
+            name: 'CommonlyUsed',
+            meta: {
+              keepAlive: false,
+              title: '常用文件',
+              icon: 'cy',
+            },
+            component: defineAsyncComponent(() => import('@/views/home/file/commonly-used/index.vue')),
+          },
+
+          {
+            path: '/file/recently-used',
+            name: 'RecentlyUsed',
+            meta: {
+              keepAlive: false,
+              title: '最近使用',
+              icon: 'zj',
+            },
+            component: defineAsyncComponent(() => import('@/views/home/file/recently-used/index.vue')),
+          },
+          {
+            path: '/file/my-used',
+            name: 'MyUsed',
+            meta: {
+              keepAlive: false,
+              title: '我的文件',
+              icon: 'wd',
+            },
+            component: defineAsyncComponent(() => import('@/views/home/file/my-used/index.vue')),
+          },
+          {
+            path: '/file/corporate-used',
+            name: 'CorporateUsed',
+            meta: {
+              keepAlive: false,
+              title: '企业文件',
+              icon: 'qy',
+            },
+            component: defineAsyncComponent(() => import('@/views/home/file/corporate-used/index.vue')),
+          },
+          {
+            path: '/file/recycling-bin',
+            name: 'RecyclingBin',
+            meta: {
+              keepAlive: false,
+              title: '回收站',
+              icon: 'hs',
+            },
+            component: defineAsyncComponent(() => import('@/views/home/file/recycling-bin/index.vue')),
+          },
+        ],
         component: defineAsyncComponent(() => import('@/views/home/file/file.vue')),
       },
     ],

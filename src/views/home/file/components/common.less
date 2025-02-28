@@ -1,0 +1,90 @@
+.contain {
+  width: 100%;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  padding: 30px;
+  &-left {
+    overflow: hidden;
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+    .btns {
+      flex: none;
+      display: flex;
+      align-items: center;
+      &-left {
+        display: flex;
+        align-items: center;
+      }
+      &-right {
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+      }
+    }
+    .search {
+      margin-top: 30px;
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      &-left {
+        display: flex;
+        align-items: center;
+        line-height: 20px;
+        font-weight: bold;
+        font-size: 16px;
+        color: #1a202c;
+      }
+      .title-icon {
+        margin-right: 4px;
+
+        background: rgba(53, 99, 233, 0.3);
+        border-radius: 50%;
+        position: relative;
+        width: 16px;
+        height: 16px;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 8px;
+          height: 8px;
+          background: #3563e9;
+          border-radius: 50%;
+        }
+      }
+    }
+    .table-wrapper {
+      flex: auto;
+      margin-top: 20px;
+    }
+  }
+  &-table {
+    max-height: 100%;
+    height: 100%;
+    border: 1px solid #ececec;
+    border-top-color: transparent;
+    :deep(.el-table) {
+      &__header-wrapper {
+        border-radius: 8px 8px 0px 0px;
+        border: 1px solid #ececec;
+      }
+
+      &__cell {
+        --el-table-header-bg-color: #f4f5f7 !important;
+
+        .cell {
+          line-height: 32px;
+          font-weight: 400;
+          font-size: 14px;
+          color: #31373d;
+        }
+      }
+    }
+  }
+}
