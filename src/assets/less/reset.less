@@ -6,7 +6,6 @@
   padding: 0;
   box-sizing: border-box;
 }
-
 html,
 body,
 #app {
@@ -14,16 +13,13 @@ body,
   height: 100%;
   overflow: hidden;
 }
-
 ul,
 ol {
   list-style: none;
 }
-
 a {
   text-decoration: none;
 }
-
 button,
 input,
 select,
@@ -33,10 +29,8 @@ textarea {
   font: inherit;
   color: inherit;
 }
-
-.scroll-auto {
-  scrollbar-color: #441887 #441887;
-  scrollbar-width: 6px;
+.self-scroll-auto {
+  scrollbar-color: #e0e0e0 #f4f4f5;
   scrollbar-width: thin;
   overflow-y: auto !important;
   &::-webkit-scrollbar {
@@ -47,16 +41,23 @@ textarea {
   &::-webkit-scrollbar-thumb {
     /*滚动条里面小方块*/
     border-radius: 10px;
-    background: linear-gradient(0deg, #441887, #441887);
+    background: linear-gradient(0deg, rgb(224, 224, 224), #e0e0e0);
   }
   &::-webkit-scrollbar-track {
     /*滚动条里面轨道*/
-    background: rgba(63, 27, 130, 0.21);
+    background: rgba(224, 224, 224, 0.21);
     border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    /* 鼠标悬停时滑块样式 */
+    background: rgba(224, 224, 224, 0.21);
+  }
+  &::-webkit-scrollbar-button {
+    display: none; /* 隐藏箭头按钮 */
   }
 }
 .scroll-none {
-  scrollbar-color: #441887 #441887;
+  scrollbar-color: #e0e0e0 #e0e0e0;
   scrollbar-width: 0px;
   scrollbar-width: none;
   overflow-y: auto !important;
@@ -100,7 +101,6 @@ textarea {
     user-select: none;
   }
 }
-
 img,
 span {
   vertical-align: middle;
