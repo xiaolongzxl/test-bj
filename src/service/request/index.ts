@@ -2,7 +2,7 @@ import axios from 'axios';
 // 这个就是axios实例的类型
 import type { AxiosInstance } from 'axios';
 import type { HRequestInterceptors, HRequestConfig } from './type';
-// import router from '@/router';
+import router from '@/router';
 class HRequest {
   // 这是axios的实例：类型注解
   instance: AxiosInstance;
@@ -32,19 +32,16 @@ class HRequest {
     this.instance.interceptors.response.use(
       (res: any) => {
         // console.log(res);
-        // if (res.name == 'AxiosError') {
-        //   throw '请求失败';
-        // }
-        // if (res.data.code == 401) {
-        //   setTimeout(() => {
-        //     router.replace({
-        //       path: '/login',
-        //       query: {
-        //         redirect: router.currentRoute.value.fullPath,
-        //       },
-        //     });
-        //   }, 1000);
-        // }
+        if (res.name == 'AxiosError') {
+          throw '请求失败';
+        }
+        if (res.data.code == 202) {
+          setTimeout(() => {
+            router.replace({
+              path: '/login',
+            });
+          }, 1000);
+        }
         return res.data;
       },
       (err) => {
