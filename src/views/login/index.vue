@@ -47,10 +47,10 @@
         </el-form-item>
 
         <div class="flex-between">
-          <el-checkbox label="记住密码" v-model="remember_password" />
-          <el-checkbox label="自动登录" v-model="auto_login" />
+          <el-checkbox label="记住密码" v-model="remember_password" true-value="1" false-value="0" />
+          <el-checkbox label="自动登录" v-model="auto_login" true-value="1" false-value="0" />
         </div>
-        <div class="login-btn cursor-pointer text-center mt-26 mb-20" @click="login"> 立即登录 </div>
+        <div class="login-btn cursor-pointer text-center mt-26 mb-20" @click="loginNow"> 立即登录 </div>
         <div class="tips">登录视为您已阅读并同意<span>服务条款</span>和<span>隐私政策</span></div>
       </el-form>
     </div>
@@ -58,10 +58,15 @@
 </template>
 
 <script setup lang="ts">
+  import { verifyLogin, sendVerifyCode, login } from '@/api/login.ts';
+  import { ElLoading } from 'element-plus';
+  import { useRouter } from 'vue-router';
+  import { UserStore } from '@/store/userinfo';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const activeTab = ref<number>(1);
-
+  const router = useRouter();
+  const userInfoStore: any = UserStore();
   function changeTab(num: number) {
     activeTab.value = num;
   }
@@ -71,7 +76,7 @@
     password: '',
   });
   const isSend = ref<boolean>(false);
-  const time = ref<number>(10);
+  const time = ref<number>(60);
   const timer = ref<any>(null);
   const formRef = ref<any>(null);
   // 自定义手机号验证
@@ -92,44 +97,121 @@
     ],
     code: [
       { required: true, message: '请输入验证码', trigger: 'blur' },
-      { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
+      // { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
     ],
     password: [
       { required: true, message: '请输入密码', trigger: 'blur' },
-      { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
+      // { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
     ],
   });
 
-  function getYzm() {
+  async function getYzm() {
     if (!isSend.value) {
+      const phoneRegex = /^1[3-9]\d{9}$/; // 中国大陆手机号规则
+      if (!form.value.phone) {
+        $message({
+          message: '请填写手机号码',
+          type: 'warning',
+        });
+        return;
+      } else if (!phoneRegex.test(form.value.phone)) {
+        $message({
+          message: '请输入正确的手机号',
+          type: 'warning',
+        });
+        return;
+      }
       isSend.value = true;
-      timer.value = setInterval(() => {
-        time.value -= 1;
-        if (time.value == 0) {
-          isSend.value = false;
-          time.value = 10;
-          clearInterval(timer.value);
-        }
-      }, 1000);
+      let loadingInstance = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.4)',
+      });
+      let res = await sendVerifyCode({
+        phone: form.value.phone,
+      });
+      loadingInstance.close();
+      if (res.code == 200) {
+        $message({
+          message: '发送成功',
+          type: 'success',
+        });
+        timer.value = setInterval(() => {
+          time.value -= 1;
+          if (time.value == 0) {
+            isSend.value = false;
+            time.value = 60;
+            clearInterval(timer.value);
+          }
+        }, 1000);
+      } else {
+        isSend.value = false;
+      }
     }
   }
-  const remember_password = ref<boolean>(false);
-  const auto_login = ref<boolean>(false);
-  function login() {
-    formRef.value.validate((valid: any) => {
+  const remember_password = ref<boolean>(0);
+  const auto_login = ref<boolean>(0);
+  function loginNow() {
+    formRef.value.validate(async (valid: any) => {
       console.log(valid);
       if (valid) {
-        console.log('submit!');
-      } else {
-        console.log('error submit!');
+        let res = null;
+        if (activeTab.value == 1) {
+          res = await verifyLogin({
+            phone: form.value.phone,
+            verify_code: form.value.code,
+            auto_login: auto_login.value,
+          });
+        } else if (activeTab.value == 2) {
+          res = await login({
+            phone: form.value.phone,
+            password: form.value.password,
+            auto_login: auto_login.value,
+          });
+
+          if (remember_password.value == 1) {
+            window.localStorage.setItem('user_name', form.value.phone);
+            window.localStorage.setItem('user_password', form.value.password);
+          } else {
+            window.localStorage.setItem('user_name', '');
+            window.localStorage.setItem('user_password', '');
+          }
+        }
+        window.localStorage.setItem('remember_password', remember_password.value);
+        window.localStorage.setItem('auto_login', auto_login.value);
+        if (res.code == 200) {
+          let data = {
+            nickname: res.data.user_info.nickname,
+            avatar: res.data.user_info.avatar,
+            phone: res.data.user_info.phone,
+            area: res.data.user_info.area,
+            company_name: res.data.user_info.company_name,
+          };
+          userInfoStore.setUserInfo(data);
+          window.localStorage.setItem('token', res.data.token);
+          $message({
+            message: '登录成功',
+            type: 'success',
+          });
+          setTimeout(() => {
+            router.push('/price');
+          }, 1000);
+        } else {
+          $message({
+            message: res.msg,
+            type: 'error',
+          });
+        }
       }
     });
-    console.log(1111);
-    if (activeTab.value == 1) {
-    } else if (activeTab.value == 1) {
-    }
-    // $message({});
   }
+
+  onMounted(() => {
+    auto_login.value = window.localStorage.getItem('auto_login') || 0;
+    remember_password.value = window.localStorage.getItem('remember_password') || 0;
+    form.value.phone = window.localStorage.getItem('user_name') || '';
+    form.value.password = window.localStorage.getItem('user_password') || '';
+  });
 </script>
 
 <style scoped lang="less">

@@ -41,10 +41,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // '/api': {
-      //   target: 'http://39.100.39.50:5054',
-      //   changeOrigin: false,
-      // },
+      '/api': {
+        target: 'http://dlwz.souxianlan.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
     },
   },
   css: {

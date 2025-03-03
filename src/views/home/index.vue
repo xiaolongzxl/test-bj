@@ -10,20 +10,20 @@
       </div>
     </div>
     <el-dropdown placement="bottom">
-      <img :src="$getAssetsImages('home/img-tx.png')" class="w-45px h-45px" alt="" />
+      <img :src="userInfoStore.userInfo.avatar" class="w-45px h-45px" alt="" style="border-radius: 50%" />
       <template #dropdown>
         <div class="login-out">
           <div class="info flex-center">
             <div style="flex: 0 0 100px" class="flex-center">
-              <img :src="$getAssetsImages('home/img-tx.png')" alt="" class="w-66px h-66px" />
+              <img :src="userInfoStore.userInfo.avatar" alt="" class="w-66px h-66px" style="border-radius: 50%" />
             </div>
             <div style="flex: 0 0 228px">
-              <div class="t1">北京万达电力工程有限公司</div>
-              <div class="t2 my-8">账号 : 15614063168</div>
-              <div class="t2">地区：北京市-丰台区</div>
+              <div class="t1">{{ userInfoStore.userInfo.company_name }}123123123123</div>
+              <div class="t2 my-8">账号 : {{ userInfoStore.userInfo.phone }}</div>
+              <div class="t2">地区：{{ userInfoStore.userInfo.area }}</div>
             </div>
           </div>
-          <div class="h-55px flex-center t3"> 退出登录 </div>
+          <div class="h-55px flex-center t3" @click="outLogin"> 退出登录 </div>
         </div>
       </template>
     </el-dropdown>
@@ -34,10 +34,12 @@
 </template>
 
 <script setup lang="ts">
+  import { UserStore } from '@/store/userinfo';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   import { useRoute, useRouter } from 'vue-router';
   const route = useRoute();
   const router = useRouter();
+  const userInfoStore: any = UserStore();
   // const activePage = ref<any>(null);
   // 默认激活的菜单
   const activePage = computed(() => {
@@ -52,6 +54,18 @@
   function changePage(path: any) {
     console.log(path);
     router.push(path);
+  }
+  function outLogin() {
+    window.localStorage.setItem('token', '');
+    let data = {
+      nickname: '',
+      avatar: '',
+      phone: '',
+      area: '',
+      company_name: '',
+    };
+    userInfoStore.setUserInfo(data);
+    router.push('/login');
   }
   onMounted(() => {
     // console.log(route.name);
@@ -108,10 +122,10 @@
       background: url('@/assets/images/home/bg-idcard.png') no-repeat;
     }
     .t1 {
-      height: 21px;
       font-family: Microsoft YaHei;
       font-weight: 400;
       font-size: 16px;
+      line-height: 22px;
       color: #171b1e;
     }
     .t2 {
