@@ -110,8 +110,16 @@ const router = createRouter({
   routes,
 });
 
-// router.beforeEach(async (_to, _from, next) => {
-//   next();
+// router.beforeEach(async (to, _from, next) => {
+//   let token = localStorage.getItem('token') || '';
+//   if (!token) {
+//     if (to.path !== '/login') {
+//       next('/login');
+//     } else {
+//       next(); // 如果已经是登录页，直接放行
+//     }
+//     return; // 结束逻辑
+//   }
+//   next(); // 如果已经是登录页，直接放行
 // });
-
 export default router;
