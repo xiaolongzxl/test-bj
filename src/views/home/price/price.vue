@@ -2,30 +2,19 @@
   <div class="left-navbar">
     <div class="top-navbar-self">
       <div @click="showCategoryBox" class="flex-between pl-15 pr-11 cursor-pointer w-100% h-100%">
-        <div>电力金具</div>
+        <div>{{ activeCateName }}</div>
         <img :src="$getAssetsImages('price/icon-more.png')" alt="" />
       </div>
       <div class="level-box scroll-none" v-if="showCategory" @click="closeCategoryBox">
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8 active">电力金具 </div>
-        <div class="level-one px-8">变压器</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
-        <div class="level-one px-8">电缆电压</div>
+        <div
+          class="level-one px-8"
+          :class="{ active: activeCateName == item.series_name }"
+          v-for="item of categeory"
+          :key="item.series_id"
+          @click="changeCate(item)"
+        >
+          {{ item.series_name }}
+        </div>
       </div>
       <div class="popup-box-bg z-99" v-if="showCategory" @click="closeCategoryBox"> </div>
     </div>
@@ -53,7 +42,14 @@
   <div class="right-content flex">
     <div class="list mr-10">
       <div class="search">
-        <el-input placeholder="" v-model="keyword" clearable @focus="showSearchTable = true" style="position: relative; z-index: 88">
+        <el-input
+          placeholder=""
+          v-model="keyword"
+          clearable
+          @focus="showSearchTable = true"
+          style="position: relative; z-index: 88"
+          @input="changeSearch"
+        >
           <template #prefix>
             <img :src="$getAssetsImages('price/icon-search.png')" alt="" />
           </template>
@@ -65,10 +61,10 @@
             <div class="xian f-26 pl-8">规格</div>
           </div>
           <div class="table-body scroll-none">
-            <div v-for="item of 210" :key="item" class="table-tr flex-center">
-              <div class="f-48 pl-30">{{ item }}低压铜芯电缆</div>
-              <div class="f-26 pl-8">YJV</div>
-              <div class="f-26 pl-8">3×16+1×10</div>
+            <div v-for="item of searchList" :key="item" class="table-tr flex-center">
+              <div class="f-48 pl-30">{{ item.name }}低压铜芯电缆</div>
+              <div class="f-26 pl-8">{{ item.type_name }}</div>
+              <div class="f-26 pl-8">{{ item.spec_name }}</div>
             </div>
           </div>
         </div>
@@ -900,10 +896,23 @@
 </template>
 
 <script setup lang="ts">
+  import { getSeriesList, getSeriesSonList, seriesSpecSearch } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   // 一级分类
+  onMounted(() => {
+    getCategeory();
+  });
+  const categeory = ref<any>([]);
+  const activeCateName = ref<any>('');
+  async function getCategeory() {
+    let res = await getSeriesList();
+    if (res.code == 200) {
+      categeory.value = res.data;
+      changeCate(res.data[0]);
+    }
+  }
   const showCategory = ref<boolean>(false);
   function showCategoryBox() {
     showCategory.value = true;
@@ -911,7 +920,23 @@
   function closeCategoryBox() {
     showCategory.value = false;
   }
+  function changeCate(item: any) {
+    activeCateName.value = item.series_name;
+    getSeriesSonListCate(item.series_id);
+  }
   // 二级分类
+  const cateTree = ref<any>([]);
+  const activeTreeLevel1 = ref<any>('');
+  const activeTreeLevel2 = ref<any>('');
+  async function getSeriesSonListCate(series_id) {
+    let res = await getSeriesSonList({ series_id });
+    if (res.code == 200) {
+      console.log(res.data);
+      cateTree.value = res.data;
+      // activeTreeLevel1.value = res.data[0].series_name;
+      // activeTreeLevel2.value = res.data[0].series_name;
+    }
+  }
   const data = ref<any>([
     {
       id: 1,
@@ -977,6 +1002,28 @@
   const showSearchTable = ref<boolean>(false);
   function closeSearchTable() {
     showSearchTable.value = false;
+  }
+  const timer = ref<any>(null);
+  function changeSearch(e) {
+    clearTimeout(timer.value);
+    timer.value = setTimeout(() => {
+      searchByKeyword(e);
+    }, 1000);
+  }
+  const searchList = ref<any>(null);
+  async function searchByKeyword(word) {
+    console.log(word);
+    let res = await seriesSpecSearch({
+      search: word,
+      page: 1,
+      limit: 99999,
+    });
+    console.log(res);
+    if (res.data) {
+      searchList.value = res.data;
+    } else {
+      searchList.value = [];
+    }
   }
   // 表格
   const tableData = ref<any>([
