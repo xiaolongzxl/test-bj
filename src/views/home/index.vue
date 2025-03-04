@@ -36,7 +36,6 @@
 <script setup lang="ts">
   import { UserStore } from '@/store/userinfo';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
-  import { useRoute, useRouter } from 'vue-router';
   const route = useRoute();
   const router = useRouter();
   const userInfoStore: any = UserStore();
