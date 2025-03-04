@@ -89,14 +89,6 @@ routes = [
     ],
   },
   {
-    path: '/about',
-    name: 'about',
-    meta: {
-      keepAlive: false,
-    },
-    component: defineAsyncComponent(() => import('@/views/about/index.vue')),
-  },
-  {
     path: '/login',
     name: 'login',
     meta: {
