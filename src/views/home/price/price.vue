@@ -313,7 +313,7 @@
         <div class="dialog-btn confirm-btn">确定</div>
       </div>
     </el-dialog>
-    <el-dialog v-model="dialogInfoVisible" width="1138" class="dialog-self dialog-self2" :show-close="false" align-center>
+    <!-- <el-dialog v-model="dialogInfoVisible" width="1138" class="dialog-self dialog-self2" :show-close="false" align-center>
       <img :src="$getAssetsImages('price/icon-clos.png')" alt="" class="close2" @click="dialogInfoVisible = false" />
       <div class="dialog-title2 pt-24 pb-24">产品详情</div>
       <div class="px-46" style="height: calc(100% - 120px)">
@@ -487,7 +487,8 @@
           <el-table-column prop="remark" label="备注信息" />
         </el-table>
       </div>
-    </el-dialog>
+    </el-dialog> -->
+    <InfoDetail v-model="dialogInfoVisible" />
   </div>
   <el-drawer v-model="drawerAddPrise" direction="rtl" :with-header="false" size="1280">
     <template #default>
@@ -713,7 +714,7 @@
       </div>
     </template>
   </el-drawer>
-  <el-drawer v-model="drawerPriseList" direction="rtl" :with-header="false" size="1280">
+  <!-- <el-drawer v-model="drawerPriseList" direction="rtl" :with-header="false" size="1280">
     <template #default>
       <div class="drawer-content">
         <img :src="$getAssetsImages('price/icon-close3.png')" alt="" class="close" @click="dialogInfoVisible = false" />
@@ -845,17 +846,6 @@
                   <div class="table-name">{{ scope.row.total }}</div>
                 </template>
               </el-table-column>
-
-              <!-- <el-table-column label="专票" >
-                <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
-                </template>
-              </el-table-column>
-              <el-table-column label="含税总价" >
-                <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
-                </template>
-              </el-table-column> -->
             </el-table>
           </div>
           <div class="table-bottom flex-between px-46 mb-20">
@@ -901,12 +891,17 @@
         </div>
       </div>
     </template>
-  </el-drawer>
+  </el-drawer> -->
+  <priceList v-model="drawerPriseList" />
+  <priceDetail v-model="drawerPriseDetail" />
 </template>
 
 <script setup lang="ts">
   import { getSeriesList, getSeriesSonList, seriesSpecSearch, getSeriesSpecList, getlabellist } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
+  import InfoDetail from './infoDetail.vue';
+  import priceList from './priceList.vue';
+  import priceDetail from './infoDetail.vue';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   // 一级分类
