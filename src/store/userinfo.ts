@@ -6,14 +6,22 @@ import { defineStore } from 'pinia';
 export const UserStore = defineStore('userInfo', {
   state: () => {
     return {
-      userInfo: null,
+      avatar: null,
+      company_name: null,
+      phone: null,
+      area: null,
+      nickname: null,
     };
   },
   getters: {},
   // 修改方法
   actions: {
     setUserInfo(userInfo: any) {
-      this.userInfo = userInfo;
+      this.nickname = userInfo.nickname;
+      this.avatar = userInfo.avatar;
+      this.company_name = userInfo.company_name;
+      this.phone = userInfo.phone;
+      this.area = userInfo.area;
     },
   },
   persist: {

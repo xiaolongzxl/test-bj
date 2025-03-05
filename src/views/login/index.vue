@@ -2,7 +2,7 @@
   <div class="login-header flex-start pl-24">
     <img :src="$getAssetsImages('login/logo.png')" alt="" />
   </div>
-  <div class="login-body flex justify-around items-center">
+  <div class="login-body flex justify-evenly items-center">
     <div class="login-img">
       <div>
         <span class="t1 mr-18">建设智慧电网</span>
@@ -225,7 +225,7 @@
     z-index: 9;
   }
   .login-body {
-    padding: 0 334px;
+    // padding: 0 334px;
     height: calc(100% - 85px);
     background: url('@/assets/images/login/bg-login.png') no-repeat;
     background-position: center center;

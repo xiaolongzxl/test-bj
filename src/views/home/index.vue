@@ -10,17 +10,17 @@
       </div>
     </div>
     <el-dropdown placement="bottom">
-      <img :src="userInfoStore.userInfo.avatar" class="w-45px h-45px" alt="" style="border-radius: 50%" />
+      <img :src="userInfoStore.avatar" class="w-45px h-45px" alt="" style="border-radius: 50%" />
       <template #dropdown>
         <div class="login-out">
           <div class="info flex-center">
             <div style="flex: 0 0 100px" class="flex-center">
-              <img :src="userInfoStore.userInfo.avatar" alt="" class="w-66px h-66px" style="border-radius: 50%" />
+              <img :src="userInfoStore.avatar" alt="" class="w-66px h-66px" style="border-radius: 50%" />
             </div>
             <div style="flex: 0 0 228px">
-              <div class="t1">{{ userInfoStore.userInfo.company_name }}123123123123</div>
-              <div class="t2 my-8">账号 : {{ userInfoStore.userInfo.phone }}</div>
-              <div class="t2">地区：{{ userInfoStore.userInfo.area }}</div>
+              <div class="t1">{{ userInfoStore.company_name }}</div>
+              <div class="t2 my-8">账号 : {{ userInfoStore.phone }}</div>
+              <div class="t2">地区：{{ userInfoStore.area }}</div>
             </div>
           </div>
           <div class="h-55px flex-center t3" @click="outLogin"> 退出登录 </div>

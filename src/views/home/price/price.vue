@@ -989,7 +989,8 @@
   }
   // 结构
   const activeLabelId = ref<any>('');
-  const labelList = ref<any>(null);
+  const labelList = ref<any>([]);
+
   async function getLabels(id) {
     let res = await getlabellist({
       type_id: id,
@@ -1006,7 +1007,6 @@
     searchSeriesSpecList();
   }
   // 规格列表
-  const labelList = ref<any>(null);
   async function searchSeriesSpecList() {
     let res = await getSeriesSpecList({
       type_id: activeTypeId.value,
