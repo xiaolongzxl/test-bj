@@ -9,7 +9,7 @@
         <div
           class="level-one px-8"
           :class="{ active: activeCateName == item.series_name }"
-          v-for="item of categeory"
+          v-for="item of category"
           :key="item.series_id"
           @click="changeCate(item)"
         >
@@ -20,13 +20,18 @@
     </div>
     <div>
       <el-tree
-        :data="data"
-        :props="defaultProps"
-        accordion
-        @node-click="handleNodeClick"
-        highlight-current
-        :default-expanded-keys="expandedKeys"
         node-key="id"
+        :data="seriesData"
+        :props="{
+          children: 'series_type_list',
+          label: 'name',
+        }"
+        :current-node-key="activeKeys"
+        @node-click="handleNodeClick"
+        accordion
+        highlight-current
+        :auto-expand-parent="true"
+        :default-expanded-keys="expandedKeys"
       >
         <template #default="{ node, data }">
           <div class="custom-tree-node">
@@ -61,8 +66,8 @@
             <div class="xian f-26 pl-8">规格</div>
           </div>
           <div class="table-body scroll-none">
-            <div v-for="item of searchList" :key="item" class="table-tr flex-center">
-              <div class="f-48 pl-30">{{ item.name }}低压铜芯电缆</div>
+            <div v-for="item of searchList" :key="item" class="table-tr flex-center" @click="changeSelect(item)">
+              <div class="f-48 pl-30">{{ item.name }}</div>
               <div class="f-26 pl-8">{{ item.type_name }}</div>
               <div class="f-26 pl-8">{{ item.spec_name }}</div>
             </div>
@@ -78,11 +83,15 @@
           </div>
           <template #dropdown>
             <el-dropdown-menu style="width: 210px">
-              <el-dropdown-item class="select-type">全部</el-dropdown-item>
-              <el-dropdown-item class="select-type">3+1芯</el-dropdown-item>
-              <el-dropdown-item class="select-type active">3+2芯</el-dropdown-item>
-              <el-dropdown-item class="select-type">4+1芯</el-dropdown-item>
-              <el-dropdown-item class="select-type">5芯</el-dropdown-item>
+              <el-dropdown-item class="select-type" :class="{ active: activeLabelId == '' }" @click="changeLabel('')">全部</el-dropdown-item>
+              <el-dropdown-item
+                class="select-type"
+                v-for="item of labelList"
+                :key="item.id"
+                :class="{ active: activeLabelId == item.id }"
+                @click="changeLabel(item.id)"
+                >{{ item.title }}</el-dropdown-item
+              >
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -896,20 +905,20 @@
 </template>
 
 <script setup lang="ts">
-  import { getSeriesList, getSeriesSonList, seriesSpecSearch } from '@/api/price.ts';
+  import { getSeriesList, getSeriesSonList, seriesSpecSearch, getSeriesSpecList, getlabellist } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   // 一级分类
   onMounted(() => {
-    getCategeory();
+    getCategory();
   });
-  const categeory = ref<any>([]);
+  const category = ref<any>([]);
   const activeCateName = ref<any>('');
-  async function getCategeory() {
+  async function getCategory() {
     let res = await getSeriesList();
     if (res.code == 200) {
-      categeory.value = res.data;
+      category.value = res.data;
       changeCate(res.data[0]);
     }
   }
@@ -928,72 +937,29 @@
   const cateTree = ref<any>([]);
   const activeTreeLevel1 = ref<any>('');
   const activeTreeLevel2 = ref<any>('');
+  const seriesData = ref<any>();
+  const expandedKeys = ref([3, 4]);
+  const activeKeys = ref(4);
+  const activeTypeId = ref(null);
   async function getSeriesSonListCate(series_id) {
     let res = await getSeriesSonList({ series_id });
     if (res.code == 200) {
-      console.log(res.data);
-      cateTree.value = res.data;
-      // activeTreeLevel1.value = res.data[0].series_name;
-      // activeTreeLevel2.value = res.data[0].series_name;
+      cateTree.value = res.data.map((item: any) => {
+        item.id = item.series_son_id;
+        item.name = item.series_son_name;
+        item.children.map((ite: any) => {
+          ite.id = ite.type_id;
+          ite.name = ite.type_name;
+          return ite;
+        });
+        return item;
+      });
+      let id1 = cateTree.value[0].id;
+      let id2 = cateTree.value[0].children[0].id;
+      // activeTreeLevel1.value = ;
+      // activeTreeLevel2.value = cateTree.value[0].children[0].id;
     }
   }
-  const data = ref<any>([
-    {
-      id: 1,
-      label: '铁附件',
-      children: [
-        {
-          id: 121,
-          label: '铁附件21',
-        },
-      ],
-    },
-    {
-      id: 2,
-      label: '抱箍',
-      children: [
-        {
-          id: 11,
-          label: '抱箍21',
-        },
-        {
-          id: 12,
-          label: '抱箍22',
-        },
-      ],
-    },
-    {
-      id: 3,
-      label: '横担',
-      children: [
-        {
-          id: 4,
-          label: '引线横担',
-        },
-        {
-          id: 5,
-          label: '避雷器横担',
-        },
-        {
-          id: 6,
-          label: '跌落横担（联板）',
-        },
-        {
-          id: 7,
-          label: '刀闸横担（联板）',
-        },
-        {
-          id: 8,
-          label: '双杆横担',
-        },
-      ],
-    },
-  ]);
-  const defaultProps = {
-    children: 'children',
-    label: 'label',
-  };
-  const expandedKeys = ref([3, 4]);
   function handleNodeClick(data: any) {
     console.log(data);
   }
@@ -1012,17 +978,49 @@
   }
   const searchList = ref<any>(null);
   async function searchByKeyword(word) {
-    console.log(word);
     let res = await seriesSpecSearch({
       search: word,
       page: 1,
       limit: 99999,
     });
-    console.log(res);
-    if (res.data) {
+    if (res.code == 200) {
       searchList.value = res.data;
     } else {
       searchList.value = [];
+    }
+  }
+  async function changeSelect(item) {
+    console.log(item);
+  }
+  // 结构
+  const activeLabelId = ref<any>('');
+  const labelList = ref<any>(null);
+  async function getLabels(id) {
+    let res = await getlabellist({
+      type_id: id,
+    });
+
+    if (res.code == 200) {
+      labelList.value = res.data;
+    } else {
+      labelList.value = [];
+    }
+  }
+  function changeLabel(labelId) {
+    activeLabelId.value = labelId;
+    searchSeriesSpecList();
+  }
+  // 规格列表
+  const labelList = ref<any>(null);
+  async function searchSeriesSpecList() {
+    let res = await getSeriesSpecList({
+      type_id: activeTypeId.value,
+      label_id: activeLabelId.value,
+    });
+    if (res.code == 200) {
+      tableData.value = res.data;
+    } else {
+      tableData.value = [];
     }
   }
   // 表格
