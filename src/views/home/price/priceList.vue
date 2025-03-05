@@ -65,7 +65,7 @@
 <script setup lang="ts">
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
-  const drawerPriseList = defineModel('drawerPriseList');
+  const drawerPriseList: any = defineModel('drawerPriseList');
   const emit = defineEmits(['reset-price-by-id', 'show-detail-drawer']);
 
   function closeDialog() {
@@ -255,10 +255,10 @@
       time: '2025.01.08 15:59',
     },
   ]);
-  function showDetail(item) {
+  function showDetail(item: any) {
     emit('show-detail-drawer', item.id);
   }
-  function resetPrice(item) {
+  function resetPrice(item: any) {
     emit('reset-price-by-id', item.id);
   }
 </script>

@@ -9,11 +9,10 @@ import defHttp from '@/service';
 /***
  * 获取产品系列列表
  */
-export function getSeriesList(data: any) {
+export function getSeriesList() {
   return defHttp.request({
     url: root + '/api/quotation_pc/getSeriesList',
     method: 'post',
-    data,
   });
 }
 /***

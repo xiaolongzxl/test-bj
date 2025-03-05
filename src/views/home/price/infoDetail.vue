@@ -169,7 +169,7 @@
 <script setup lang="ts">
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
-  const dialogInfoVisible = defineModel('dialogInfoVisible');
+  const dialogInfoVisible: any = defineModel('dialogInfoVisible');
   const emit = defineEmits(['append-item-to-price']);
 
   const activeTab = ref<number>(1);

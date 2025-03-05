@@ -578,10 +578,10 @@
   }
   // 二级分类
   const seriesData = ref<any>([]);
-  const activeSeriesName = ref(null);
-  const activeTypeName = ref(null);
-  const activeTypeId = ref(null);
-  async function getSeriesSonListCate(series_id, flag) {
+  const activeSeriesName = ref<any>(null);
+  const activeTypeName = ref<any>(null);
+  const activeTypeId = ref<any>(null);
+  async function getSeriesSonListCate(series_id: any, flag: any) {
     let res = await getSeriesSonList({ series_id });
     if (res.code == 200) {
       seriesData.value = res.data.map((item: any) => {
@@ -621,14 +621,14 @@
     showSearchTable.value = false;
   }
   const timer = ref<any>(null);
-  function changeSearch(e) {
+  function changeSearch(e: any) {
     clearTimeout(timer.value);
     timer.value = setTimeout(() => {
       searchByKeyword(e);
     }, 1000);
   }
   const searchList = ref<any>(null);
-  async function searchByKeyword(word) {
+  async function searchByKeyword(word: any) {
     let res = await seriesSpecSearch({
       search: word,
       page: 1,
@@ -640,13 +640,13 @@
       searchList.value = [];
     }
   }
-  async function changeSelect(item) {
+  async function changeSelect(item: any) {
     activeSeriesName.value = item.series_son_name;
     activeTypeName.value = item.type_name;
     activeTypeId.value = item.type_id;
     activeCateName.value = item.series_name;
     keyword.value = null;
-    showSearchTable.value = null;
+    showSearchTable.value = false;
     searchList.value = [];
     getLabels(activeTypeId.value);
     getSeriesSonListCate(item.series_id, false);
@@ -654,7 +654,7 @@
   // 结构
   const activeLabelId = ref<any>('');
   const labelList = ref<any>([]);
-  async function getLabels(id) {
+  async function getLabels(id: any) {
     let res = await getlabellist({
       type_id: id,
     });
@@ -665,7 +665,7 @@
       labelList.value = [];
     }
   }
-  function changeLabel(labelId) {
+  function changeLabel(labelId: any) {
     activeLabelId.value = labelId;
     searchSeriesSpecList();
   }
@@ -881,7 +881,7 @@
   const dialogInfoVisible = ref<boolean>(false);
 
   // 调整价格
-  const dialogTableVisible = ref<boolean>(true);
+  const dialogTableVisible = ref<boolean>(false);
   const adjustPriceFrom = ref<any>({
     number1: '',
     type1: 1,
@@ -894,7 +894,7 @@
   // 添加报价单详情
   const drawerAddPrise = ref<any>(false);
   const listKeyword = ref<any>(null);
-  const listTime = ref<any>(null);
+
   const shippingCost = ref<any>(true);
   const isActive = ref<any>(true);
 
@@ -903,7 +903,7 @@
   function resetPriceById() {
     console.log('reset');
   }
-  function showDetailDrawer(id) {
+  function showDetailDrawer(id: any) {
     drawerPriseDetail.value = true;
     priseDetailId.value = id;
     console.log(drawerPriseDetail.value, priseDetailId.value);
@@ -1120,7 +1120,7 @@
     .list {
       padding: 16px;
       flex: 0 0 calc(42% - 10px);
-      min-width: 680px;
+      // min-width: 680px;
       height: 100%;
       background: #ffffff;
       box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);

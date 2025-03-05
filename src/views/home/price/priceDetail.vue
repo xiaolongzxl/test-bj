@@ -131,8 +131,8 @@
 
 <script setup lang="ts">
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
-  const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
-  const drawerPriseDetail = defineModel('drawerPriseDetail');
+  // const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const drawerPriseDetail: any = defineModel('drawerPriseDetail');
   const props = defineProps({
     priseDetailId: [Number, String],
   });
