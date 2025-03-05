@@ -35,7 +35,7 @@ class HRequest {
         if (res.name == 'AxiosError') {
           throw '请求失败';
         }
-        if (res.data.code == 201 || res.data.code == 202) {
+        if (res.data.code == 202) {
           router.replace({
             path: '/login',
           });

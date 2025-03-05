@@ -2,10 +2,10 @@
   <el-drawer v-model="drawerPriseDetail" direction="rtl" :with-header="false" size="1280">
     <template #default>
       <div class="drawer-content">
-        <img :src="$getAssetsImages('price/icon-close3.png')" alt="" class="close" @click="dialogInfoVisible = false" />
+        <img :src="$getAssetsImages('price/icon-close3.png')" alt="" class="close" @click="closeDrawer" />
         <div class="drawer-title pt-24 pb-34">
-          <img :src="$getAssetsImages('price/icon-title2.png')" alt="" @click="dialogInfoVisible = false" class="mr-10" />
-          <span @click="drawerPriseDetail = true">报价记录</span>
+          <img :src="$getAssetsImages('price/icon-title2.png')" alt="" class="mr-10" />
+          <span>报价记录详情</span>
         </div>
         <div class="px-40 pb-64 search-box" style="height: calc(100% - 84px)">
           <div class="flex">
@@ -133,6 +133,286 @@
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const drawerPriseDetail = defineModel('drawerPriseDetail');
+  const props = defineProps({
+    priseDetailId: [Number, String],
+  });
+
+  function closeDrawer() {
+    drawerPriseDetail.value = false;
+  }
+  const detailList = ref<any>([
+    {
+      id: 1,
+      index: 1,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 2,
+      index: 2,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 3,
+      index: 3,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 4,
+      index: 4,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 5,
+      index: 5,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 6,
+      index: 6,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 7,
+      index: 7,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 8,
+      index: 8,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 9,
+      index: 9,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 10,
+      index: 10,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 11,
+      index: 11,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 12,
+      index: 12,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 13,
+      index: 13,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 14,
+      index: 14,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 15,
+      index: 15,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 16,
+      index: 16,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 17,
+      index: 17,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 18,
+      index: 18,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 19,
+      index: 19,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+    {
+      id: 20,
+      index: 20,
+      name: '产品名称产品名称产品名称产品名称',
+      specs: 'YJV22 26/35KV 3×120',
+      num: '50米',
+      price: '168元',
+      total: '4900元',
+    },
+  ]);
+  onMounted(() => {
+    console.log('priseDetailId', props.priseDetailId);
+  });
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .drawer-content {
+    position: relative;
+    border-radius: 12px 12px 12px 12px;
+    height: 100%;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0px 6px 58px 0px rgba(121, 145, 173, 0.2);
+    background: linear-gradient(180deg, #e7f0fc 0%, #fff 56px, #fff 56px);
+    .close {
+      position: absolute;
+      top: 24px;
+      right: 20px;
+      cursor: pointer;
+    }
+    .drawer-title {
+      font-family: Microsoft YaHei;
+      font-weight: bold;
+      font-size: 22px;
+      color: #162445;
+      line-height: 21px;
+      text-align: center;
+    }
+    .card-label {
+      font-family: Microsoft YaHei;
+      font-weight: bold;
+      font-size: 16px;
+      color: #1a202c;
+      line-height: 20px;
+    }
+    .label {
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 14px;
+      color: #666666;
+      line-height: 32px;
+    }
+    .value {
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 14px;
+      color: #000000;
+      line-height: 32px;
+    }
+    :deep(.search-box .el-input) {
+      width: 500px;
+      height: 32px;
+      background: #ffffff;
+      border-radius: 0px 0px 0px 0px;
+      border: 1px solid #e9e9e9 !important;
+    }
+    .table-bottom {
+      height: 50px;
+      background: #f4f5f7;
+      border-radius: 0px 0px 0px 0px;
+      .label1 {
+        font-family: Microsoft YaHei;
+        font-weight: 400;
+        font-size: 14px;
+        color: #333333;
+      }
+      .label2 {
+        font-family: Microsoft YaHei;
+        font-weight: bold;
+        font-size: 14px;
+        color: #333333;
+      }
+      .value2 {
+        font-family: Microsoft YaHei;
+        font-weight: bold;
+        font-size: 16px;
+        color: #ff0003;
+      }
+    }
+    .export-btn {
+      min-width: 120px;
+      height: 40px;
+      background: #ffffff;
+      border-radius: 4px 4px 4px 4px;
+      border: 1px solid #ececec;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 14px;
+      color: #000000;
+      text-align: center;
+      cursor: pointer;
+    }
+  }
+</style>
