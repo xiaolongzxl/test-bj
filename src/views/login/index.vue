@@ -61,9 +61,8 @@
   import { verifyLogin, sendVerifyCode, login } from '@/api/login.ts';
   import { ElLoading } from 'element-plus';
   import { useRouter } from 'vue-router';
-  import { UserStore } from '@/store/userinfo';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
-  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const activeTab = ref<number>(1);
   const router = useRouter();
   const userInfoStore: any = UserStore();
@@ -149,8 +148,8 @@
       }
     }
   }
-  const remember_password = ref<boolean>(0);
-  const auto_login = ref<boolean>(0);
+  const remember_password = ref<any>(0);
+  const auto_login = ref<any>(0);
   function loginNow() {
     formRef.value.validate(async (valid: any) => {
       console.log(valid);

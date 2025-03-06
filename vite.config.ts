@@ -22,7 +22,16 @@ export default defineConfig({
         /\.vue\?vue/, // .vue
         /\.md$/, // .md
       ],
-      imports: ['vue', 'vue-router'],
+      imports: [
+        'vue',
+        'vue-router',
+        {
+          '@/store/userinfo': [
+            'UserStore', // import { UserStore } from '@/store/userinfo',
+          ],
+        },
+      ],
+
       eslintrc: {
         enabled: true, // <-- this
       },

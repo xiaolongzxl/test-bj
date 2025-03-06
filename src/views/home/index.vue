@@ -34,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-  import { UserStore } from '@/store/userinfo';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const route = useRoute();
   const router = useRouter();
