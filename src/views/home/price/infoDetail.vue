@@ -106,6 +106,7 @@
 </template>
 
 <script setup lang="ts">
+  import { ElLoading } from 'element-plus';
   import { seriesSpecInfo } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
@@ -137,9 +138,15 @@
   const activeTab = ref<number>(1);
 
   async function getDetail() {
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
     let res = await seriesSpecInfo({
       spec_id: props.infoDetailId,
     });
+    loadingInstance.close();
     if (res.code == 200) {
       detailInfo.value = res.data;
       dialogTableData.value = res.data.shop;

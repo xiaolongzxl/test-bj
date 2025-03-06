@@ -96,6 +96,7 @@
 </template>
 
 <script setup lang="ts">
+  import { ElLoading } from 'element-plus';
   import { recordList } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
@@ -115,6 +116,11 @@
     getRecordList();
   });
   async function getRecordList() {
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
     let res = await recordList({
       keyword: keyword.value,
       // start_date: search_date.value[0],
@@ -122,6 +128,7 @@
       page: page.value,
       limit: limit.value,
     });
+    loadingInstance.close();
     if (res.code == 200) {
       total.value = res.data.count;
       ListData.value = res.data.list;

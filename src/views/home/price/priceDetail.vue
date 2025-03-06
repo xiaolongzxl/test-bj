@@ -146,6 +146,8 @@
 </template>
 
 <script setup lang="ts">
+  import { ElLoading } from 'element-plus';
+
   import { recordDetails } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $viewerApi: any = getCurrentInstance()?.appContext.config.globalProperties.$viewerApi;
@@ -158,9 +160,15 @@
   const detailList = ref<any>();
 
   async function recordDetails() {
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
     let res = await recordDetails({
       quotation_id: props.priseDetailId,
     });
+    loadingInstance.close();
     if (res.code == 200) {
       detailInfo.value = res.data;
       detailList.value = res.data.spec_list;
@@ -201,7 +209,13 @@
   // 下载
   function exportFile(url: any) {
     let list = url.split('.');
+    let loadingInstance = null;
     try {
+      loadingInstance = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.4)',
+      });
       const link: any = document.createElement('a');
       link.href = url;
       link.download = file_name + list[list.length - 1]; // 设置下载文件的名称
@@ -209,11 +223,13 @@
       link.click();
       // 下载完成后，建议释放该 URL 以释放内存资源
       URL.revokeObjectURL(objectURL);
+      loadingInstance.close();
     } catch (error) {
       $message({
         message: '下载失败',
         type: 'error',
       });
+      loadingInstance.close();
     }
   }
 </script>

@@ -514,6 +514,7 @@
 </template>
 
 <script setup lang="ts">
+  import { ElLoading } from 'element-plus';
   import { getSeriesList, getSeriesSonList, seriesSpecSearch, getSeriesSpecList, getlabellist } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
   import InfoDetail from './infoDetail.vue';
