@@ -887,7 +887,6 @@
   function showDetailDrawer(id: any) {
     drawerPriseDetail.value = true;
     priseDetailId.value = id;
-    console.log(drawerPriseDetail.value, priseDetailId.value);
   }
 
   // 报价单详情

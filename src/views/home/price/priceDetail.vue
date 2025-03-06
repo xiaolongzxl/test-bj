@@ -10,25 +10,25 @@
         <div class="px-40 pb-64 search-box" style="height: calc(100% - 84px)">
           <div class="flex">
             <div class="label">项目名称：</div>
-            <div class="value">这里是项目名称这里是项目名称这里是项目名称这里是项目名称这里是项目名称</div>
+            <div class="value">{{ detailInfo.project_name }}</div>
           </div>
           <div style="height: 1px; background: #ececec; border-radius: 4px 4px 4px 4px" class="my-20"></div>
           <div class="mb-30 flex">
             <div style="flex: 0 0 30%" flex>
               <div class="label">客户名称：</div>
-              <div class="value">这里是客户名称这里是客户名称</div>
+              <div class="value">{{ detailInfo.customer_name }}</div>
             </div>
             <div style="flex: 0 0 25%" flex>
               <div class="label">订单编号：</div>
-              <div class="value">WDDL-20241218-0001</div>
+              <div class="value">{{ detailInfo.generation_sn }}</div>
             </div>
             <div style="flex: 0 0 25%" flex>
               <div class="label">报价日期：</div>
-              <div class="value">2024-01-13 15:48:56</div>
+              <div class="value">{{ detailInfo.generation_time }}</div>
             </div>
             <div style="flex: 0 0 20%" flex>
               <div class="label">报价人：</div>
-              <div class="value">李晨光</div>
+              <div class="value">{{ detailInfo.nickname }}</div>
             </div>
           </div>
           <div style="height: calc(100% - 220px)">
@@ -47,78 +47,94 @@
               </el-table-column>
               <el-table-column label="产品名称">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
+                  <div class="table-name" :style="{ color: scope.row.name.color }">{{ scope.row.name.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="型号规格">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.specs }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_name.color }">{{ scope.row.spec_name }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="数量">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.num }}</div>
+                  <div class="table-name" :style="{ color: scope.row.quantity.color }">{{ scope.row.quantity }}</div>
                 </template>
               </el-table-column>
-              <el-table-column label="单价">
+              <el-table-column label="单价" v-if="detailInfo.is_unit_price == 1">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.price }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_price.color }">{{ scope.row.spec_price }}</div>
                 </template>
               </el-table-column>
-              <el-table-column label="合计总价">
+              <el-table-column label="合计总价" v-if="detailInfo.is_unit_price == 1">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.total }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_amount.color }">{{ scope.row.spec_amount }}</div>
                 </template>
               </el-table-column>
-
-              <!-- <el-table-column label="专票" >
+              <el-table-column label="专票" v-if="detailInfo.is_special_ticket == 1">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_price_tax.color }">{{ scope.row.spec_price_tax }}</div>
                 </template>
               </el-table-column>
-              <el-table-column label="含税总价" >
+              <el-table-column label="含税总价" v-if="detailInfo.is_special_ticket == 1">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_amount_tax.color }">{{ scope.row.spec_amount_tax }}</div>
                 </template>
-              </el-table-column> -->
+              </el-table-column>
+              <el-table-column label="普票" v-if="detailInfo.is_special_invoice == 1">
+                <template #default="scope">
+                  <div class="table-name" :style="{ color: scope.row.spec_price_tax_ordinary.color }">{{ scope.row.spec_price_tax_ordinary }}</div>
+                </template>
+              </el-table-column>
+              <el-table-column label="含税总价" v-if="detailInfo.is_special_invoice == 1">
+                <template #default="scope">
+                  <div class="table-name" :style="{ color: scope.row.spec_amount_tax_ordinary.color }">{{ scope.row.spec_amount_tax_ordinary }}</div>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
           <div class="table-bottom flex-between px-46 mb-20">
             <div class="flex">
               <div class="flex mr-36">
                 <span class="label1">铜价:</span>
-                <span class="label2 ml-6">7624.00元/吨</span>
+                <span class="label2 ml-6">{{ detailInfo.generation_copper_price }}元/吨</span>
               </div>
               <div class="flex">
                 <span class="label1">铝价:</span>
-                <span class="label2 ml-6">19800.00元/吨</span>
+                <span class="label2 ml-6">{{ detailInfo.generation_aluminum_price }}元/吨</span>
               </div>
             </div>
             <div class="flex">
-              <div class="flex mr-36">
-                <span class="label2">含税总价:</span>
-                <span class="value2 ml-6">￥18568</span>
+              <div class="flex mr-36" v-if="detailInfo.is_unit_price == 1">
+                <span class="label2">合计总价:</span>
+                <span class="value2 ml-6">￥{{ detailInfo.generation_amount }}</span>
+                <!-- 合计总价 报价未税金额 -->
               </div>
-              <div class="flex">
-                <span class="label2">合计总价：</span>
-                <span class="value2 ml-6">￥167668</span>
+              <div class="flex mr-36" v-if="detailInfo.is_special_ticket == 1">
+                <span class="label2">含税总价:</span>
+                <span class="value2 ml-6">￥{{ detailInfo.generation_tax_amount }}</span>
+                <!-- 含税总价 报价专票金额 -->
+              </div>
+              <div class="flex" v-if="detailInfo.is_special_invoice == 1">
+                <span class="label2">含税总价：</span>
+                <span class="value2 ml-6">￥{{ detailInfo.generation_tax_ordinary_amount }}</span>
+                <!-- 合计总价 报价普票金额 -->
               </div>
             </div>
           </div>
           <div class="flex-end">
-            <div class="export-btn flex-center px-10 ml-12">
+            <div class="export-btn flex-center px-10 ml-12" @click="previewImg(image_path)">
               <img :src="$getAssetsImages('price/icon-bjdyl.png')" alt="" class="mr-8" />
               <span>报价单预览</span>
             </div>
-            <div class="export-btn flex-center px-10 ml-12">
+            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(image_path)">
               <img :src="$getAssetsImages('price/icon-bjdyl.png')" alt="" class="mr-8" />
               <span>导出图片</span>
             </div>
-            <div class="export-btn flex-center px-10 ml-12">
+            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(pdf_path)">
               <img :src="$getAssetsImages('price/icon-pdf.png')" alt="" class="mr-8" />
               <span>导出pdf</span>
             </div>
-            <div class="export-btn flex-center px-10 ml-12">
+            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(excel_path)">
               <img :src="$getAssetsImages('price/icon-excel.png')" alt="" class="mr-8" />
               <span>导出excel</span>
             </div>
@@ -130,201 +146,76 @@
 </template>
 
 <script setup lang="ts">
+  import { recordDetails } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
-  // const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const $viewerApi: any = getCurrentInstance()?.appContext.config.globalProperties.$viewerApi;
+  const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const drawerPriseDetail: any = defineModel('drawerPriseDetail');
   const props = defineProps({
     priseDetailId: [Number, String],
   });
+  const detailInfo = ref<any>({});
+  const detailList = ref<any>();
 
+  async function recordDetails() {
+    let res = await recordDetails({
+      quotation_id: props.priseDetailId,
+    });
+    if (res.code == 200) {
+      detailInfo.value = res.data;
+      detailList.value = res.data.spec_list;
+    } else {
+      detailInfo.value = {
+        id: '',
+        customer_name: '',
+        project_name: '',
+        generation_time: '',
+        generation_sn: '',
+        generation_copper_price: '',
+        generation_aluminum_price: '',
+        excel_path: '',
+        pdf_path: '',
+        image_path: '',
+        is_unit_price: 1,
+        is_special_ticket: 0,
+        is_special_invoice: 0,
+        nickname: '',
+        generation_amount: '',
+        generation_tax_amount: '',
+        generation_tax_ordinary_amount: '',
+        generation_user_name: '',
+        filename: '',
+      };
+      detailList.value = [];
+    }
+  }
   function closeDrawer() {
     drawerPriseDetail.value = false;
   }
-  const detailList = ref<any>([
-    {
-      id: 1,
-      index: 1,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 2,
-      index: 2,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 3,
-      index: 3,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 4,
-      index: 4,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 5,
-      index: 5,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 6,
-      index: 6,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 7,
-      index: 7,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 8,
-      index: 8,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 9,
-      index: 9,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 10,
-      index: 10,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 11,
-      index: 11,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 12,
-      index: 12,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 13,
-      index: 13,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 14,
-      index: 14,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 15,
-      index: 15,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 16,
-      index: 16,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 17,
-      index: 17,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 18,
-      index: 18,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 19,
-      index: 19,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-    {
-      id: 20,
-      index: 20,
-      name: '产品名称产品名称产品名称产品名称',
-      specs: 'YJV22 26/35KV 3×120',
-      num: '50米',
-      price: '168元',
-      total: '4900元',
-    },
-  ]);
-  onMounted(() => {
-    console.log('priseDetailId', props.priseDetailId);
-  });
+  // 预览图片
+  function previewImg(image_path) {
+    $viewerApi({
+      images: [{ name: detailInfo.value.filename, src: image_path }],
+    });
+  }
+  // 下载
+  function exportFile(url: any) {
+    let list = url.split('.');
+    try {
+      const link: any = document.createElement('a');
+      link.href = url;
+      link.download = file_name + list[list.length - 1]; // 设置下载文件的名称
+      document.body.appendChild(link);
+      link.click();
+      // 下载完成后，建议释放该 URL 以释放内存资源
+      URL.revokeObjectURL(objectURL);
+    } catch (error) {
+      $message({
+        message: '下载失败',
+        type: 'error',
+      });
+    }
+  }
 </script>
 
 <style lang="less" scoped>

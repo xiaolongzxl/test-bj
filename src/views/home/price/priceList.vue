@@ -11,38 +11,62 @@
           <div class="card-label mb-24"> 条件筛选： </div>
           <div class="mb-30 flex">
             <div class="label">关键字查询：</div>
-            <el-input v-model="listKeyword" placeholder="请输入关键字进行查询...">
-              <template #suffix> <img :src="$getAssetsImages('price/icon-search2.png')" alt="" class="mr-4" /> <span>搜索</span></template>
+            <el-input v-model="keyword" placeholder="请输入关键字进行查询...">
+              <template #suffix>
+                <div class="cursor-pointer" @click="searchByKeyword">
+                  <img :src="$getAssetsImages('price/icon-search2.png')" alt="" class="mr-4" /> <span>搜索</span>
+                </div>
+              </template>
             </el-input>
             <div class="label ml-40">日期筛选： </div>
-            <el-date-picker v-model="listTime" style="width: 340px" type="date" placeholder="请选择日期" clearable> </el-date-picker>
+            <el-date-picker
+              v-model="search_date"
+              style="width: 340px"
+              type="date"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+              placeholder="请选择日期"
+              clearable
+              @change="searchByTime"
+            >
+            </el-date-picker>
+            <!-- <el-date-picker
+              v-model="search_date"
+              type="daterange"
+              range-separator="To"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              @change="searchByTime"
+            /> -->
           </div>
           <div class="card-label mb-24"> 报价记录列表： </div>
           <div class="list-card mb-34" style="height: calc(100% - 220px)">
             <el-table :data="ListData" style="width: 100%" height="100%" ref="tableRef" table-layout="fixed" :cell-style="{ 'text-align': 'center' }">
               <el-table-column label="金额">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
+                  <div class="table-name">{{ scope.row.amount }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="客户名称" prop="price">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
+                  <div class="table-name">{{ scope.row.customer_name }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="订单编号" prop="price">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
+                  <div class="table-name">{{ scope.row.generation_sn }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="报价人" prop="price">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
+                  <div class="table-name">{{ scope.row.generation_user_name }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="报价时间" prop="price">
                 <template #default="scope">
-                  <div class="table-name">{{ scope.row.name }}</div>
+                  <div class="table-name">{{ scope.row.generation_time }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="操作" width="140">
@@ -55,7 +79,16 @@
               </el-table-column>
             </el-table>
           </div>
-          <div class="flex-center"> <el-pagination background layout="prev, pager, next" :total="1000" /> </div>
+          <div class="flex-center">
+            <el-pagination
+              background
+              v-model:current-page="page"
+              v-model:page-size="limit"
+              layout="prev, pager, next"
+              :total="total"
+              @current-change="changePage"
+            />
+          </div>
         </div>
       </div>
     </template>
@@ -63,6 +96,7 @@
 </template>
 
 <script setup lang="ts">
+  import { recordList } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const drawerPriseList: any = defineModel('drawerPriseList');
@@ -71,8 +105,43 @@
   function closeDialog() {
     drawerPriseList.value = false;
   }
-  const listKeyword = ref<any>(null);
-  const listTime = ref<any>(null);
+  const keyword = ref<any>(null);
+  const search_date = ref<any>(null);
+  const page = ref<any>(1);
+  const limit = ref<any>(20);
+  const total = ref<any>(0);
+
+  onMounted(() => {
+    getRecordList();
+  });
+  async function getRecordList() {
+    let res = await recordList({
+      keyword: keyword.value,
+      // start_date: search_date.value[0],
+      // end_date: search_date.value[1],
+      page: page.value,
+      limit: limit.value,
+    });
+    if (res.code == 200) {
+      total.value = res.data.count;
+      ListData.value = res.data.list;
+    } else {
+      total.value = 0;
+      ListData.value = [];
+    }
+  }
+  function searchByKeyword() {
+    page.value = 1;
+    getRecordList();
+  }
+  function searchByTime() {
+    page.value = 1;
+    getRecordList();
+  }
+  function changePage(current) {
+    page.value = current;
+    getRecordList();
+  }
   const ListData = ref<any>([
     {
       id: 1,

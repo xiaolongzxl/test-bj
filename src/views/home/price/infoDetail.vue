@@ -5,10 +5,9 @@
     <div class="px-46" style="height: calc(100% - 120px)">
       <div class="mb-30 flex">
         <div>
-          <div class="big-img">
+          <div class="big-img cursor-pointer">
             <img :src="activeImage" alt="" @click="previewImg" />
           </div>
-
           <div class="flex mt-18">
             <div class="left-btn flex-center cursor-pointer mr-7" @click="prevImageList">
               <img :src="$getAssetsImages('price/left-gray.png')" alt="" />
