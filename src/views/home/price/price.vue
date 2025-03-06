@@ -65,6 +65,9 @@
             <div class="xian f-26 pl-8">规格</div>
           </div>
           <div class="table-body scroll-none">
+            <div class="table-tr flex-center" v-if="searchList.length == 0">
+              <div>无相关数据</div>
+            </div>
             <div v-for="item of searchList" :key="item" class="table-tr flex-center" @click="changeSelect(item)">
               <div class="f-48 pl-30">{{ item.name }}</div>
               <div class="f-26 pl-8">{{ item.type_name }}</div>
@@ -106,8 +109,11 @@
         <el-breadcrumb-item>{{ activeTypeName }}</el-breadcrumb-item>
       </el-breadcrumb>
       <el-table
+        ref="tableRef"
         :data="SeriesSpecList"
         row-key="spec_id"
+        :current-row="11146"
+        current-row-key="spec_id"
         style="width: 100%"
         height="calc(100% - 216px)"
         class="self-hover-table"
@@ -116,7 +122,7 @@
         @selection-change="handleSelectionChange"
         @current-change="handleCurrentChange"
       >
-        <el-table-column type="selection" width="60" reserve-selection="true" />
+        <el-table-column type="selection" width="60" :reserve-selection="true" />
         <el-table-column label="产品名称">
           <template #default="scope">
             <div class="table-name" @click="showInfoDetail(scope.row)">{{ scope.row.spec_name }}</div>
@@ -509,7 +515,12 @@
     @show-detail-drawer="showDetailDrawer"
     @reset-price-by-id="resetPriceById"
   />
-  <priceDetail v-if="drawerPriseDetail" v-model:drawerPriseDetail="drawerPriseDetail" :priseDetailId="priseDetailId" />
+  <priceDetail
+    v-if="drawerPriseDetail"
+    v-model:drawerPriseDetail="drawerPriseDetail"
+    :priseDetailId="priseDetailId"
+    @reset-price-by-id="resetPriceById"
+  />
   <previewPdf v-if="dialogPreviewPdf" v-model:dialogPreviewPdf="dialogPreviewPdf" :pdfFileUrl="pdfFileUrl" />
 </template>
 
@@ -596,9 +607,9 @@
     clearTimeout(timer.value);
     timer.value = setTimeout(() => {
       searchByKeyword(e);
-    }, 1000);
+    }, 300);
   }
-  const searchList = ref<any>(null);
+  const searchList = ref<any>([]);
   async function searchByKeyword(word: any) {
     let res = await seriesSpecSearch({
       search: word,
@@ -619,6 +630,7 @@
     keyword.value = null;
     showSearchTable.value = false;
     searchList.value = [];
+    currentRowId.value = item.spec_id;
     getLabels(activeTypeId.value);
     getSeriesSonListCate(item.series_id, false);
   }
@@ -641,6 +653,8 @@
     searchSeriesSpecList();
   }
   // 规格列表
+  const tableRef = ref<any>(null);
+  const currentRowId = ref<any>(null);
   const SeriesSpecList = ref<any>([]);
   async function searchSeriesSpecList() {
     let res = await getSeriesSpecList({
@@ -649,6 +663,27 @@
     });
     if (res.code == 200) {
       SeriesSpecList.value = res.data;
+      if (currentRowId.value) {
+        let ind: any = null;
+        const targetRow = SeriesSpecList.value.find((row: any, index: any) => {
+          if (row.spec_id === currentRowId.value) {
+            ind = index;
+          }
+          return row.spec_id === currentRowId.value;
+        });
+        if (targetRow) {
+          tableRef.value.setCurrentRow(targetRow); // 设置 ID 为 3 的行为当前行
+          currentRowId.value = null;
+          nextTick(() => {
+            setTimeout(() => {
+              const tableBodyWrapper = tableRef.value.$el.querySelector('.el-scrollbar__wrap');
+              const rows = tableBodyWrapper.querySelectorAll('.el-table__row');
+              const targetRowElement = rows[ind]; // 获取目标行的 DOM 元素
+              tableBodyWrapper.scrollTop = targetRowElement.offsetTop - tableBodyWrapper.offsetTop;
+            }, 500);
+          });
+        }
+      }
     } else {
       SeriesSpecList.value = [];
     }
@@ -882,8 +917,8 @@
 
   // 报价单列表
   const drawerPriseList = ref<any>(false);
-  function resetPriceById() {
-    console.log('reset');
+  function resetPriceById(id: any) {
+    console.log('reset', id);
   }
   function showDetailDrawer(id: any) {
     drawerPriseDetail.value = true;
@@ -1261,6 +1296,7 @@
   }
   .table-name {
     line-height: 22px;
+    cursor: default;
   }
   :deep(.el-table-column--selection) {
     text-align: center;

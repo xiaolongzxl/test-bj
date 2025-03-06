@@ -52,42 +52,46 @@
               </el-table-column>
               <el-table-column label="型号规格">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_name.color }">{{ scope.row.spec_name }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_name.color }">{{ scope.row.spec_name.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="数量">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.quantity.color }">{{ scope.row.quantity }}</div>
+                  <div class="table-name" :style="{ color: scope.row.quantity.color }">{{ scope.row.quantity.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="单价" v-if="detailInfo.is_unit_price == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_price.color }">{{ scope.row.spec_price }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_price.color }">{{ scope.row.spec_price.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="合计总价" v-if="detailInfo.is_unit_price == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_amount.color }">{{ scope.row.spec_amount }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_amount.color }">{{ scope.row.spec_amount.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="专票" v-if="detailInfo.is_special_ticket == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_price_tax.color }">{{ scope.row.spec_price_tax }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_price_tax.color }">{{ scope.row.spec_price_tax.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="含税总价" v-if="detailInfo.is_special_ticket == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_amount_tax.color }">{{ scope.row.spec_amount_tax }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_amount_tax.color }">{{ scope.row.spec_amount_tax.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="普票" v-if="detailInfo.is_special_invoice == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_price_tax_ordinary.color }">{{ scope.row.spec_price_tax_ordinary }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_price_tax_ordinary.color }">{{
+                    scope.row.spec_price_tax_ordinary.content
+                  }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="含税总价" v-if="detailInfo.is_special_invoice == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_amount_tax_ordinary.color }">{{ scope.row.spec_amount_tax_ordinary }}</div>
+                  <div class="table-name" :style="{ color: scope.row.spec_amount_tax_ordinary.color }">{{
+                    scope.row.spec_amount_tax_ordinary.content
+                  }}</div>
                 </template>
               </el-table-column>
             </el-table>
@@ -122,19 +126,22 @@
             </div>
           </div>
           <div class="flex-end">
-            <div class="export-btn flex-center px-10 ml-12" @click="previewImg(image_path)">
+            <div class="export-btn flex-center px-10 ml-12" @click="resetPrice" style="background: #197cfa; color: #ffffff">
+              <span>重新报价</span>
+            </div>
+            <div class="export-btn flex-center px-10 ml-12" @click="previewImg(detailInfo.image_path)">
               <img :src="$getAssetsImages('price/icon-bjdyl.png')" alt="" class="mr-8" />
               <span>报价单预览</span>
             </div>
-            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(image_path)">
+            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(detailInfo.image_path)">
               <img :src="$getAssetsImages('price/icon-bjdyl.png')" alt="" class="mr-8" />
               <span>导出图片</span>
             </div>
-            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(pdf_path)">
+            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(detailInfo.pdf_path)">
               <img :src="$getAssetsImages('price/icon-pdf.png')" alt="" class="mr-8" />
               <span>导出pdf</span>
             </div>
-            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(excel_path)">
+            <div class="export-btn flex-center px-10 ml-12" @click="exportFile(detailInfo.excel_path)">
               <img :src="$getAssetsImages('price/icon-excel.png')" alt="" class="mr-8" />
               <span>导出excel</span>
             </div>
@@ -147,19 +154,22 @@
 
 <script setup lang="ts">
   import { ElLoading } from 'element-plus';
-
+  import { getProjectFile } from '@/api/index.ts';
   import { recordDetails } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $viewerApi: any = getCurrentInstance()?.appContext.config.globalProperties.$viewerApi;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const drawerPriseDetail: any = defineModel('drawerPriseDetail');
+  const emit = defineEmits(['reset-price-by-id']);
   const props = defineProps({
     priseDetailId: [Number, String],
   });
   const detailInfo = ref<any>({});
   const detailList = ref<any>();
-
-  async function recordDetails() {
+  onMounted(() => {
+    getRecordDetails();
+  });
+  async function getRecordDetails() {
     let loadingInstance = ElLoading.service({
       lock: true,
       text: 'Loading',
@@ -171,7 +181,10 @@
     loadingInstance.close();
     if (res.code == 200) {
       detailInfo.value = res.data;
-      detailList.value = res.data.spec_list;
+      detailList.value = res.data.spec_list.map((item: any, index: any) => {
+        item.index = index + 1;
+        return item;
+      });
     } else {
       detailInfo.value = {
         id: '',
@@ -200,36 +213,52 @@
   function closeDrawer() {
     drawerPriseDetail.value = false;
   }
+  function resetPrice() {
+    emit('reset-price-by-id', detailInfo.value.id);
+  }
   // 预览图片
-  function previewImg(image_path) {
+  function previewImg(image_path: any) {
     $viewerApi({
       images: [{ name: detailInfo.value.filename, src: image_path }],
     });
   }
   // 下载
-  function exportFile(url: any) {
-    let list = url.split('.');
-    let loadingInstance = null;
+  async function exportFile(fileUrl: any) {
+    let list = fileUrl.split('.');
+    let loadingInstance: any = null;
     try {
       loadingInstance = ElLoading.service({
         lock: true,
         text: 'Loading',
         background: 'rgba(0, 0, 0, 0.4)',
       });
-      const link: any = document.createElement('a');
-      link.href = url;
-      link.download = file_name + list[list.length - 1]; // 设置下载文件的名称
-      document.body.appendChild(link);
-      link.click();
-      // 下载完成后，建议释放该 URL 以释放内存资源
-      URL.revokeObjectURL(objectURL);
+      const fileName = detailInfo.value.filename + '.' + list[list.length - 1];
+      const xhr = new XMLHttpRequest();
+      xhr.open('get', fileUrl);
+      xhr.responseType = 'blob';
+      xhr.send();
+      xhr.onload = function () {
+        if (this.status === 200 || this.status === 304) {
+          const url = URL.createObjectURL(this.response);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      };
       loadingInstance.close();
     } catch (error) {
       $message({
         message: '下载失败',
         type: 'error',
       });
-      loadingInstance.close();
+      if (loadingInstance) {
+        loadingInstance.close();
+      }
     }
   }
 </script>
@@ -265,6 +294,7 @@
       line-height: 20px;
     }
     .label {
+      min-width: 70px;
       font-family: Microsoft YaHei;
       font-weight: 400;
       font-size: 14px;
@@ -321,5 +351,9 @@
       text-align: center;
       cursor: pointer;
     }
+  }
+  .table-name {
+    line-height: 22px;
+    cursor: default;
   }
 </style>

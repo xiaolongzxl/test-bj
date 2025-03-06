@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts">
+  const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const dialogPreviewPdf: any = defineModel('dialogPreviewPdf');
   const props = defineProps({
     pdfFileUrl: String,

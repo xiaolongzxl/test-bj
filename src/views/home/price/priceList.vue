@@ -20,7 +20,7 @@
             </el-input>
             <div class="label ml-40">日期筛选： </div>
             <el-date-picker
-              v-model="search_date"
+              v-model="start"
               style="width: 340px"
               type="date"
               format="YYYY-MM-DD"
@@ -31,7 +31,7 @@
             >
             </el-date-picker>
             <!-- <el-date-picker
-              v-model="search_date"
+              v-model="start"
               type="daterange"
               range-separator="To"
               format="YYYY-MM-DD"
@@ -107,7 +107,7 @@
     drawerPriseList.value = false;
   }
   const keyword = ref<any>(null);
-  const search_date = ref<any>(null);
+  const start = ref<any>(null);
   const page = ref<any>(1);
   const limit = ref<any>(20);
   const total = ref<any>(0);
@@ -123,8 +123,9 @@
     });
     let res = await recordList({
       keyword: keyword.value,
-      // start_date: search_date.value[0],
-      // end_date: search_date.value[1],
+      start: start.value,
+      // start_date: start.value[0],
+      // end_date: start.value[1],
       page: page.value,
       limit: limit.value,
     });
@@ -145,7 +146,7 @@
     page.value = 1;
     getRecordList();
   }
-  function changePage(current) {
+  function changePage(current: any) {
     page.value = current;
     getRecordList();
   }
@@ -426,5 +427,9 @@
       text-align: center;
       cursor: pointer;
     }
+  }
+  .table-name {
+    line-height: 22px;
+    cursor: default;
   }
 </style>

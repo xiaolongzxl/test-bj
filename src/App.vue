@@ -26,3 +26,8 @@
     overflow: hidden;
   }
 </style>
+<style>
+  .viewer-container {
+    z-index: 999999 !important;
+  }
+</style>

@@ -163,7 +163,7 @@
       }
       imageList.value = result;
     } else {
-      detailInfo = {
+      detailInfo.value = {
         id: null,
         name: null,
         type_id: null,
@@ -199,7 +199,7 @@
     spec_price_tax: '',
     spec_price_tax_ordinary: '',
   });
-  function changePrice(index, item) {
+  function changePrice(index: any, item: any) {
     activePriceIndex.value = index;
     activePrice.value = {
       spec_price: item.spec_price,
@@ -231,7 +231,7 @@
     }
   }
   // 点击pdf预览
-  function showPdfLink(link) {
+  function showPdfLink(link: any) {
     emit('show-preview-pdf', link);
   }
   // 查看图片
