@@ -107,6 +107,7 @@
       </el-breadcrumb>
       <el-table
         :data="SeriesSpecList"
+        row-key="spec_id"
         style="width: 100%"
         height="calc(100% - 216px)"
         class="self-hover-table"
@@ -115,7 +116,7 @@
         @selection-change="handleSelectionChange"
         @current-change="handleCurrentChange"
       >
-        <el-table-column type="selection" width="60" />
+        <el-table-column type="selection" width="60" reserve-selection="true" />
         <el-table-column label="产品名称">
           <template #default="scope">
             <div class="table-name">{{ scope.row.spec_name }}</div>
@@ -172,10 +173,10 @@
           <div class="add-btns ml-10">
             <img :src="$getAssetsImages('price/icon-black.png')" alt="" />
           </div>
-          <div class="add-btns ml-10">
+          <!-- <div class="add-btns ml-10">
             <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
             <span>新增空白数据</span>
-          </div>
+          </div> -->
           <div class="add-btns ml-10" @click="dialogTableVisible = true">
             <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
             <span>价格调整</span>
@@ -192,6 +193,7 @@
       </div>
       <div style="height: calc(100% - 198px)">
         <el-table
+          row-key="spec_id"
           :data="quotationTableData"
           class="no-radius"
           style="width: 100%"
@@ -201,10 +203,11 @@
           @selection-change="handleSelectionChange"
           @current-change="handleCurrentChange"
         >
-          <el-table-column label="" width="30" cell-class-name="center-cell">
+          <el-table-column label="" width="54" cell-class-name="center-cell">
             <template #default="scope">
               <div class="flex-center">
                 <img :src="$getAssetsImages('price/icon-del-one.png')" alt="" @click="console.log(scope.row.id)" />
+                <img :src="$getAssetsImages('price/icon-add-one.png')" alt="" class="ml-4" @click="console.log(scope.row.id)" />
               </div>
             </template>
           </el-table-column>
@@ -342,41 +345,8 @@
             <el-input v-model="listKeyword" placeholder="请输入" style="width: 220px"> </el-input>
           </div>
           <div class="card-label mb-20">报价明细： </div>
-          <div class="mb-20 flex-between">
-            <el-radio-group v-model="radioType">
-              <el-radio :value="0">单价</el-radio>
-              <el-radio :value="1">专票</el-radio>
-              <el-radio :value="2">普票</el-radio>
-            </el-radio-group>
-            <div class="flex">
-              <div class="add-btns ml-10">
-                <img :src="$getAssetsImages('price/icon-red.png')" alt="" />
-              </div>
-              <div class="add-btns ml-10">
-                <img :src="$getAssetsImages('price/icon-blue.png')" alt="" />
-              </div>
-              <div class="add-btns ml-10">
-                <img :src="$getAssetsImages('price/icon-black.png')" alt="" />
-              </div>
-              <div class="add-btns ml-10">
-                <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
-                <span>新增空白数据</span>
-              </div>
-              <div class="add-btns ml-10">
-                <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
-                <span>价格调整</span>
-              </div>
-              <div class="add-btns ml-10">
-                <img :src="$getAssetsImages('price/icon-qingkong.png')" alt="" class="mr-4" />
-                <span>清空报价单</span>
-              </div>
-              <div class="add-btns ml-10">
-                <img :src="$getAssetsImages('price/icon-qingkong.png')" alt="" class="mr-4" />
-                <span>删除</span>
-              </div>
-            </div>
-          </div>
           <el-table
+            row-key="spec_id"
             :data="quotationTableData"
             class="no-radius self-hover-table"
             style="width: 100%; border-radius: 0"
@@ -386,14 +356,6 @@
             @selection-change="handleSelectionChange"
             @current-change="handleCurrentChange"
           >
-            <el-table-column label="" width="30" cell-class-name="center-cell">
-              <template #default="scope">
-                <div class="flex-center">
-                  <img :src="$getAssetsImages('price/icon-del-one.png')" alt="" @click="console.log(scope.row.id)" />
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column type="selection" width="30" />
             <el-table-column label="序号" width="44">
               <template #default="scope">
                 <div class="flex-center"> {{ scope.row.index }} </div>
@@ -1117,9 +1079,11 @@
   .right-content {
     padding: 20px;
     flex: 0 0 calc(100% - 260px);
+    max-width: calc(100% - 260px);
     .list {
       padding: 16px;
       flex: 0 0 calc(42% - 10px);
+      max-width: calc(42% - 10px);
       // min-width: 680px;
       height: 100%;
       background: #ffffff;
@@ -1128,6 +1092,7 @@
     }
     .add-content {
       flex: 0 0 58%;
+      max-width: 58%;
       height: 100%;
       background: #ffffff;
       box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
@@ -1281,19 +1246,21 @@
     text-align: center;
   }
   :deep(.el-checkbox__input .el-checkbox__inner) {
-    width: 17px;
-    height: 17px;
+    width: 18px;
+    height: 18px;
     content: '';
     border: 0;
     size: 0;
     background-color: transparent;
     background: url('@/assets/images/price/Vector.png');
+    background-size: 18px 18px;
   }
   :deep(.el-checkbox__input.is-checked .el-checkbox__inner:after) {
     display: none;
   }
   :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
     background: url('@/assets/images/price/Vector1.png');
+    background-size: 18px 18px;
   }
 
   .dialog-self {
