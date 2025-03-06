@@ -6,85 +6,56 @@
       <div class="mb-30 flex">
         <div>
           <div class="big-img">
-            <img :src="$getAssetsImages('price/image-01.png')" alt="" />
+            <img :src="activeImage" alt="" @click="previewImg" />
           </div>
+
           <div class="flex mt-18">
-            <div class="left-btn flex-center cursor-pointer mr-7">
+            <div class="left-btn flex-center cursor-pointer mr-7" @click="prevImageList">
               <img :src="$getAssetsImages('price/left-gray.png')" alt="" />
             </div>
-            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
-            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
-            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
-            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
-            <img :src="$getAssetsImages('price/image-01.png')" alt="" class="img-item mr-7" />
-            <div class="right-btn flex-center cursor-pointer">
+            <div style="flex: 0 0 440px" class="flex">
+              <img :src="img" alt="" class="img-item mr-7" v-for="img of imageList[activeImageIndex]" :key="img" @click="activeImage = img" />
+            </div>
+            <div class="right-btn flex-center cursor-pointer" @click="nextImageList">
               <img :src="$getAssetsImages('price/right-gray.png')" alt="" />
             </div>
           </div>
         </div>
         <div class="ml-24 info">
           <div class="info-title mb-16"
-            >铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆铜芯交联聚乙烯 绝缘聚氯乙烯护套电力电缆
-            <span class="cursor-pointer" @click="handleCopy('铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆铜芯交联聚乙烯 绝缘聚氯乙烯护套电力电缆')"
+            >{{ detailInfo.name }}
+            <span class="cursor-pointer" @click="handleCopy(detailInfo.name)"
               ><img :src="$getAssetsImages('price/icon-copy.png')" alt="" /> 一键复制</span
             >
           </div>
-          <div class="cate flex mb-7">
-            <div class="cate-item active">123</div>
-            <div class="cate-item">123</div>
-            <div class="cate-item">123</div>
-            <div class="cate-item">123</div>
+          <div class="cate flex mb-7" v-if="detailInfo.float_list.length > 0">
+            <div
+              class="cate-item"
+              v-for="(item, index) of detailInfo.float_list"
+              :key="item.id"
+              :class="{ active: activePriceIndex == index }"
+              @click="changePrice(index, item)"
+              >{{ item.name }}</div
+            >
           </div>
           <div class="price-box flex-between items-center px-20 mb-20">
             <div class="text-center">
               <span>单价：</span>
-              <span>7.2</span>
+              <span>{{ activePrice.spec_price }}</span>
             </div>
             <div class="text-center">
               <span>专票：</span>
-              <span>7.2</span>
+              <span>{{ activePrice.spec_price_tax }}</span>
             </div>
             <div class="text-center">
               <span>普票：</span>
-              <span>7.2</span>
+              <span>{{ activePrice.spec_price_tax_ordinary }}</span>
             </div>
           </div>
           <div class="info-unit flex flex-wrap">
-            <div>
-              <span class="label">重量：</span>
-              <span class="value">10.4kg/根</span>
-              <span class="label">单位：</span>
-              <span class="value">根</span>
-            </div>
-            <div>
-              <span class="label">重量：</span>
-              <span class="value">10.4kg/根</span>
-              <span class="label">单位：</span>
-              <span class="value">根</span>
-            </div>
-            <div>
-              <span class="label">重量：</span>
-              <span class="value">10.4kg/根</span>
-              <span class="label">单位：</span>
-              <span class="value">根</span>
-            </div>
-            <div>
-              <span class="label">重量：</span>
-              <span class="value">10.4kg/根</span>
-              <span class="label">单位：</span>
-              <span class="value">根</span>
-            </div>
-            <div>
-              <span class="label">重量：</span>
-              <span class="value">10.4kg/根</span>
-              <span class="label">单位：</span>
-              <span class="value">根</span>
-            </div>
-            <div>
-              <span class="label">重量：</span>
-              <span class="value">10.4kg/根</span>
-              <span class="label">单位：</span>
-              <span class="value">根</span>
+            <div v-for="(item, index) of detailInfo.accurate" :key="index">
+              <span class="label">{{ item.attribute }}：</span>
+              <span class="value">{{ item.value }}</span>
             </div>
           </div>
           <div class="mt-20">
@@ -113,159 +84,125 @@
       </div>
       <el-scrollbar height=" calc(100% - 460px)" :always="true" v-if="activeTab == 1">
         <div class="card-list">
-          <div class="flex my-24">
-            <span class="label">产品名称</span>
-            <span class="value">铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆</span>
-          </div>
-          <div class="flex mb-24">
-            <span class="label">产品名称</span>
-            <span class="value">铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆</span>
-          </div>
-          <div class="flex mb-24">
-            <span class="label">产品名称</span>
-            <span class="value">铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆</span>
-          </div>
-          <div class="flex mb-24">
-            <span class="label">产品名称</span>
-            <span class="value">铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆</span>
-          </div>
-          <div class="flex mb-24">
-            <span class="label">产品名称</span>
-            <span class="value">铜芯交联聚乙烯绝缘聚氯乙烯护套电力电缆</span>
-          </div>
-          <div class="flex mb-24">
-            <span class="label">检验报告</span>
-            <span class="files">
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>产品检验报告1.pdf</span></div>
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>产品检验报告1.pdf</span></div>
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>产品检验报告1.pdf</span></div>
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>产品检验报告1.pdf</span></div>
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>产品检验报告1.pdf</span></div>
-            </span>
-          </div>
-          <div class="flex mb-24">
-            <span class="label">执行标准</span>
-            <span class="files">
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>GB/T 12706.1-2020.pdf</span></div>
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>GB/T 12706.1-2020.pdf</span></div>
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>GB/T 12706.1-2020.pdf</span></div>
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>GB/T 12706.1-2020.pdf</span></div>
-              <div class="mb-14"><img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" /><span>GB/T 12706.1-2020.pdf</span></div>
+          <div class="flex my-24" v-for="(item, index) of detailInfo.refer" :key="index">
+            <span class="label">{{ item.attribute }}</span>
+            <span v-if="typeof item.value == 'string'" class="value">{{ item.value }}</span>
+            <span class="files" v-else>
+              <div class="mb-14" v-for="(file, ind) of item.value" :key="ind" @click="showPdfLink(file.files)">
+                <img :src="$getAssetsImages('price/icon-report.png')" alt="" class="mr-4" />
+                <span>{{ file.display_name }}</span>
+              </div>
             </span>
           </div>
         </div>
       </el-scrollbar>
       <el-table :data="dialogTableData" style="width: 100%" center height=" calc(100% - 460px)" v-else class="table-center">
-        <el-table-column prop="company" label="公司名称" />
-        <el-table-column prop="name" label="负责人名称" width="120" />
-        <el-table-column prop="phone" label="电话" width="150" />
+        <el-table-column prop="shop_name" label="公司名称" />
+        <el-table-column prop="phone" label="电话" />
         <el-table-column prop="address" label="地址" />
-        <el-table-column prop="remark" label="备注信息" />
+        <el-table-column prop="profile" label="备注信息" />
       </el-table>
     </div>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
+  import { seriesSpecInfo } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const $viewerApi: any = getCurrentInstance()?.appContext.config.globalProperties.$viewerApi;
   const dialogInfoVisible: any = defineModel('dialogInfoVisible');
-  const emit = defineEmits(['append-item-to-price']);
+  const emit = defineEmits(['append-item-to-price', 'show-preview-pdf']);
+  const props = defineProps({
+    infoDetailId: [Number, String],
+  });
 
+  onMounted(() => {
+    getDetail();
+  });
+  const detailInfo = ref<any>({
+    id: null,
+    name: null,
+    type_id: null,
+    image_arr: [null],
+    spec_price: null,
+    spec_price_tax: null,
+    spec_price_tax_ordinary: null,
+    accurate: [],
+    refer: [],
+    float_list: [],
+    shop: [],
+  });
+
+  const dialogTableData = ref<any>([]);
   const activeTab = ref<number>(1);
 
-  const dialogTableData = ref<any>([
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-    {
-      company: '山西维斯特洛科技有限公司',
-      name: '李晨光',
-      phone: '13513549160',
-      address: '山西省太原市迎泽区龙堡街29号',
-      remark: '备注信息',
-    },
-  ]);
-
-  const dialog_num = ref<any>(0);
-  function changDialogNum(type: any) {
-    if (type == '+') {
-      dialog_num.value += 1;
-    } else {
-      dialog_num.value -= 1;
-      if (dialog_num.value < 0) {
-        dialog_num.value = 0;
+  async function getDetail() {
+    let res = await seriesSpecInfo({
+      spec_id: props.infoDetailId,
+    });
+    if (res.code == 200) {
+      detailInfo.value = res.data;
+      dialogTableData.value = res.data.shop;
+      activeImage.value = res.data.image_arr[0] || '';
+      activePrice.value = {
+        spec_price: res.data.spec_price,
+        spec_price_tax: res.data.spec_price_tax,
+        spec_price_tax_ordinary: res.data.spec_price_tax_ordinary,
+      };
+      let images = JSON.parse(JSON.stringify(res.data.image_arr));
+      const result = [];
+      for (let i = 0; i < images.length; i += 5) {
+        result.push(images.slice(i, i + 5));
       }
+      imageList.value = result;
+    } else {
+      detailInfo = {
+        id: null,
+        name: null,
+        type_id: null,
+        image_arr: [null],
+        spec_price: null,
+        spec_price_tax: null,
+        spec_price_tax_ordinary: null,
+        accurate: [],
+        refer: [],
+        float_list: [],
+        shop: [],
+      };
+    }
+  }
+  const imageList = ref<any>([]);
+  const activeImageIndex = ref<any>(0);
+  const activeImage = ref<any>('');
+
+  function prevImageList() {
+    if (activeImageIndex.value > 0) {
+      activeImageIndex.value -= 1;
+    }
+  }
+  function nextImageList() {
+    if (activeImageIndex.value < imageList.value.length - 1) {
+      activeImageIndex.value += 1;
     }
   }
 
+  const activePriceIndex = ref<any>(0);
+  const activePrice = ref<any>({
+    spec_price: '',
+    spec_price_tax: '',
+    spec_price_tax_ordinary: '',
+  });
+  function changePrice(index, item) {
+    activePriceIndex.value = index;
+    activePrice.value = {
+      spec_price: item.spec_price,
+      spec_price_tax: item.spec_price_tax,
+      spec_price_tax_ordinary: item.spec_price_tax_ordinary,
+    };
+  }
+
+  // 复制
   async function handleCopy(text: any) {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
@@ -287,6 +224,36 @@
       });
     }
   }
+  // 点击pdf预览
+  function showPdfLink(link) {
+    emit('show-preview-pdf', link);
+  }
+  // 查看图片
+  function previewImg() {
+    let activeIndex = 0;
+    let list = detailInfo.value.image_arr.map((item: any, index: any) => {
+      if (item == activeImage.value) {
+        activeIndex = index;
+      }
+      return { src: item, name: '' };
+    });
+    $viewerApi({
+      images: list,
+    }).view(activeIndex);
+  }
+  // 数量
+  const dialog_num = ref<any>(0);
+  function changDialogNum(type: any) {
+    if (type == '+') {
+      dialog_num.value += 1;
+    } else {
+      dialog_num.value -= 1;
+      if (dialog_num.value < 0) {
+        dialog_num.value = 0;
+      }
+    }
+  }
+  // 加入报价单
   function appendToPrice() {
     let data = {};
     emit('append-item-to-price', data);
@@ -295,7 +262,6 @@
 
 <style lang="less" scoped>
   .dialog-self {
-    height: 349px;
     .dialog-title {
       line-height: 44px;
       font-family: Microsoft YaHei;
@@ -358,6 +324,7 @@
     }
   }
   .dialog-self2 {
+    height: 80%;
     .dialog-title2 {
       line-height: 30px;
       font-family: Microsoft YaHei;
@@ -389,11 +356,15 @@
       img {
         width: 100%;
         height: 100%;
+        object-fit: contain;
       }
     }
     .img-item {
       width: 81px;
       height: 43px;
+      border: 1px solid #ddd;
+      border-radius: 2px;
+      object-fit: contain;
     }
     .info {
       width: 530px;

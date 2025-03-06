@@ -12,6 +12,9 @@ import '@/assets/less/variable.less';
 import 'virtual:uno.css';
 // 自定义事件
 import mitt from 'mitt';
+// 预览图片
+import 'viewerjs/dist/viewer.css';
+import VueViewer from 'v-viewer';
 // 时间
 import moment from 'moment';
 import 'moment/locale/zh-cn';
@@ -24,6 +27,7 @@ import _ from 'lodash';
 const app = createApp(App);
 app.use(store);
 app.use(i18n);
+app.use(VueViewer);
 app.use(ElementPlus);
 app.config.globalProperties.$getAssetsImages = (name: string) => {
   return new URL(`/src/assets/images/${name}`, import.meta.url).href; //本地文件路径

@@ -5270,6 +5270,14 @@ util-deprecate@^1.0.1, util-deprecate@^1.0.2, util-deprecate@~1.0.1:
   resolved "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
+v-viewer@^3.0.21:
+  version "3.0.21"
+  resolved "https://registry.npmmirror.com/v-viewer/-/v-viewer-3.0.21.tgz#cd789be10b73789a0e1b86cbb6e64db02fc036f5"
+  integrity sha512-FyorVqtWiv9LvDG36XEh8HDv8TAcVnMn0+s4b9yKUdBriAZNlYJvgyhGnhyBH/w9yK1PlLVyhorKEj26B6JK1Q==
+  dependencies:
+    lodash-es "^4.17.21"
+    viewerjs "^1.11.6"
+
 v8-compile-cache-lib@^3.0.1:
   version "3.0.1"
   resolved "https://registry.npmjs.org/v8-compile-cache-lib/-/v8-compile-cache-lib-3.0.1.tgz"
@@ -5282,6 +5290,11 @@ validate-npm-package-license@^3.0.1:
   dependencies:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
+
+viewerjs@^1.11.6:
+  version "1.11.7"
+  resolved "https://registry.npmmirror.com/viewerjs/-/viewerjs-1.11.7.tgz#99c39b86c3f1b6debf446747a1f0e25f8be4db74"
+  integrity sha512-0JuVqOmL5v1jmEAlG5EBDR3XquxY8DWFQbFMprOXgaBB0F7Q/X9xWdEaQc59D8xzwkdUgXEMSSknTpriq95igg==
 
 vite-plugin-compression@^0.5.1:
   version "0.5.1"

@@ -119,7 +119,7 @@
         <el-table-column type="selection" width="60" reserve-selection="true" />
         <el-table-column label="产品名称">
           <template #default="scope">
-            <div class="table-name">{{ scope.row.spec_name }}</div>
+            <div class="table-name" @click="showInfoDetail(scope.row)">{{ scope.row.spec_name }}</div>
           </template>
         </el-table-column>
         <el-table-column label="单价" prop="price" width="90">
@@ -496,7 +496,13 @@
       </div>
     </template>
   </el-drawer>
-  <InfoDetail v-model:dialogInfoVisible="dialogInfoVisible" @append-item-to-price="appendItemToPrice" />
+  <InfoDetail
+    v-if="dialogInfoVisible"
+    v-model:dialogInfoVisible="dialogInfoVisible"
+    @append-item-to-price="appendItemToPrice"
+    @show-preview-pdf="showPreviewPdf"
+    :infoDetailId="infoDetailId"
+  />
   <priceList
     v-if="drawerPriseList"
     v-model:drawerPriseList="drawerPriseList"
@@ -504,6 +510,7 @@
     @reset-price-by-id="resetPriceById"
   />
   <priceDetail v-if="drawerPriseDetail" v-model:drawerPriseDetail="drawerPriseDetail" :priseDetailId="priseDetailId" />
+  <previewPdf v-if="dialogPreviewPdf" v-model:dialogPreviewPdf="dialogPreviewPdf" :pdfFileUrl="pdfFileUrl" />
 </template>
 
 <script setup lang="ts">
@@ -512,6 +519,7 @@
   import InfoDetail from './infoDetail.vue';
   import priceList from './priceList.vue';
   import priceDetail from './priceDetail.vue';
+  import previewPdf from './previewPdf.vue';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   // 一级分类
@@ -839,9 +847,20 @@
       isActive: false,
     },
   ]);
-  // 详情
+  // 产品详情
   const dialogInfoVisible = ref<boolean>(false);
-
+  const infoDetailId = ref<any>(null);
+  function showInfoDetail(item: any) {
+    dialogInfoVisible.value = true;
+    infoDetailId.value = item.spec_id;
+  }
+  // 预览pdf
+  const dialogPreviewPdf = ref<boolean>(false);
+  const pdfFileUrl = ref<any>('');
+  function showPreviewPdf(url: any) {
+    dialogPreviewPdf.value = true;
+    pdfFileUrl.value = url;
+  }
   // 调整价格
   const dialogTableVisible = ref<boolean>(false);
   const adjustPriceFrom = ref<any>({
@@ -870,6 +889,7 @@
     priseDetailId.value = id;
     console.log(drawerPriseDetail.value, priseDetailId.value);
   }
+
   // 报价单详情
   const drawerPriseDetail = ref<any>(false);
   const priseDetailId = ref<any>(null);
@@ -1696,6 +1716,12 @@
   }
   .el-dialog.dialog-self {
     height: 349px;
+  }
+  .el-dialog.dialog-self2 {
+    height: 80%;
+  }
+  .el-dialog.dialog-self3 {
+    height: 100%;
   }
   .el-dialog__body {
     height: 100%;
