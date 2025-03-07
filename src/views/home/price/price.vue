@@ -120,9 +120,9 @@
         table-layout="fixed"
         highlight-current-row
         @selection-change="handleSelectionChange"
-        @current-change="handleCurrentChange"
         @row-dblclick="showInfoDetail"
       >
+        <!-- @current-change="handleCurrentChange" -->
         <el-table-column type="selection" width="60" :reserve-selection="true" />
         <el-table-column label="产品名称">
           <template #default="scope">
@@ -204,11 +204,11 @@
             <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
             <span>价格调整</span>
           </div>
-          <div class="add-btns ml-10">
+          <div class="add-btns ml-10" @click="clearQuotation">
             <img :src="$getAssetsImages('price/icon-qingkong.png')" alt="" class="mr-4" />
             <span>清空报价单</span>
           </div>
-          <div class="add-btns ml-10">
+          <div class="add-btns ml-10" @click="delQuotationItem">
             <img :src="$getAssetsImages('price/icon-qingkong.png')" alt="" class="mr-4" />
             <span>删除</span>
           </div>
@@ -223,9 +223,9 @@
           height="100%"
           table-layout="fixed"
           highlight-current-row
-          @selection-change="handleSelectionChange"
-          @current-change="handleCurrentChange"
+          @selection-change="SelectionQuotationChange"
         >
+          <!-- @current-change="handleCurrentChange" -->
           <el-table-column label="" width="54" cell-class-name="center-cell">
             <template #default="scope">
               <div class="flex-center">
@@ -387,8 +387,6 @@
             height="402px"
             table-layout="fixed"
             highlight-current-row
-            @selection-change="handleSelectionChange"
-            @current-change="handleCurrentChange"
           >
             <el-table-column label="序号" width="44">
               <template #default="scope">
@@ -564,6 +562,10 @@
     addQuotation,
     editQuotation,
     seriesSpecNameSearch,
+    clearSpec,
+    priceAdjustment,
+    colorAdjustment,
+    getShopList,
   } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
   import InfoDetail from './infoDetail.vue';
@@ -733,10 +735,10 @@
   function handleSelectionChange(val: any) {
     multipleSelection.value = val;
   }
-  const currentRow = ref<any>();
-  function handleCurrentChange(val: any) {
-    currentRow.value = val;
-  }
+  // const currentRow = ref<any>();
+  // function handleCurrentChange(val: any) {
+  //   currentRow.value = val;
+  // }
   async function changeSpecPrice(item: any) {
     console.log(item.spec_id);
     console.log(item.spec_price);
@@ -816,7 +818,6 @@
       quotationTableData.value = [];
     }
   }
-
   //报价单
   const quotationInfo = ref<any>({
     generation_date: '', // 日期时间
@@ -851,6 +852,29 @@
       isActive: false,
     },
   ]);
+  const multipleQuotationSelection = ref<any>([]);
+  function SelectionQuotationChange(val: any) {
+    multipleQuotationSelection.value = val;
+  }
+  // 清空报价单
+  function clearQuotation() {
+    let res = await clearSpec({
+      quotation_id: 'quotation_id',
+      spec_list_id: 'spec_list_id',
+    });
+    if (res.code == 200) {
+    } else {
+    }
+  }
+  // 删除报价单数据
+  function delQuotationItem(id: any) {
+    if (id) {
+      console.log(id);
+    } else {
+      multipleQuotationSelection.value = val;
+    }
+  }
+
   // 产品详情
   const dialogInfoVisible = ref<boolean>(false);
   const infoDetailId = ref<any>(null);
