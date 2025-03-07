@@ -1,0 +1,117 @@
+{
+  "code": 200, //验证码
+  "msg": "成功", //返回文字描述
+  "data": {
+    "id": 299, //结构id
+    "generation_date": "2025-03-04 20:12:36", //日期时间
+    "generation_sn": "WDDL-20250304-0003", //订单编号
+    "project_name": "", //项目名称
+    "customer_name": "", //客户名称
+    "generation_user_name": "", //报价人名字
+    "is_unit_price": 1, //价格
+    "is_special_ticket": 0, //是否展示专票价格 1显示 0不显示
+    "is_special_invoice": 0, //是否展示普票价格 1显示 0不显示
+    "generation_amount": "312", //报价未税金额
+    "generation_tax_amount": "346.68", //报价专票金额
+    "generation_tax_ordinary_amount": "318.36", //报价普票金额
+    "reference_weight_total": "0.00g", //参考重量
+    "total_quantity": 1, //数量合计
+    "shop_id": 0, //报价公司id
+    "shipping_cost": 0, //是否含运费
+    "address": "", //收货地址
+    "remark_list": [
+      {
+        "is_require": true, //是否必选
+        "text": "本次报价为不含税，不含运费", //内容
+        "is_selected": true //是否已选中
+      },
+      {
+        "is_require": true, //是否必选
+        "text": "供货周期", //内容
+        "is_input": true, //是否输入框
+        "number": 10, //输入框内容
+        "unit": "天", //输入框单位
+        "is_selected": true //是否已选中
+      },
+      {
+        "is_require": false, //是否必选
+        "text": "付款方式：预付总货款的30%作为定金，发货前付清剩余70%货款；", //内容
+        "is_selected": true //是否已选中
+      },
+      {
+        "is_require": false, //是否必选
+        "text": "产品执行标准：按国家标准执行；", //内容
+        "is_selected": true //是否已选中
+      },
+      {
+        "is_require": false, //是否必选
+        "text": "由于原料价格不稳，此报价当日有效，具体价格按双方签订的书面买卖合同为准。", //内容
+        "is_selected": false //是否已选中
+      }
+    ], //备注信息
+    "spec_list": [
+      {
+        "id": 7620, //报价单规格id
+        "name": {
+          "content": "sadsadasd",
+          "color": "#000000", //颜色值
+          "field_name": "name"
+        },
+        "spec_name": {
+          "content": "YJLV  电脑",
+          "color": "#000000", //颜色值
+          "field_name": "spec_name"
+        },
+        "spec_unit": {
+          "content": "台",
+          "color": "#000000", //颜色值
+          "field_name": "spec_unit"
+        },
+        "quantity": {
+          "content": "12",
+          "color": "#000000", //颜色值
+          "field_name": "quantity"
+        },
+        "spec_price": {
+          "content": "26",
+          "color": "#000000", //颜色值
+          "field_name": "spec_price"
+        }, //价格
+        "spec_price_tax": {
+          "content": "28.89",
+          "color": "#000000", //颜色值
+          "field_name": "spec_price_tax"
+        },
+        "spec_price_tax_ordinary": {
+          "content": "26.53",
+          "color": "#000000", //颜色值
+          "field_name": "spec_price_tax_ordinary"
+        },
+        "amount": {
+          "content": "312",
+          "color": "#000000", //颜色值
+          "field_name": "amount"
+        },
+        "spec_remark": {
+          "content": "规格备注",
+          "color": "#000000", //颜色值
+          "field_name": "spec_remark"
+        },
+        "reference_weight": {
+          "content": "1.5622kg",
+          "color": "#000000", //颜色值
+          "field_name": "reference_weight"
+        }
+      }
+    ]
+    // spec_id 规格id 可选
+    // name 名称 可选
+    // spec_name 规格 可选
+    // spec_unit 规格单位 可选
+    // spec_remark 规格备注 可选
+    // quantity 数量 必填
+    // spec_price 规格单价 可选
+    // 如是用户选择的规格需要必传spec_id、quantity，非必传为spec_name、spec_unit、spec_remark、spec_price
+    // 如是用户临时手动增加的规格需要必传spec_name、spec_unit、spec_remark、quantity、spec_price
+  }
+}

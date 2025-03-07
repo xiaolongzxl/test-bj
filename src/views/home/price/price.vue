@@ -121,25 +121,41 @@
         highlight-current-row
         @selection-change="handleSelectionChange"
         @current-change="handleCurrentChange"
+        @row-dblclick="showInfoDetail"
       >
         <el-table-column type="selection" width="60" :reserve-selection="true" />
         <el-table-column label="产品名称">
           <template #default="scope">
-            <div class="table-name" @click="showInfoDetail(scope.row)">{{ scope.row.spec_name }}</div>
+            <div class="table-name">{{ scope.row.spec_name }}</div>
           </template>
         </el-table-column>
         <el-table-column label="单价" prop="price" width="90">
           <template #default="scope">
             <div class="flex-center">
               <div v-if="scope.row.isChange">{{ scope.row.spec_price }}</div>
-              <el-input class="table-input" v-model="scope.row.spec_price" style="width: 80px" placeholder="1" v-else />
+              <el-input
+                class="table-input"
+                v-model="scope.row.spec_price"
+                style="width: 80px"
+                placeholder="1"
+                v-else
+                @dblclick.stop=""
+                @change="changeSpecPrice(scope.row)"
+              />
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="数量" prop="number" width="90">
+        <el-table-column label="数量" prop="quantity" width="90">
           <template #default="scope">
             <div class="flex-center">
-              <el-input class="table-input" v-model="scope.row.number" style="width: 80px" placeholder="1" />
+              <el-input
+                class="table-input quantity-input"
+                @dblclick.stop=""
+                v-model="scope.row.quantity"
+                type="number"
+                style="width: 80px"
+                placeholder="1"
+              />
             </div>
           </template>
         </el-table-column>
@@ -169,6 +185,7 @@
           <el-radio :value="1">专票</el-radio>
           <el-radio :value="2">普票</el-radio>
         </el-radio-group>
+
         <div class="flex">
           <div class="add-btns ml-10">
             <img :src="$getAssetsImages('price/icon-red.png')" alt="" />
@@ -183,7 +200,7 @@
             <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
             <span>新增空白数据</span>
           </div> -->
-          <div class="add-btns ml-10" @click="dialogTableVisible = true">
+          <div class="add-btns ml-10" @click="adjustPriceDialog = true">
             <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
             <span>价格调整</span>
           </div>
@@ -280,8 +297,8 @@
       </div>
     </div>
   </div>
-  <el-dialog v-model="dialogTableVisible" width="375" class="dialog-self" :show-close="false" align-center>
-    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="dialogTableVisible = false" />
+  <el-dialog v-model="adjustPriceDialog" width="375" class="dialog-self" :show-close="false" align-center>
+    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="adjustPriceDialog = false" />
     <div class="dialog-title pt-27 pb-26">价格调整</div>
     <div class="px-46 mb-40">
       <div class="flex mb-20">
@@ -316,8 +333,19 @@
       </div>
     </div>
     <div class="flex-center">
-      <div class="dialog-btn mr-20">取消</div>
+      <div class="dialog-btn mr-20" @click="adjustPriceDialog = false">取消</div>
       <div class="dialog-btn confirm-btn">确定</div>
+    </div>
+  </el-dialog>
+  <el-dialog v-model="updateDialog" width="375" class="dialog-self dialog-self4" :show-close="false" align-center>
+    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="updateDialog = false" />
+    <div class="dialog-title pt-27 pb-26">更新提示</div>
+    <div class="px-46 mb-40 flex-center">
+      <div class="tip" style="font-size: 16px">是否更新报价</div>
+    </div>
+    <div class="flex-center">
+      <div class="dialog-btn mr-20" @click="updateDialog = false">取消</div>
+      <div class="dialog-btn confirm-btn" @click="updatePrice">确定</div>
     </div>
   </el-dialog>
   <el-drawer v-model="drawerAddPrise" direction="rtl" :with-header="false" size="1280">
@@ -526,7 +554,17 @@
 
 <script setup lang="ts">
   import { ElLoading } from 'element-plus';
-  import { getSeriesList, getSeriesSonList, seriesSpecSearch, getSeriesSpecList, getlabellist } from '@/api/price.ts';
+  import {
+    getSeriesList,
+    getSeriesSonList,
+    seriesSpecSearch,
+    getSeriesSpecList,
+    getlabellist,
+    myInfo,
+    addQuotation,
+    editQuotation,
+    seriesSpecNameSearch,
+  } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
   import InfoDetail from './infoDetail.vue';
   import priceList from './priceList.vue';
@@ -662,7 +700,10 @@
       label_id: activeLabelId.value,
     });
     if (res.code == 200) {
-      SeriesSpecList.value = res.data;
+      SeriesSpecList.value = res.data.map((item: any) => {
+        item.quantity = null;
+        return item;
+      });
       if (currentRowId.value) {
         let ind: any = null;
         const targetRow = SeriesSpecList.value.find((row: any, index: any) => {
@@ -696,6 +737,10 @@
   function handleCurrentChange(val: any) {
     currentRow.value = val;
   }
+  async function changeSpecPrice(item: any) {
+    console.log(item.spec_id);
+    console.log(item.spec_price);
+  }
   async function handleCopy(text: any) {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
@@ -718,161 +763,84 @@
     }
   }
   async function appendItemToPrice(item: any) {
-    console.log(item);
+    addQuotationInfo(JSON.stringify([{ spec_id: item.spec_id, quantity: Number(item.quantity) || 1 }]), false);
+    item.quantity = null;
   }
   async function appendSelectToPrice() {
-    console.log(multipleSelection.value);
+    let data = [];
+    multipleSelection.value.map((item: any) => {
+      data.push({ spec_id: item.spec_id, quantity: Number(item.quantity) || 1 });
+      item.quantity = null;
+    });
+    addQuotationInfo(JSON.stringify(data), true);
   }
+  async function addQuotationInfo(spec_list: any, isArray: any) {
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
+    let res = await addQuotation({
+      spec_list,
+    });
+    loadingInstance.close();
+    if (res.code == 200) {
+      $message({
+        message: '添加成功',
+        type: 'success',
+      });
+      if (isArray) {
+        // multipleSelection.value = [];
+        tableRef.value.clearSelection();
+      }
+      getQuotationInfo();
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
+  }
+  // 获取报价单列表
+  onMounted(() => {
+    getQuotationInfo();
+  });
+  async function getQuotationInfo(reset_quotation_id: any) {
+    let res = await myInfo({
+      reset_quotation_id,
+    });
+    console.log(res);
+    if (res.code == 200) {
+      quotationTableData.value = res.data.spec_list;
+    } else {
+      quotationTableData.value = [];
+    }
+  }
+
   //报价单
+  const quotationInfo = ref<any>({
+    generation_date: '', // 日期时间
+    generation_sn: '', // 订单编号
+    project_name: '', // 项目名称
+    customer_name: '', // 客户名称
+    generation_user_name: '', // 报价人名字
+    is_unit_price: 1, // 价格 是否展示单价 1显示 0不显示
+    is_special_ticket: 0, // 是否展示专票价格 1显示 0不显示
+    is_special_invoice: 0, // 是否展示普票价格 1显示 0不显示
+    generation_amount: '312', // 报价未税金额
+    generation_tax_amount: '346.68', // 报价专票金额
+    generation_tax_ordinary_amount: '318.36', // 报价普票金额
+    reference_weight_total: '0.00g', // 参考重量
+    total_quantity: 1, // 数量合计
+    shop_id: 0, // 报价公司id
+    shipping_cost: 0, // 是否含运费 0不含运费 1含运
+    address: '', // 收货地址
+  });
   const radioType = ref<any>(0);
   const quotationTableData = ref<any>([
     {
       id: 1,
       index: 1,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 2,
-      index: 2,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 3,
-      index: 3,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 4,
-      index: 4,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 5,
-      index: 5,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 6,
-      index: 6,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 7,
-      index: 7,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 8,
-      index: 8,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 9,
-      index: 9,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 10,
-      index: 10,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 11,
-      index: 11,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 12,
-      index: 12,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-    {
-      id: 13,
-      index: 13,
       name: '低压铜芯电缆',
       spec: 'YJV22 26/35KV 3×120',
       unit: '厘米',
@@ -898,7 +866,7 @@
     pdfFileUrl.value = url;
   }
   // 调整价格
-  const dialogTableVisible = ref<boolean>(false);
+  const adjustPriceDialog = ref<boolean>(false);
   const adjustPriceFrom = ref<any>({
     number1: '',
     type1: 1,
@@ -907,24 +875,32 @@
     number3: '',
     type3: 1,
   });
-
   // 添加报价单详情
   const drawerAddPrise = ref<any>(false);
   const listKeyword = ref<any>(null);
-
   const shippingCost = ref<any>(true);
   const isActive = ref<any>(true);
-
+  // 重新报价
+  const updateDialog = ref<boolean>(false);
+  const updateResetId = ref<boolean>(null);
+  // 更新报价
+  function updatePrice() {
+    getQuotationInfo(updateResetId.value);
+    updateDialog.value = false;
+  }
   // 报价单列表
   const drawerPriseList = ref<any>(false);
   function resetPriceById(id: any) {
-    console.log('reset', id);
+    drawerPriseDetail.value = false;
+    drawerPriseList.value = false;
+    updateDialog.value = true;
+    updateResetId.value = id;
   }
+  // 展示详情
   function showDetailDrawer(id: any) {
     drawerPriseDetail.value = true;
     priseDetailId.value = id;
   }
-
   // 报价单详情
   const drawerPriseDetail = ref<any>(false);
   const priseDetailId = ref<any>(null);
@@ -1353,6 +1329,15 @@
       line-height: 30px;
       cursor: default;
     }
+    .tip {
+      height: 30px;
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 14px;
+      color: #333333;
+      line-height: 30px;
+      cursor: default;
+    }
     .operator-box {
       padding: 2px;
       width: 54px;
@@ -1759,6 +1744,9 @@
   .el-dialog.dialog-self3 {
     height: 100%;
   }
+  .el-dialog.dialog-self4 {
+    height: 240px;
+  }
   .el-dialog__body {
     height: 100%;
     overflow: hidden;
@@ -1842,6 +1830,22 @@
     font-size: 12px !important;
     color: #333333 !important;
   }
+  .quantity-input input::placeholder {
+    font-size: 12px !important;
+    color: #666 !important;
+  } /* 针对 Chrome、Safari、Edge、Opera */
+  .quantity-input .el-input__inner::-webkit-outer-spin-button,
+  .quantity-input .el-input__inner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+  /* 针对 Firefox */
+  .quantity-input .el-input__inner {
+    appearance: none;
+    -moz-appearance: textfield;
+  }
+
   .el-drawer__body {
     padding: 0 !important;
   }

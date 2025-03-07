@@ -60,7 +60,7 @@
           <div class="mt-20">
             <div class="ml-20 dialog-num flex items-center">
               <span>数量：</span>
-              <el-input placeholder="请输入" v-model="dialog_num">
+              <el-input placeholder="请输入" v-model="quantity" type="number" class="quantity-input">
                 <template #suffix>
                   <div class="flex-center flex-columns" style="height: 100%">
                     <div @click="changDialogNum('+')" class="flex-center pt-4" style="flex: 0 0 50%" cursor-pointer>
@@ -248,21 +248,30 @@
     }).view(activeIndex);
   }
   // 数量
-  const dialog_num = ref<any>(0);
+  const quantity = ref<any>(0);
   function changDialogNum(type: any) {
     if (type == '+') {
-      dialog_num.value += 1;
+      quantity.value += 1;
     } else {
-      dialog_num.value -= 1;
-      if (dialog_num.value < 0) {
-        dialog_num.value = 0;
+      quantity.value -= 1;
+      if (quantity.value < 0) {
+        quantity.value = 0;
       }
     }
   }
   // 加入报价单
+  const timer = ref<any>(null);
   function appendToPrice() {
-    let data = {};
-    emit('append-item-to-price', data);
+    if (timer.value) {
+      clearTimeout(timer.value);
+    }
+    timer.value = setTimeout(() => {
+      let data = {
+        spec_id: detailInfo.value.id,
+        quantity: quantity.value,
+      };
+      emit('append-item-to-price', data);
+    }, 300);
   }
 </script>
 
@@ -471,7 +480,8 @@
         font-size: 14px;
         color: #666666;
         .el-input {
-          width: 65px;
+          min-width: 65px;
+          max-width: 100px;
           height: 30px;
           background: #ffffff;
           border-radius: 4px 4px 4px 4px;

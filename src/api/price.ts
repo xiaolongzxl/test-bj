@@ -87,7 +87,7 @@ export function seriesSpecInfo(data: any) {
 /***
  * 加入报价单
  */
-export function addPrice(data: any) {
+export function addQuotation(data: any) {
   return defHttp.request({
     url: root + '/api/quotation_pc/add',
     method: 'post',
@@ -120,7 +120,7 @@ export function myInfo(data: any) {
 /***
  * 编辑报价单信息
  */
-export function editPrice(data: any) {
+export function editQuotation(data: any) {
   return defHttp.request({
     url: root + '/api/quotation_pc/edit',
     method: 'post',
