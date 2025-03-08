@@ -47,51 +47,47 @@
               </el-table-column>
               <el-table-column label="产品名称">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.name.color }">{{ scope.row.name.content }}</div>
+                  <div class="table-name" :class="scope.row.name.color">{{ scope.row.name.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="型号规格">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_name.color }">{{ scope.row.spec_name.content }}</div>
+                  <div class="table-name" :class="scope.row.spec_name.color">{{ scope.row.spec_name.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="数量">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.quantity.color }">{{ scope.row.quantity.content }}</div>
+                  <div class="table-name" :class="scope.row.quantity.color">{{ scope.row.quantity.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="单价" v-if="detailInfo.is_unit_price == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_price.color }">{{ scope.row.spec_price.content }}</div>
+                  <div class="table-name" :class="scope.row.spec_price.color">{{ scope.row.spec_price.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="合计总价" v-if="detailInfo.is_unit_price == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_amount.color }">{{ scope.row.spec_amount.content }}</div>
+                  <div class="table-name" :class="scope.row.spec_amount.color">{{ scope.row.spec_amount.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="专票" v-if="detailInfo.is_special_ticket == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_price_tax.color }">{{ scope.row.spec_price_tax.content }}</div>
+                  <div class="table-name" :class="scope.row.spec_price_tax.color">{{ scope.row.spec_price_tax.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="含税总价" v-if="detailInfo.is_special_ticket == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_amount_tax.color }">{{ scope.row.spec_amount_tax.content }}</div>
+                  <div class="table-name" :class="scope.row.spec_amount_tax.color">{{ scope.row.spec_amount_tax.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="普票" v-if="detailInfo.is_special_invoice == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_price_tax_ordinary.color }">{{
-                    scope.row.spec_price_tax_ordinary.content
-                  }}</div>
+                  <div class="table-name" :class="scope.row.spec_price_tax_ordinary.color">{{ scope.row.spec_price_tax_ordinary.content }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="含税总价" v-if="detailInfo.is_special_invoice == 1">
                 <template #default="scope">
-                  <div class="table-name" :style="{ color: scope.row.spec_amount_tax_ordinary.color }">{{
-                    scope.row.spec_amount_tax_ordinary.content
-                  }}</div>
+                  <div class="table-name" :class="scope.row.spec_amount_tax_ordinary.color">{{ scope.row.spec_amount_tax_ordinary.content }}</div>
                 </template>
               </el-table-column>
             </el-table>
