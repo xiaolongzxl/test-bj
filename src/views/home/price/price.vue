@@ -59,10 +59,10 @@
           </template>
         </el-input>
         <div class="search-table" v-if="showSearchTable">
-          <div class="table-head flex-center">
+          <div class="table-head flex-center" v-if="searchList.length != 0">
             <div class="f-48 pl-30">产品名称</div>
             <div class="xian f-26 pl-8">型号</div>
-            <div class="xian f-26 pl-8">规格</div>
+            <div class="xian f-26 pl-8" v-if="isHasSpec">规格</div>
           </div>
           <div class="table-body scroll-none">
             <div class="table-tr flex-center" v-if="searchList.length == 0">
@@ -71,7 +71,7 @@
             <div v-for="item of searchList" :key="item" class="table-tr flex-center" @click="changeSelect(item)">
               <div class="f-48 pl-30">{{ item.name }}</div>
               <div class="f-26 pl-8">{{ item.type_name }}</div>
-              <div class="f-26 pl-8">{{ item.spec_name }}</div>
+              <div class="f-26 pl-8" v-if="isHasSpec">{{ item.spec_name }}</div>
             </div>
           </div>
         </div>
@@ -131,17 +131,18 @@
         </el-table-column>
         <el-table-column label="单价" prop="price" width="90">
           <template #default="scope">
-            <div class="flex-center">
-              <div v-if="scope.row.isChange">{{ scope.row.spec_price }}</div>
-              <el-input
-                class="table-input"
+            <div class="flex-center"
+              ><el-input
+                v-if="scope.row.price_modification == 1"
+                class="table-input quantity-input"
                 v-model="scope.row.spec_price"
                 style="width: 80px"
                 placeholder="1"
-                v-else
+                type="number"
                 @dblclick.stop=""
                 @change="changeSpecPrice(scope.row)"
               />
+              <div v-else>{{ scope.row.spec_price }}</div>
             </div>
           </template>
         </el-table-column>
@@ -180,35 +181,35 @@
         </div>
       </div>
       <div class="pa-20 flex-between">
-        <el-radio-group v-model="radioType">
+        <el-radio-group v-model="quotationType" @change="changePriceType">
           <el-radio :value="0">单价</el-radio>
           <el-radio :value="1">专票</el-radio>
           <el-radio :value="2">普票</el-radio>
         </el-radio-group>
 
         <div class="flex">
-          <div class="add-btns ml-10">
+          <div class="add-btns ml-10" @click="changeColor('isRedText')" :style="isRedText ? 'opacity:1' : 'opacity:.5'">
             <img :src="$getAssetsImages('price/icon-red.png')" alt="" />
           </div>
-          <div class="add-btns ml-10">
+          <div class="add-btns ml-10" @click="changeColor('isBlueText')" :style="isBlueText ? 'opacity:1' : 'opacity:.5'">
             <img :src="$getAssetsImages('price/icon-blue.png')" alt="" />
           </div>
-          <div class="add-btns ml-10">
+          <div class="add-btns ml-10" @click="changeColor('isBlackText')" :style="isBlackText ? 'opacity:1' : 'opacity:.5'">
             <img :src="$getAssetsImages('price/icon-black.png')" alt="" />
           </div>
           <!-- <div class="add-btns ml-10">
             <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
             <span>新增空白数据</span>
           </div> -->
-          <div class="add-btns ml-10" @click="adjustPriceDialog = true">
+          <div class="add-btns ml-10" @click="showAdjustPrice">
             <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
             <span>价格调整</span>
           </div>
-          <div class="add-btns ml-10" @click="clearQuotation">
+          <div class="add-btns ml-10" @click="clearDialog = true">
             <img :src="$getAssetsImages('price/icon-qingkong.png')" alt="" class="mr-4" />
             <span>清空报价单</span>
           </div>
-          <div class="add-btns ml-10" @click="delQuotationItem">
+          <div class="add-btns ml-10" @click="delQuotationItem(null)">
             <img :src="$getAssetsImages('price/icon-qingkong.png')" alt="" class="mr-4" />
             <span>删除</span>
           </div>
@@ -216,21 +217,21 @@
       </div>
       <div style="height: calc(100% - 198px)">
         <el-table
-          row-key="spec_id"
+          row-key="id"
           :data="quotationTableData"
           class="no-radius"
           style="width: 100%"
           height="100%"
+          class-name="self-hover-table"
           table-layout="fixed"
           highlight-current-row
           @selection-change="SelectionQuotationChange"
         >
-          <!-- @current-change="handleCurrentChange" -->
           <el-table-column label="" width="54" cell-class-name="center-cell">
             <template #default="scope">
               <div class="flex-center">
-                <img :src="$getAssetsImages('price/icon-del-one.png')" alt="" @click="console.log(scope.row.id)" />
-                <img :src="$getAssetsImages('price/icon-add-one.png')" alt="" class="ml-4" @click="console.log(scope.row.id)" />
+                <img :src="$getAssetsImages('price/icon-del-one.png')" alt="" class="cursor-pointer" @click="delQuotationItem(scope.row.id)" />
+                <img :src="$getAssetsImages('price/icon-add-one.png')" alt="" class="cursor-pointer ml-4" @click="console.log(scope.row.id)" />
               </div>
             </template>
           </el-table-column>
@@ -240,48 +241,108 @@
               <div class="flex-center"> {{ scope.row.index }} </div>
             </template>
           </el-table-column>
-          <el-table-column label="产品名称">
+          <el-table-column label="产品名称" prop="name">
             <template #default="scope">
-              <el-input class="table-input" v-model="scope.row.name" placeholder="1" />
+              <el-input
+                class="table-input"
+                v-model="scope.row.name.content"
+                placeholder=""
+                @focus="setColor(scope.row, 'name')"
+                :class="scope.row.name.color"
+              />
             </template>
           </el-table-column>
-          <el-table-column label="型号规格" prop="price">
+          <el-table-column label="型号规格" prop="spec_name">
             <template #default="scope">
-              <div class="flex-center">
-                <el-input class="table-input" v-model="scope.row.spec" placeholder="1" />
+              <div class="flex-center" v-if="scope.row.spec_name">
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.spec_name.content"
+                  @focus="setColor(scope.row, 'spec_name')"
+                  placeholder=""
+                  :class="scope.row.spec_name.color"
+                />
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="单位" prop="number" width="90">
+          <el-table-column label="单位" width="90">
             <template #default="scope">
-              <div class="flex-center">
-                <el-input class="table-input" v-model="scope.row.unit" style="width: 80px" placeholder="1" />
+              <div class="flex-center" v-if="scope.row.spec_unit">
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.spec_unit.content"
+                  style="width: 80px"
+                  @focus="setColor(scope.row, 'spec_unit')"
+                  placeholder=""
+                  :class="scope.row.spec_unit.color"
+                />
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="单价" prop="number" width="90">
+          <el-table-column label="数量" width="90">
             <template #default="scope">
-              <div class="flex-center">
-                <el-input class="table-input" v-model="scope.row.price" style="width: 80px" placeholder="1" />
+              <div class="flex-center" v-if="scope.row.quantity">
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.quantity.content"
+                  style="width: 80px"
+                  @focus="setColor(scope.row, 'quantity')"
+                  placeholder=""
+                  :class="scope.row.quantity.color"
+                />
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="数量" prop="number" width="90">
+          <!-- <el-table-column label="金额" width="90">
             <template #default="scope">
-              <div class="flex-center">
-                <el-input class="table-input" v-model="scope.row.number" style="width: 80px" placeholder="1" />
+              <div class="flex-center" :style="{ color: scope.row.spec_price.color }" v-if="scope.row.spec_price">
+                {{ scope.row.spec_price.content }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="金额" prop="number" width="90">
+          <el-table-column label="金额" width="90">
             <template #default="scope">
-              <div class="flex-center"> {{ scope.row.money }} </div>
+              <div class="flex-center" :style="{ color: scope.row.spec_price_tax.color }" v-if="scope.row.spec_price_tax">
+                {{ scope.row.spec_price_tax.content }}
+              </div>
             </template>
           </el-table-column>
-          <el-table-column label="备注信息" prop="number">
+          <el-table-column label="金额" width="90">
             <template #default="scope">
-              <div class="flex-center">
-                <el-input class="table-input" v-model="scope.row.remarks" placeholder="1" />
+              <div class="flex-center" :style="{ color: scope.row.spec_price_tax_ordinary.color }" v-if="scope.row.spec_price_tax_ordinary">
+                {{ scope.row.spec_price_tax_ordinary.content }}
+              </div>
+            </template>
+          </el-table-column> -->
+          <el-table-column label="金额" width="90">
+            <template #default="scope">
+              <div class="flex-center" :style="{ color: scope.row.amount.color }" v-if="scope.row.amount">
+                {{ scope.row.amount.content }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="备注信息">
+            <template #default="scope">
+              <div class="flex-center" v-if="scope.row.spec_remark">
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.spec_remark.content"
+                  @focus="setColor(scope.row, 'spec_remark')"
+                  :class="scope.row.spec_remark.color"
+                />
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="重量" prop="spec_price_tax_ordinary">
+            <template #default="scope">
+              <div class="flex-center" v-if="scope.row.reference_weight">
+                {{ scope.row.reference_weight.content }}
+                <!-- <el-input
+                  class="table-input"
+                  v-model="scope.row.reference_weight.content"
+                  placeholder="1"
+                  :style="{ color: scope.row.reference_weight.color }"
+                /> -->
               </div>
             </template>
           </el-table-column>
@@ -289,9 +350,9 @@
       </div>
       <div class="foot flex-between">
         <div class="flex-between cursor-default">
-          <div class="foot-text ml-40">参考重量：150kg</div>
+          <div class="foot-text ml-40">参考重量：{{ quotationInfo.reference_weight_total }}</div>
           <div class="foot-text ml-40">合计总价：</div>
-          <div class="foot-price"><span>￥</span>2250.38</div>
+          <div class="foot-price"><span>￥</span>{{ quotationInfo.generation_tax_amount }}</div>
         </div>
         <div class="foot-btn cursor-pointer" @click="drawerAddPrise = true">生成报价单</div>
       </div>
@@ -304,37 +365,45 @@
       <div class="flex mb-20">
         <div class="text1">调价1：</div>
         <div class="flex-between operator-box mx-8">
-          <img v-if="adjustPriceFrom.type1 == 1" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
-          <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type1 = 1" />
-          <img v-if="adjustPriceFrom.type1 == 0" :src="$getAssetsImages('price/chu-select.png')" alt="" />
-          <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type1 = 0" />
+          <img v-if="adjustPriceFrom.type1 == 2" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
+          <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type1 = 2" />
+          <img v-if="adjustPriceFrom.type1 == 1" :src="$getAssetsImages('price/chu-select.png')" alt="" />
+          <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type1 = 1" />
         </div>
         <el-input v-model="adjustPriceFrom.number1" class="adjust-input" placeholder="请输入调价系数"> </el-input>
       </div>
       <div class="flex mb-20">
         <div class="text1">调价2：</div>
         <div class="flex-between operator-box mx-8">
-          <img v-if="adjustPriceFrom.type2 == 1" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
-          <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type2 = 1" />
-          <img v-if="adjustPriceFrom.type2 == 0" :src="$getAssetsImages('price/chu-select.png')" alt="" />
-          <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type2 = 0" />
+          <img v-if="adjustPriceFrom.type2 == 2" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
+          <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type2 = 2" />
+          <img v-if="adjustPriceFrom.type2 == 1" :src="$getAssetsImages('price/chu-select.png')" alt="" />
+          <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type2 = 1" />
         </div>
         <el-input v-model="adjustPriceFrom.number2" class="adjust-input" placeholder="请输入调价系数"> </el-input>
       </div>
-      <div class="flex">
+      <div class="flex mb-20">
         <div class="text1">调价3：</div>
         <div class="flex-between operator-box mx-8">
-          <img v-if="adjustPriceFrom.type3 == 1" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
-          <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type3 = 1" />
-          <img v-if="adjustPriceFrom.type3 == 0" :src="$getAssetsImages('price/chu-select.png')" alt="" />
-          <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type3 = 0" />
+          <img v-if="adjustPriceFrom.type3 == 2" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
+          <img v-else :src="$getAssetsImages('price/cheng-normal.png')" alt="" @click="adjustPriceFrom.type3 = 2" />
+          <img v-if="adjustPriceFrom.type3 == 1" :src="$getAssetsImages('price/chu-select.png')" alt="" />
+          <img v-else :src="$getAssetsImages('price/chu-normal.png')" alt="" @click="adjustPriceFrom.type3 = 1" />
         </div>
         <el-input v-model="adjustPriceFrom.number3" class="adjust-input" placeholder="请输入调价系数"> </el-input>
       </div>
+      <div class="flex">
+        <div class="text1">小数位：</div>
+        <div class="flex-between operator-box mx-8" style="width: 88px">
+          <div class="num-box mr-2" :class="{ active: adjustPriceFrom.decimal_places == 0 }" @click="adjustPriceFrom.decimal_places = 0"> 0 </div>
+          <div class="num-box mr-2" :class="{ active: adjustPriceFrom.decimal_places == 1 }" @click="adjustPriceFrom.decimal_places = 1"> 1 </div>
+          <div class="num-box mr-2" :class="{ active: adjustPriceFrom.decimal_places == 2 }" @click="adjustPriceFrom.decimal_places = 2"> 2 </div>
+        </div>
+      </div>
     </div>
     <div class="flex-center">
-      <div class="dialog-btn mr-20" @click="adjustPriceDialog = false">取消</div>
-      <div class="dialog-btn confirm-btn">确定</div>
+      <div class="dialog-btn mr-20" @click="adjustPriceDialog = true">取消</div>
+      <div class="dialog-btn confirm-btn" @click="adjustPrice">确定</div>
     </div>
   </el-dialog>
   <el-dialog v-model="updateDialog" width="375" class="dialog-self dialog-self4" :show-close="false" align-center>
@@ -346,6 +415,17 @@
     <div class="flex-center">
       <div class="dialog-btn mr-20" @click="updateDialog = false">取消</div>
       <div class="dialog-btn confirm-btn" @click="updatePrice">确定</div>
+    </div>
+  </el-dialog>
+  <el-dialog v-model="clearDialog" width="375" class="dialog-self dialog-self4" :show-close="false" align-center>
+    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="clearDialog = false" />
+    <div class="dialog-title pt-27 pb-26">清空提示</div>
+    <div class="px-46 mb-40 flex-center">
+      <div class="tip" style="font-size: 16px">是否清空报价</div>
+    </div>
+    <div class="flex-center">
+      <div class="dialog-btn mr-20" @click="clearDialog = false">取消</div>
+      <div class="dialog-btn confirm-btn" @click="clearQuotation([])">确定</div>
     </div>
   </el-dialog>
   <el-drawer v-model="drawerAddPrise" direction="rtl" :with-header="false" size="1280">
@@ -360,23 +440,35 @@
           <div class="mb-20 flex search-box">
             <div class="label">报价日期：</div>
             <el-date-picker
-              v-model="listKeyword"
+              v-model="quotationInfo.generation_date"
               class="no-icon"
               type="datetime"
               placeholder="请选择"
               :default-time="new Date()"
               style="width: 220px"
+              format="YYYY/MM/DD hh:mm"
+              value-format="YYYY-MM-DD hh:mm"
+              @change="changeValue('generation_date')"
             />
+
             <div class="label ml-24">订单编号： </div>
-            <el-input style="width: 220px" value="WDDL-20241218-0001" disabled></el-input>
+            <el-input style="width: 220px" :value="quotationInfo.generation_sn" disabled></el-input>
           </div>
           <div class="mb-14 flex search-box">
             <div class="label">项目名称：</div>
-            <el-input v-model="listKeyword" placeholder="请输入" style="width: 220px"> </el-input>
-            <div class="label ml-24">项目名称：</div>
-            <el-input v-model="listKeyword" placeholder="请输入" style="width: 220px"> </el-input>
-            <div class="label ml-24">项目名称：</div>
-            <el-input v-model="listKeyword" placeholder="请输入" style="width: 220px"> </el-input>
+            <el-input v-model="quotationInfo.project_name" placeholder="请输入" style="width: 220px" @change="changeValue('project_name')">
+            </el-input>
+            <div class="label ml-24">客户名称：</div>
+            <el-input v-model="quotationInfo.customer_name" placeholder="请输入" style="width: 220px" @change="changeValue('customer_name')">
+            </el-input>
+            <div class="label ml-24">报价人名称：</div>
+            <el-input
+              v-model="quotationInfo.generation_user_name"
+              placeholder="请输入"
+              style="width: 220px"
+              @change="changeValue('generation_user_name')"
+            >
+            </el-input>
           </div>
           <div class="card-label mb-20">报价明细： </div>
           <el-table
@@ -440,20 +532,12 @@
             </el-table-column>
           </el-table>
           <div class="mt-18 flex">
-            <div class="label">报价公司：</div>
+            <div class="label">公司名称：</div>
             <div>
-              <el-radio-group v-model="radioType">
-                <el-radio :value="0"
-                  ><img :src="$getAssetsImages('price/logo-company.png')" alt="" class="mr-6" />
-                  <span>公司名称公司名称1</span>
-                </el-radio>
-                <el-radio :value="1">
-                  <img :src="$getAssetsImages('price/logo-company.png')" alt="" class="mr-6" />
-                  <span>公司名称公司名称1</span>
-                </el-radio>
-                <el-radio :value="2">
-                  <img :src="$getAssetsImages('price/logo-company.png')" alt="" class="mr-6" />
-                  <span>公司名称公司名称1</span>
+              <el-radio-group v-model="shopType" @change="changeShopType">
+                <el-radio v-for="item in shopList" :key="item.id" :value="item.id"
+                  ><img :src="item.logo" alt="" class="mr-6" style="width: 18px; height: 18px; border-radius: 2px" />
+                  <span>{{ item.shop_name }}</span>
                 </el-radio>
               </el-radio-group>
             </div>
@@ -461,53 +545,36 @@
           <div class="mt-10 flex items-center">
             <div class="card-label">收货信息：</div>
             <div class="label">是否含运费：</div>
-            <el-switch v-model="shippingCost" class="mx-14" style="--el-switch-on-color: #04b500" />
-            <div style="font-size: 14px; color: #666666"> {{ shippingCost ? '是' : '否' }} </div>
+            <el-switch
+              v-model="quotationInfo.shipping_cost"
+              class="mx-14"
+              style="--el-switch-on-color: #04b500"
+              :active-value="1"
+              :inactive-value="0"
+              @change="changeValue('shipping_cost')"
+            />
+            <div style="font-size: 14px; color: #666666"> {{ quotationInfo.shipping_cost ? '是' : '否' }} </div>
           </div>
-          <div class="mt-20 flex items-center search-box" v-if="shippingCost">
+          <div class="mt-20 flex items-center search-box" v-if="quotationInfo.shipping_cost">
             <div class="label">收货地址：</div>
-            <el-input v-model="listKeyword" placeholder="请输入" style="width: 430px"> </el-input>
+            <el-input v-model="quotationInfo.address" placeholder="请输入" style="width: 430px" @change="changeValue('address')"> </el-input>
           </div>
           <div class="mt-20 flex search-box">
             <div class="label">备注信息：</div>
             <div class="flex-columns">
-              <el-input v-model="listKeyword" placeholder="请输入" style="width: 430px" class="mb-10">
+              <el-input
+                v-model="listKeyword"
+                v-for="(item, index) of quotationInfo.remark_list"
+                :key="index"
+                placeholder="请输入"
+                style="width: 430px"
+                class="mb-10"
+                :value="item.text"
+              >
                 <template #prefix>
                   <div class="cursor-pointer">
-                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="isActive" @click="isActive = !isActive" />
-                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="isActive = !isActive" />
-                  </div>
-                </template>
-              </el-input>
-              <el-input v-model="listKeyword" placeholder="请输入" style="width: 430px" class="mb-10">
-                <template #prefix>
-                  <div class="cursor-pointer">
-                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="isActive" @click="isActive = !isActive" />
-                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="isActive = !isActive" />
-                  </div>
-                </template>
-              </el-input>
-              <el-input v-model="listKeyword" placeholder="请输入" style="width: 430px" class="mb-10">
-                <template #prefix>
-                  <div class="cursor-pointer">
-                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="isActive" @click="isActive = !isActive" />
-                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="isActive = !isActive" />
-                  </div>
-                </template>
-              </el-input>
-              <el-input v-model="listKeyword" placeholder="请输入" style="width: 430px" class="mb-10">
-                <template #prefix>
-                  <div class="cursor-pointer">
-                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="isActive" @click="isActive = !isActive" />
-                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="isActive = !isActive" />
-                  </div>
-                </template>
-              </el-input>
-              <el-input v-model="listKeyword" placeholder="请输入" style="width: 430px" class="mb-10">
-                <template #prefix>
-                  <div class="cursor-pointer">
-                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="isActive" @click="isActive = !isActive" />
-                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="isActive = !isActive" />
+                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="item.is_selected" @click="item.is_selected = !item.is_selected" />
+                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="item.is_selected = !item.is_selected" />
                   </div>
                 </template>
               </el-input>
@@ -566,6 +633,7 @@
     priceAdjustment,
     colorAdjustment,
     getShopList,
+    specPriceEdit,
   } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
   import InfoDetail from './infoDetail.vue';
@@ -650,6 +718,7 @@
     }, 300);
   }
   const searchList = ref<any>([]);
+  const isHasSpec = ref<any>(false);
   async function searchByKeyword(word: any) {
     let res = await seriesSpecSearch({
       search: word,
@@ -658,8 +727,10 @@
     });
     if (res.code == 200) {
       searchList.value = res.data;
+      isHasSpec.value = res.data.filter((item: any) => item.spec_id != 0).length > 0;
     } else {
       searchList.value = [];
+      isHasSpec.value = false;
     }
   }
   async function changeSelect(item: any) {
@@ -735,14 +806,24 @@
   function handleSelectionChange(val: any) {
     multipleSelection.value = val;
   }
-  // const currentRow = ref<any>();
-  // function handleCurrentChange(val: any) {
-  //   currentRow.value = val;
-  // }
+  // 修改价格
   async function changeSpecPrice(item: any) {
     console.log(item.spec_id);
     console.log(item.spec_price);
+    let res = await specPriceEdit({ spec_id: item.spec_id, spec_price: item.spec_price });
+    if (res.code == 200) {
+      $message({
+        message: '修改成功',
+        type: 'success',
+      });
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
   }
+  // 复制
   async function handleCopy(text: any) {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
@@ -764,18 +845,28 @@
       });
     }
   }
+  // 添加到报价单
   async function appendItemToPrice(item: any) {
     addQuotationInfo(JSON.stringify([{ spec_id: item.spec_id, quantity: Number(item.quantity) || 1 }]), false);
     item.quantity = null;
   }
+  // 将选择的都添加到报价单
   async function appendSelectToPrice() {
-    let data = [];
+    let data: any = [];
     multipleSelection.value.map((item: any) => {
       data.push({ spec_id: item.spec_id, quantity: Number(item.quantity) || 1 });
       item.quantity = null;
     });
+    if (data.length == 0) {
+      $message({
+        message: '请选择要添加的产品',
+        type: 'warning',
+      });
+      return;
+    }
     addQuotationInfo(JSON.stringify(data), true);
   }
+  // 添加报价信息
   async function addQuotationInfo(spec_list: any, isArray: any) {
     let loadingInstance = ElLoading.service({
       lock: true,
@@ -795,7 +886,7 @@
         // multipleSelection.value = [];
         tableRef.value.clearSelection();
       }
-      getQuotationInfo();
+      getQuotationInfo(null);
     } else {
       $message({
         message: res.msg,
@@ -805,7 +896,7 @@
   }
   // 获取报价单列表
   onMounted(() => {
-    getQuotationInfo();
+    getQuotationInfo(null);
   });
   async function getQuotationInfo(reset_quotation_id: any) {
     let res = await myInfo({
@@ -813,68 +904,245 @@
     });
     console.log(res);
     if (res.code == 200) {
-      quotationTableData.value = res.data.spec_list;
+      quotationInfo.value = res.data;
+      quotationTableData.value = res.data.spec_list.map((item: any, index: any) => {
+        item.index = index + 1;
+        return item;
+      });
+      shopType.value = res.data.shop_id;
+      if (res.data.is_unit_price == 1) {
+        quotationType.value = 0;
+      } else if (res.data.is_special_ticket == 1) {
+        quotationType.value = 1;
+      } else if (res.data.is_special_invoice == 1) {
+        quotationType.value = 2;
+      }
     } else {
       quotationTableData.value = [];
     }
   }
   //报价单
   const quotationInfo = ref<any>({
-    generation_date: '', // 日期时间
-    generation_sn: '', // 订单编号
-    project_name: '', // 项目名称
-    customer_name: '', // 客户名称
-    generation_user_name: '', // 报价人名字
-    is_unit_price: 1, // 价格 是否展示单价 1显示 0不显示
-    is_special_ticket: 0, // 是否展示专票价格 1显示 0不显示
-    is_special_invoice: 0, // 是否展示普票价格 1显示 0不显示
-    generation_amount: '312', // 报价未税金额
-    generation_tax_amount: '346.68', // 报价专票金额
-    generation_tax_ordinary_amount: '318.36', // 报价普票金额
-    reference_weight_total: '0.00g', // 参考重量
-    total_quantity: 1, // 数量合计
-    shop_id: 0, // 报价公司id
-    shipping_cost: 0, // 是否含运费 0不含运费 1含运
-    address: '', // 收货地址
+    id: null,
+    generation_date: null, // 日期时间
+    generation_sn: null, // 订单编号
+    project_name: null, // 项目名称
+    customer_name: null, // 客户名称
+    generation_user_name: null, // 报价人名字
+    is_unit_price: null, // 价格 是否展示单价 1显示 0不显示
+    is_special_ticket: null, // 是否展示专票价格 1显示 0不显示
+    is_special_invoice: null, // 是否展示普票价格 1显示 0不显示
+    generation_amount: null, // 报价未税金额
+    generation_tax_amount: null, // 报价专票金额
+    generation_tax_ordinary_amount: null, // 报价普票金额
+    reference_weight_total: null, // 参考重量
+    total_quantity: null, // 数量合计
+    shop_id: null, // 报价公司id
+    shipping_cost: null, // 是否含运费 0不含运费 1含运
+    address: null, // 收货地址
   });
-  const radioType = ref<any>(0);
-  const quotationTableData = ref<any>([
-    {
-      id: 1,
-      index: 1,
-      name: '低压铜芯电缆',
-      spec: 'YJV22 26/35KV 3×120',
-      unit: '厘米',
-      price: '12345678.12',
-      number: '12345678',
-      money: '4500000',
-      remarks: '备注信息备注信息备注信息.....',
-      isActive: false,
-    },
-  ]);
+  const quotationType = ref<any>(null);
+  async function changePriceType(value: any) {
+    await editQuotation({
+      quotation_id: quotationInfo.value.id,
+      is_unit_price: value == 0 ? 1 : 0,
+      is_special_ticket: value == 1 ? 1 : 0,
+      is_special_invoice: value == 2 ? 1 : 0,
+    });
+
+    getQuotationInfo(null);
+  }
+  // 设置公司
+  const shopType = ref<any>(null);
+  async function changeShopType() {
+    let res = await editQuotation({
+      quotation_id: quotationInfo.value.id,
+      shop_id: shopType.value,
+    });
+    if (res.code == 200) {
+      $message({
+        message: '修改成功',
+        type: 'success',
+      });
+    }
+  }
+  // 设置公司
+  async function changeValue(key: any) {
+    let data: any = {
+      quotation_id: quotationInfo.value.id,
+    };
+    data[key] = quotationInfo.value[key];
+    console.log(data);
+    let res = await editQuotation(data);
+    if (res.code == 200) {
+    } else {
+      quotationInfo.value[key] = null;
+    }
+  }
+  const quotationTableData = ref<any>([]);
   const multipleQuotationSelection = ref<any>([]);
   function SelectionQuotationChange(val: any) {
     multipleQuotationSelection.value = val;
   }
   // 清空报价单
-  function clearQuotation() {
+  const clearDialog = ref<boolean>(false);
+  async function clearQuotation(spec_list_id: any) {
     let res = await clearSpec({
-      quotation_id: 'quotation_id',
-      spec_list_id: 'spec_list_id',
+      quotation_id: quotationInfo.value.id,
+      spec_list_id,
     });
     if (res.code == 200) {
+      $message({
+        message: spec_list_id ? '删除成功' : '清空成功',
+        type: 'success',
+      });
+      clearDialog.value = false;
     } else {
+      $message({
+        message: res.msg,
+        type: 'success',
+      });
     }
+    getQuotationInfo(null);
   }
   // 删除报价单数据
   function delQuotationItem(id: any) {
+    let data: any = [];
     if (id) {
-      console.log(id);
+      data.push(id);
     } else {
-      multipleQuotationSelection.value = val;
+      data = multipleQuotationSelection.value.map((item: any) => {
+        return item.id;
+      });
+    }
+    if (data.length == 0) {
+      $message({
+        message: '请选择要删除的产品',
+        type: 'warning',
+      });
+      return;
+    }
+    clearQuotation(data);
+  }
+  // 设置颜色
+  const isRedText = ref<any>(false);
+  const isBlueText = ref<any>(false);
+  const isBlackText = ref<any>(false);
+  function changeColor(color: any) {
+    if (color == 'isRedText') {
+      isRedText.value = !isRedText.value;
+      isBlueText.value = false;
+      isBlackText.value = false;
+    } else if (color == 'isBlueText') {
+      isBlueText.value = !isBlueText.value;
+      isRedText.value = false;
+      isBlackText.value = false;
+    } else if (color == 'isBlackText') {
+      isBlackText.value = !isBlackText.value;
+      isRedText.value = false;
+      isBlueText.value = false;
     }
   }
-
+  async function setColor(item: any, key: any) {
+    let textColor = '';
+    if (isRedText.value) {
+      textColor = 'red-text';
+    } else if (isBlueText.value) {
+      textColor = 'blue-text';
+    } else if (isBlackText.value) {
+      textColor = 'black-text';
+    } else {
+      return;
+    }
+    let res = await colorAdjustment({
+      quotation_id: quotationInfo.value.id,
+      spec_list_ids: item.id,
+      color: textColor,
+      field_name: key,
+    });
+    if (res.code == 200) {
+      quotationTableData.value.map((tableItem: any) => {
+        if (tableItem.id == item.id) {
+          tableItem[key].color = textColor;
+        }
+      });
+    }
+  }
+  // 调整价格
+  const adjustPriceDialog = ref<boolean>(false);
+  const adjustPriceFrom = ref<any>({
+    type1: 2,
+    number1: '',
+    type2: 2,
+    number2: '',
+    type3: 2,
+    number3: '',
+    decimal_places: 2,
+  });
+  function showAdjustPrice() {
+    if (multipleQuotationSelection.value.length == 0) {
+      $message({
+        message: '请选择要调价的产品',
+        type: 'error',
+      });
+      return;
+    }
+    adjustPriceDialog.value = true;
+  }
+  async function adjustPrice() {
+    let ids: any = multipleQuotationSelection.value.map((item: any) => {
+      console.log(item);
+      return item.id;
+    });
+    let res = await priceAdjustment({
+      quotation_id: quotationInfo.value.id,
+      spec_list_ids: ids.join(','),
+      price_adjustment_type: adjustPriceFrom.value.type1,
+      price_adjustment_ratio: adjustPriceFrom.value.number1,
+      price_adjustment_type_2: adjustPriceFrom.value.type2,
+      price_adjustment_ratio_2: adjustPriceFrom.value.number2,
+      price_adjustment_type_3: adjustPriceFrom.value.type3,
+      price_adjustment_ratio_3: adjustPriceFrom.value.number3,
+      decimal_places: adjustPriceFrom.value.decimal_places,
+    });
+    if (res.code == 200) {
+      $message({
+        message: '调价成功',
+        type: 'success',
+      });
+      adjustPriceDialog.value = false;
+      getQuotationInfo(null);
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
+  }
+  // 获取企业列表
+  const shopList = ref<any>([]);
+  async function getShop() {
+    let res = await getShopList();
+    if (res.code == 200) {
+      shopList.value = res.data;
+    }
+  }
+  onMounted(() => {
+    getShop();
+  });
+  // 添加报价单详情
+  const drawerAddPrise = ref<any>(false);
+  const listKeyword = ref<any>(null);
+  const shipping_cost = ref<any>(true);
+  const isActive = ref<any>(true);
+  // 重新报价
+  const updateDialog = ref<boolean>(false);
+  const updateResetId = ref<any>(null);
+  // 更新报价
+  function updatePrice() {
+    getQuotationInfo(updateResetId.value);
+    updateDialog.value = false;
+  }
   // 产品详情
   const dialogInfoVisible = ref<boolean>(false);
   const infoDetailId = ref<any>(null);
@@ -889,29 +1157,7 @@
     dialogPreviewPdf.value = true;
     pdfFileUrl.value = url;
   }
-  // 调整价格
-  const adjustPriceDialog = ref<boolean>(false);
-  const adjustPriceFrom = ref<any>({
-    number1: '',
-    type1: 1,
-    number2: '',
-    type2: 1,
-    number3: '',
-    type3: 1,
-  });
-  // 添加报价单详情
-  const drawerAddPrise = ref<any>(false);
-  const listKeyword = ref<any>(null);
-  const shippingCost = ref<any>(true);
-  const isActive = ref<any>(true);
-  // 重新报价
-  const updateDialog = ref<boolean>(false);
-  const updateResetId = ref<boolean>(null);
-  // 更新报价
-  function updatePrice() {
-    getQuotationInfo(updateResetId.value);
-    updateDialog.value = false;
-  }
+
   // 报价单列表
   const drawerPriseList = ref<any>(false);
   function resetPriceById(id: any) {
@@ -920,14 +1166,14 @@
     updateDialog.value = true;
     updateResetId.value = id;
   }
-  // 展示详情
+  // 报价单详情
+  const drawerPriseDetail = ref<any>(false);
+  const priseDetailId = ref<any>(null);
+  // 展示报价单详情
   function showDetailDrawer(id: any) {
     drawerPriseDetail.value = true;
     priseDetailId.value = id;
   }
-  // 报价单详情
-  const drawerPriseDetail = ref<any>(false);
-  const priseDetailId = ref<any>(null);
 </script>
 
 <style scoped lang="less">
@@ -1344,7 +1590,7 @@
     }
 
     .text1 {
-      width: 54px;
+      width: 58px;
       height: 30px;
       font-family: Microsoft YaHei;
       font-weight: 400;
@@ -1369,6 +1615,19 @@
       background: #eff2ff;
       border-radius: 6px 6px 6px 6px;
       cursor: pointer;
+    }
+    .num-box {
+      color: #197cfa;
+      flex: 0 0 23px;
+      width: 23px;
+      height: 23px;
+      line-height: 23px;
+      text-align: center;
+      border-radius: 4px;
+      &.active {
+        background: #197cfa;
+        color: #ffffff;
+      }
     }
     .adjust-input {
       width: 160px;
@@ -1760,7 +2019,7 @@
     background: linear-gradient(180deg, #e7f0fc 0%, #fff 56px, #fff 56px);
   }
   .el-dialog.dialog-self {
-    height: 349px;
+    height: 380px;
   }
   .el-dialog.dialog-self2 {
     height: 80%;
@@ -1906,5 +2165,23 @@
   .self-hover-table .el-table__row:hover .el-input__wrapper,
   .self-hover-table .current-row .el-input__wrapper {
     border: 1px solid #dcdcdc !important;
+  }
+  .red-text {
+    color: #f00000 !important;
+  }
+  .red-text .el-input__inner {
+    color: #f00000 !important;
+  }
+  .black-text {
+    color: #333 !important;
+  }
+  .black-text .el-input__inner {
+    color: #333 !important;
+  }
+  .blue-text {
+    color: #000bda !important;
+  }
+  .blue-text .el-input__inner {
+    color: #000bda !important;
   }
 </style>

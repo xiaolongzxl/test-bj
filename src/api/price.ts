@@ -79,7 +79,16 @@ export function seriesSpecInfo(data: any) {
     data,
   });
 }
-
+/***
+ * 规格详情
+ */
+export function specPriceEdit(data: any) {
+  return defHttp.request({
+    url: root + '/api/quotation_pc/specPriceEdit',
+    method: 'post',
+    data,
+  });
+}
 /***
  * -------------------- 报价单 --------------------
  */
@@ -174,11 +183,10 @@ export function quotationSpecSort(data: any) {
 /***
  * 获取公司列表
  */
-export function getShopList(data: any) {
+export function getShopList() {
   return defHttp.request({
     url: root + '/api/quotation_pc/getShopList',
     method: 'post',
-    data,
   });
 }
 
