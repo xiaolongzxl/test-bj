@@ -216,7 +216,7 @@
         </div>
       </div>
       <div style="height: calc(100% - 198px)">
-        <div class="search-input" :style="{ left: offsetLeft + 'px', top: offsetTop + 'px' }">
+        <div class="search-input" :style="{ left: offsetLeft - 12 + 'px', top: offsetTop + 2 + 'px' }">
           <div class="search-table" style="top: 0; left: 0" v-if="showTableSearchTable">
             <div class="table-head flex-center" v-if="tableSearchList.length != 0">
               <div class="f-48 pl-30">产品名称</div>
@@ -246,6 +246,7 @@
           table-layout="fixed"
           highlight-current-row
           @selection-change="SelectionQuotationChange"
+          empty-text="请添加产品"
         >
           <el-table-column label="" width="54" cell-class-name="center-cell">
             <template #default="scope">
@@ -1425,8 +1426,7 @@
   }
   .search-input {
     position: fixed;
-
-    width: 300px;
+    width: 500px;
     z-index: 66;
   }
   .search-table {
