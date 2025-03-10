@@ -220,3 +220,17 @@ export function recordDel(data: any) {
     data,
   });
 }
+export function generateQuotation(data: any) {
+  return defHttp.request({
+    url: root + '/api/quotation_pc/generateQuotation',
+    method: 'post',
+    data,
+  });
+}
+export function editSpec(data: any) {
+  return defHttp.request({
+    url: root + '/api/quotation_pc/editSpec',
+    method: 'post',
+    data,
+  });
+}

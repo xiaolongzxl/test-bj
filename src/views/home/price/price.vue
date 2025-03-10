@@ -296,6 +296,7 @@
                   class="table-input"
                   v-model="scope.row.spec_name.content"
                   @focus="setColor(scope.row, 'spec_name')"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_name')"
                   placeholder=""
                   :class="scope.row.spec_name.color"
                 />
@@ -310,6 +311,7 @@
                   v-model="scope.row.spec_unit.content"
                   style="width: 80px"
                   @focus="setColor(scope.row, 'spec_unit')"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_unit')"
                   placeholder=""
                   :class="scope.row.spec_unit.color"
                 />
@@ -325,6 +327,7 @@
                   v-model="scope.row.quantity.content"
                   style="width: 80px"
                   @focus="setColor(scope.row, 'quantity')"
+                  @change="(e) => changeTableValue(e, scope.row, 'quantity')"
                   placeholder=""
                   :class="scope.row.quantity.color"
                 />
@@ -357,6 +360,15 @@
               <div class="flex-center" :style="{ color: scope.row.amount.color }" v-if="scope.row.amount">
                 {{ scope.row.amount.content }}
               </div>
+              <div class="flex-center" v-if="scope.row.amount && false">
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.amount.content"
+                  @focus="setColor(scope.row, 'amount')"
+                  @change="(e) => changeTableValue(e, scope.row, 'amount')"
+                  :class="scope.row.amount.color"
+                />
+              </div>
             </template>
           </el-table-column>
           <el-table-column label="备注信息">
@@ -366,6 +378,7 @@
                   class="table-input"
                   v-model="scope.row.spec_remark.content"
                   @focus="setColor(scope.row, 'spec_remark')"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_remark')"
                   :class="scope.row.spec_remark.color"
                 />
               </div>
@@ -382,6 +395,15 @@
                   :style="{ color: scope.row.reference_weight.color }"
                 /> -->
               </div>
+              <div class="flex-center" v-if="scope.row.reference_weight && false">
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.reference_weight.content"
+                  @focus="setColor(scope.row, 'reference_weight')"
+                  @change="(e) => changeTableValue(e, scope.row, 'reference_weight')"
+                  :class="scope.row.reference_weight.color"
+                />
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -394,7 +416,7 @@
           <div class="foot-price" v-if="quotationInfo.is_special_ticket == 1"><span>￥</span>{{ quotationInfo.generation_tax_amount }}</div>
           <div class="foot-price" v-if="quotationInfo.is_special_invoice == 1"><span>￥</span>{{ quotationInfo.generation_tax_ordinary_amount }}</div>
         </div>
-        <div class="foot-btn cursor-pointer" @click="drawerAddPrise = true">生成报价单</div>
+        <div class="foot-btn cursor-pointer" @click="showCreatePrice">生成报价单</div>
       </div>
     </div>
   </div>
@@ -470,7 +492,7 @@
   </el-dialog>
   <el-drawer v-model="drawerAddPrise" direction="rtl" :with-header="false" size="1280">
     <template #default>
-      <div class="drawer-content">
+      <div class="drawer-content border-none">
         <img :src="$getAssetsImages('price/icon-close3.png')" alt="" class="close" @click="drawerAddPrise = false" />
         <div class="drawer-title pt-24 pb-28">
           <img :src="$getAssetsImages('price/icon-title1.png')" alt="" class="mr-10" />
@@ -489,6 +511,7 @@
               format="YYYY/MM/DD hh:mm"
               value-format="YYYY-MM-DD hh:mm"
               @change="changeValue('generation_date')"
+              disabled
             />
 
             <div class="label ml-24">订单编号： </div>
@@ -625,17 +648,17 @@
             <div class="flex-columns">
               <el-input
                 v-model="listKeyword"
-                v-for="(item, index) of quotationInfo.remark_list"
+                v-for="(item, index) of remark_list"
                 :key="index"
                 placeholder="请输入"
                 style="width: 430px"
                 class="mb-10"
-                :value="item.text"
+                :value="item.content"
               >
                 <template #prefix>
                   <div class="cursor-pointer">
-                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="item.is_selected" @click="item.is_selected = !item.is_selected" />
-                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="item.is_selected = !item.is_selected" />
+                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="item.isSelect" @click="item.isSelect = !item.isSelect" />
+                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="item.isSelect = !item.isSelect" />
                   </div>
                 </template>
               </el-input>
@@ -653,7 +676,7 @@
               ><span>￥</span>{{ quotationInfo.generation_tax_ordinary_amount }}</div
             >
           </div>
-          <div class="foot-btn2 mr-10 px-16">立即生成</div>
+          <div class="px-16 foot-btn foot-btn2 cursor-pointer" @click="nowGenerateQuotation">立即生成</div>
         </div>
       </div>
     </template>
@@ -697,6 +720,8 @@
     colorAdjustment,
     getShopList,
     specPriceEdit,
+    generateQuotation,
+    editSpec,
   } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
   import InfoDetail from './infoDetail.vue';
@@ -995,7 +1020,7 @@
         // multipleSelection.value = [];
         tableRef.value.clearSelection();
       }
-      getQuotationInfo(null);
+      getQuotationInfo(null, false);
     } else {
       $message({
         message: res.msg,
@@ -1005,9 +1030,9 @@
   }
   // 获取报价单列表
   onMounted(() => {
-    getQuotationInfo(null);
+    getQuotationInfo(null, false);
   });
-  async function getQuotationInfo(reset_quotation_id: any) {
+  async function getQuotationInfo(reset_quotation_id: any, showDialog: any) {
     let res = await myInfo({
       reset_quotation_id,
     });
@@ -1019,12 +1044,18 @@
         return item;
       });
       shopType.value = res.data.shop_id;
+      if (shopList.value == 0) {
+        getShop();
+      }
       if (res.data.is_unit_price == 1) {
         quotationType.value = 0;
       } else if (res.data.is_special_ticket == 1) {
         quotationType.value = 1;
       } else if (res.data.is_special_invoice == 1) {
         quotationType.value = 2;
+      }
+      if (showDialog) {
+        drawerAddPrise.value = true;
       }
     } else {
       quotationTableData.value = [];
@@ -1058,74 +1089,77 @@
       is_special_ticket: value == 1 ? 1 : 0,
       is_special_invoice: value == 2 ? 1 : 0,
     });
-
-    getQuotationInfo(null);
+    getQuotationInfo(null, false);
   }
-  //
+  // 再指定位置插入
   async function appendNewItemToPrice(id: any) {
-    let data = {
-      name: {
-        content: '',
-        color: 'black-text',
-        field_name: 'name',
-      },
-      spec_name: {
-        content: '',
-        color: 'black-text',
-        field_name: 'spec_name',
-      },
-      spec_unit: {
-        content: '',
-        color: 'black-text',
-        field_name: 'spec_unit',
-      },
-      quantity: {
-        content: '',
-        color: 'black-text',
-        field_name: 'quantity',
-      },
-      spec_price: {
-        content: '',
-        color: 'black-text',
-        field_name: 'spec_price',
-      },
-      spec_price_tax: {
-        content: '',
-        color: 'black-text',
-        field_name: 'spec_price_tax',
-      },
-      spec_price_tax_ordinary: {
-        content: '',
-        color: 'black-text',
-        field_name: 'spec_price_tax_ordinary',
-      },
-      amount: {
-        content: '',
-        color: 'black-text',
-        field_name: 'amount',
-      },
-      spec_remark: {
-        content: '',
-        color: 'black-text',
-        field_name: 'spec_remark',
-      },
-      reference_weight: {
-        content: '',
-        color: 'black-text',
-        field_name: 'reference_weight',
-      },
-    };
+    // let data = {
+    //   name: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'name',
+    //   },
+    //   spec_name: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'spec_name',
+    //   },
+    //   spec_unit: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'spec_unit',
+    //   },
+    //   quantity: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'quantity',
+    //   },
+    //   spec_price: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'spec_price',
+    //   },
+    //   spec_price_tax: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'spec_price_tax',
+    //   },
+    //   spec_price_tax_ordinary: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'spec_price_tax_ordinary',
+    //   },
+    //   amount: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'amount',
+    //   },
+    //   spec_remark: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'spec_remark',
+    //   },
+    //   reference_weight: {
+    //     content: '',
+    //     color: 'black-text',
+    //     field_name: 'reference_weight',
+    //   },
+    // };
+    // let ind = quotationTableData.value.findIndex((item: any) => {
+    //   return item.id == id;
+    // });
+    // console.log(ind);
+    // quotationTableData.value.splice(ind + 1, 0, data);
+    // quotationTableData.value.map((item: any, index: any) => {
+    //   item.index = index + 1;
+    // });
     let ind = quotationTableData.value.findIndex((item: any) => {
       return item.id == id;
     });
-    console.log(ind);
-    quotationTableData.value.splice(ind + 1, 0, data);
-    quotationTableData.value.map((item: any, index: any) => {
-      item.index = index + 1;
-    });
     // let res = await addQuotation({
-    //   spec_list: JSON.stringify([{ spec_id: 0, quantity: 1 }]),
+    //   sort: ind,
     // });
+    // console.log(res);
   }
   // 设置公司
   const shopType = ref<any>(null);
@@ -1139,9 +1173,17 @@
         message: '修改成功',
         type: 'success',
       });
+      let result = shopList.value.filter((item: any) => item.id == shopType.value);
+      if (result.length > 0) {
+        remark_list.value = result[0].quotation_remark.map((item: any) => {
+          item.isSelect = false;
+          return item;
+        });
+      }
     }
   }
-  // 设置公司
+  const remark_list = ref<any>([]);
+  // 根据报价单信息
   async function changeValue(key: any) {
     let data: any = {
       quotation_id: quotationInfo.value.id,
@@ -1154,6 +1196,7 @@
       quotationInfo.value[key] = null;
     }
   }
+  // 数量选择
   const quotationTableData = ref<any>([]);
   const multipleQuotationSelection = ref<any>([]);
   function SelectionQuotationChange(val: any) {
@@ -1178,7 +1221,7 @@
         type: 'success',
       });
     }
-    getQuotationInfo(null);
+    getQuotationInfo(null, false);
   }
   // 删除报价单数据
   function delQuotationItem(id: any) {
@@ -1218,7 +1261,6 @@
       isBlueText.value = false;
     }
   }
-
   async function setColor(item: any, key: any) {
     let textColor = '';
     if (isRedText.value) {
@@ -1242,6 +1284,30 @@
           tableItem[key].color = textColor;
         }
       });
+    }
+  }
+  // 修改数据
+  async function changeTableValue(v: any, item: any, key: any) {
+    console.log(v, item, key);
+    let data: any = {
+      quotation_id: quotationInfo.value.id,
+      spec_list_id: item.id,
+    };
+    data[key] = v;
+    let res = await editSpec(data);
+    if (res.code == 200) {
+      console.log(res.data);
+      quotationInfo.value.generation_amount = res.data.generation_amount;
+      quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
+      quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
+      quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
+      quotationTableData.value.map((tableItem: any) => {
+        if (tableItem.id == item.id) {
+          item = res.data.spec_item;
+        }
+      });
+    } else {
+      getQuotationInfo(null, false);
     }
   }
   // 调整价格
@@ -1287,7 +1353,7 @@
         type: 'success',
       });
       adjustPriceDialog.value = false;
-      getQuotationInfo(null);
+      getQuotationInfo(null, false);
     } else {
       $message({
         message: res.msg,
@@ -1301,22 +1367,61 @@
     let res = await getShopList();
     if (res.code == 200) {
       shopList.value = res.data;
+      console.log(shopType.value);
+      console.log(
+        shopList.value.filter((item: any) => {
+          console.log(item.id);
+          return item.id == shopType.value;
+        })
+      );
+      let result = shopList.value.filter((item: any) => item.id == shopType.value);
+      if (result.length > 0) {
+        remark_list.value = result[0].quotation_remark.map((item: any) => {
+          item.isSelect = false;
+          return item;
+        });
+      }
     }
   }
-  onMounted(() => {
-    getShop();
-  });
   // 添加报价单详情
+  function showCreatePrice() {
+    getQuotationInfo(null, true);
+  }
+  async function nowGenerateQuotation() {
+    let resList = remark_list.value
+      .filter((item: any) => item.isSelect)
+      .map((item: any) => {
+        return {
+          content: item.content,
+        };
+      });
+    let res = await generateQuotation({
+      quotation_id: quotationInfo.value.id,
+      quotation_remark: JSON.stringify(resList),
+    });
+    if (res.code == 200) {
+      $message.success('生成成功');
+      // 关闭弹窗
+      drawerAddPrise.value = false;
+      // 重新请求
+      getQuotationInfo(null, false);
+      // 请求详情
+      priseDetailId.value = res.data.id;
+      // 打开详情弹窗
+      drawerPriseDetail.value = true;
+    } else {
+      $message.error(res.msg);
+    }
+    console.log(res);
+  }
   const drawerAddPrise = ref<any>(false);
   const listKeyword = ref<any>(null);
-  const shipping_cost = ref<any>(true);
-  const isActive = ref<any>(true);
   // 重新报价
   const updateDialog = ref<boolean>(false);
   const updateResetId = ref<any>(null);
   // 更新报价
   function updatePrice() {
-    getQuotationInfo(updateResetId.value);
+    getQuotationInfo(updateResetId.value, false);
     updateDialog.value = false;
   }
   // 产品详情
@@ -1637,15 +1742,16 @@
       text-align: center;
     }
     .foot-btn2 {
-      height: 40px;
-      background: #4594fb;
-      border-radius: 4px 4px 4px 4px;
-      font-family: Microsoft YaHei;
-      font-weight: 400;
-      font-size: 14px;
-      color: #ffffff;
-      line-height: 40px;
-      text-align: center;
+      border-radius: 0px 0px 0px 0px;
+      // height: 40px;
+      // background: #4594fb;
+      // border-radius: 4px 4px 4px 4px;
+      // font-family: Microsoft YaHei;
+      // font-weight: 400;
+      // font-size: 14px;
+      // color: #ffffff;
+      // line-height: 40px;
+      // text-align: center;
     }
   }
   .add-btns {
