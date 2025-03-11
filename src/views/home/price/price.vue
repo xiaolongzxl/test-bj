@@ -282,7 +282,7 @@
                 v-model="scope.row.name.content"
                 placeholder=""
                 style="position: relative; z-index: 88"
-                @focus="(e: any) => setColorAndShowTabel(e, scope.row, 'name')"
+                @focus="(e: any) => setColorAndShowTable(e, scope.row, 'name')"
                 :class="scope.row.name.color"
                 @input="changeTableSearch"
                 v-else
@@ -870,7 +870,7 @@
   const offsetLeft = ref<any>(null);
   const offsetTop = ref<any>(null);
 
-  function setColorAndShowTabel(e: any, item: any, key: any) {
+  function setColorAndShowTable(e: any, item: any, key: any) {
     const rect = e.target.getBoundingClientRect();
     console.log(rect);
     setColor(item, key);
@@ -1093,73 +1093,25 @@
   }
   // 再指定位置插入
   async function appendNewItemToPrice(id: any) {
-    // let data = {
-    //   name: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'name',
-    //   },
-    //   spec_name: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'spec_name',
-    //   },
-    //   spec_unit: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'spec_unit',
-    //   },
-    //   quantity: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'quantity',
-    //   },
-    //   spec_price: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'spec_price',
-    //   },
-    //   spec_price_tax: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'spec_price_tax',
-    //   },
-    //   spec_price_tax_ordinary: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'spec_price_tax_ordinary',
-    //   },
-    //   amount: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'amount',
-    //   },
-    //   spec_remark: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'spec_remark',
-    //   },
-    //   reference_weight: {
-    //     content: '',
-    //     color: 'black-text',
-    //     field_name: 'reference_weight',
-    //   },
-    // };
-    // let ind = quotationTableData.value.findIndex((item: any) => {
-    //   return item.id == id;
-    // });
-    // console.log(ind);
-    // quotationTableData.value.splice(ind + 1, 0, data);
-    // quotationTableData.value.map((item: any, index: any) => {
-    //   item.index = index + 1;
-    // });
     let ind = quotationTableData.value.findIndex((item: any) => {
       return item.id == id;
     });
-    // let res = await addQuotation({
-    //   sort: ind,
-    // });
-    // console.log(res);
+    let res = await addQuotation({
+      spec_list: JSON.stringify([{ sort: ind + 1 }]),
+    });
+    if (res.code == 200) {
+      console.log(res.data);
+      quotationInfo.value.generation_amount = res.data.generation_amount;
+      quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
+      quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
+      quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
+      quotationTableData.value.splice(ind + 1, 0, res.data.spec_list[0]);
+      quotationTableData.value.map((item: any, index: any) => {
+        item.index = index + 1;
+      });
+    } else {
+      $message.error(res.msg);
+    }
   }
   // 设置公司
   const shopType = ref<any>(null);
