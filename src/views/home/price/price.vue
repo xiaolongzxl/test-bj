@@ -58,7 +58,7 @@
             <img :src="$getAssetsImages('price/icon-search.png')" alt="" />
           </template>
         </el-input>
-        <div class="search-table" v-if="showSearchTable">
+        <div class="search-table" v-if="showSearchTable" style="top: 40px; left: 0">
           <div class="table-head flex-center" v-if="searchList.length != 0">
             <div class="f-48 pl-30">产品名称</div>
             <div class="xian f-26 pl-8">型号</div>
@@ -216,7 +216,7 @@
         </div>
       </div>
       <div style="height: calc(100% - 198px)">
-        <div class="search-input" :style="{ left: offsetLeft - 12 + 'px', top: offsetTop + 2 + 'px' }">
+        <div class="search-input" :style="offsetStyle">
           <div class="search-table" style="top: 0; left: 0" v-if="showTableSearchTable">
             <div class="table-head flex-center" v-if="tableSearchList.length != 0">
               <div class="f-48 pl-30">产品名称</div>
@@ -275,7 +275,7 @@
                 placeholder=""
                 @focus="setColor(scope.row, 'name')"
                 :class="scope.row.name.color"
-                v-if="scope.row.id"
+                v-if="false"
               />
               <el-input
                 class="table-input"
@@ -838,8 +838,7 @@
   const showTableSearchTable = ref<boolean>(false);
   function closeTableSearchTable() {
     showTableSearchTable.value = false;
-    offsetLeft.value = 0;
-    offsetTop.value = 0;
+    offsetStyle.value = null;
   }
   const timer2 = ref<any>(null);
   function changeTableSearch(e: any) {
@@ -867,16 +866,17 @@
   function changeTableSelect(data: any) {
     console.log(data);
   }
-  const offsetLeft = ref<any>(null);
-  const offsetTop = ref<any>(null);
-
+  const offsetStyle = ref<any>(null);
   function setColorAndShowTable(e: any, item: any, key: any) {
     const rect = e.target.getBoundingClientRect();
     console.log(rect);
+    let bodyHeight = document.documentElement.clientHeight;
+    if (rect.bottom > bodyHeight / 2) {
+      offsetStyle.value = { bottom: bodyHeight - rect.y + 'px', left: rect.x - 12 + 'px', display: 'block' };
+    } else {
+      offsetStyle.value = { top: rect.bottom + 2 + 'px', left: rect.x - 12 + 'px', display: 'block' };
+    }
     setColor(item, key);
-    offsetLeft.value = rect.left;
-    offsetTop.value = rect.bottom;
-    console.log(offsetLeft.value, offsetTop.value);
     showTableSearchTable.value = true;
   }
   // 结构
@@ -1481,15 +1481,9 @@
       font-size: 18px;
     }
   }
-  .search-input {
-    position: fixed;
-    width: 500px;
-    z-index: 66;
-  }
+
   .search-table {
     position: absolute;
-    top: 40px;
-    left: 0;
     width: 100%;
     max-height: 463px;
     overflow: hidden;
@@ -1547,6 +1541,15 @@
     }
     .f-26 {
       flex: 0 0 26%;
+    }
+  }
+  .search-input {
+    position: fixed;
+    display: none;
+    width: 500px;
+    z-index: 66;
+    .search-table {
+      max-height: 206px;
     }
   }
   .custom-tree-node {
