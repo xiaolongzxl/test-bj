@@ -216,8 +216,15 @@
         </div>
       </div>
       <div style="height: calc(100% - 198px)">
-        <div class="search-input" :style="offsetStyle">
-          <div class="search-table" style="top: 0; left: 0" v-if="showTableSearchTable">
+        <div
+          class="search-input"
+          :style="{
+            ...offsetStyle,
+            transform: isBottom ? 'translateY(' + (tableSearchList.length > 6 ? -242 : tableSearchList.length * -28 - 62) + 'px)' : '',
+          }"
+          v-if="showTableSearchTable"
+        >
+          <div class="search-table" style="top: 0; left: 0">
             <div class="table-head flex-center" v-if="tableSearchList.length != 0">
               <div class="f-48 pl-30">产品名称</div>
               <div class="xian f-26 pl-8">型号</div>
@@ -275,7 +282,7 @@
                 placeholder=""
                 @focus="setColor(scope.row, 'name')"
                 :class="scope.row.name.color"
-                v-if="false"
+                v-if="scope.row.searchable"
               />
               <el-input
                 class="table-input"
@@ -334,40 +341,61 @@
               </div>
             </template>
           </el-table-column>
-          <!-- <el-table-column label="金额" width="90">
+          <el-table-column label="单价" width="90" v-if="quotationType == 0">
             <template #default="scope">
-              <div class="flex-center" :style="{ color: scope.row.spec_price.color }" v-if="scope.row.spec_price">
+              <!-- <div class="flex-center" :style="{ color: scope.row.spec_price.color }" v-if="scope.row.spec_price">
                 {{ scope.row.spec_price.content }}
+              </div> -->
+              <div class="flex-center" v-if="scope.row.spec_price">
+                <el-input
+                  class="table-input quantity-input"
+                  type="number"
+                  v-model="scope.row.spec_price.content"
+                  @focus="setColor(scope.row, 'spec_price')"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_price')"
+                  :class="scope.row.spec_price.color"
+                />
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="金额" width="90">
+          <el-table-column label="专票价格" width="90" v-if="quotationType == 1">
             <template #default="scope">
               <div class="flex-center" :style="{ color: scope.row.spec_price_tax.color }" v-if="scope.row.spec_price_tax">
                 {{ scope.row.spec_price_tax.content }}
               </div>
+              <!-- <div class="flex-center" v-if="scope.row.spec_price_tax">
+                <el-input
+                  type="number"
+                  class="table-input quantity-input"
+                  v-model="scope.row.spec_price_tax.content"
+                  @focus="setColor(scope.row, 'spec_price_tax')"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_price_tax')"
+                  :class="scope.row.spec_price_tax.color"
+                />
+              </div> -->
             </template>
           </el-table-column>
-          <el-table-column label="金额" width="90">
+          <el-table-column label="普票价格" width="90" v-if="quotationType == 2">
             <template #default="scope">
               <div class="flex-center" :style="{ color: scope.row.spec_price_tax_ordinary.color }" v-if="scope.row.spec_price_tax_ordinary">
                 {{ scope.row.spec_price_tax_ordinary.content }}
               </div>
+              <!-- <div class="flex-center" v-if="scope.row.spec_price_tax_ordinary">
+                <el-input
+                  type="number"
+                  class="table-input quantity-input"
+                  v-model="scope.row.spec_price_tax_ordinary.content"
+                  @focus="setColor(scope.row, 'spec_price_tax_ordinary')"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_price_tax_ordinary')"
+                  :class="scope.row.spec_price_tax_ordinary.color"
+                />
+              </div> -->
             </template>
-          </el-table-column> -->
+          </el-table-column>
           <el-table-column label="金额" width="90">
             <template #default="scope">
               <div class="flex-center" :style="{ color: scope.row.amount.color }" v-if="scope.row.amount">
                 {{ scope.row.amount.content }}
-              </div>
-              <div class="flex-center" v-if="scope.row.amount && false">
-                <el-input
-                  class="table-input"
-                  v-model="scope.row.amount.content"
-                  @focus="setColor(scope.row, 'amount')"
-                  @change="(e) => changeTableValue(e, scope.row, 'amount')"
-                  :class="scope.row.amount.color"
-                />
               </div>
             </template>
           </el-table-column>
@@ -384,9 +412,9 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="重量" prop="spec_price_tax_ordinary">
+          <el-table-column label="重量">
             <template #default="scope">
-              <div class="flex-center" v-if="scope.row.reference_weight">
+              <div class="flex-center" v-if="scope.row.reference_weight && scope.row.searchable">
                 {{ scope.row.reference_weight.content }}
                 <!-- <el-input
                   class="table-input"
@@ -395,7 +423,7 @@
                   :style="{ color: scope.row.reference_weight.color }"
                 /> -->
               </div>
-              <div class="flex-center" v-if="scope.row.reference_weight && false">
+              <div class="flex-center" v-else-if="scope.row.reference_weight">
                 <el-input
                   class="table-input"
                   v-model="scope.row.reference_weight.content"
@@ -728,6 +756,7 @@
   import priceList from './priceList.vue';
   import priceDetail from './priceDetail.vue';
   import previewPdf from './previewPdf.vue';
+  import { transform } from 'lodash';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   // 一级分类
@@ -863,20 +892,56 @@
       isTableHasSpec.value = false;
     }
   }
-  function changeTableSelect(data: any) {
-    console.log(data);
+  const activeSearchId = ref<any>(null);
+  async function changeTableSelect(data: any) {
+    let res = await editSpec({
+      quotation_id: quotationInfo.value.id,
+      spec_list_id: activeSearchId.value,
+      spec_id: data.spec_id,
+      name: data.name,
+      spec_name: data.spec_name,
+      spec_unit: data.spec_unit,
+      spec_price: data.spec_price,
+      spec_price_tax: data.spec_price_tax,
+      spec_price_tax_ordinary: data.spec_price_tax_ordinary,
+      quantity: data.quantity,
+      spec_remark: data.spec_remark,
+      reference_weight: data.reference_weight,
+    });
+    if (res.code == 200) {
+      quotationInfo.value.generation_amount = res.data.generation_amount;
+      quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
+      quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
+      quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
+      quotationTableData.value = quotationTableData.value.map((tableItem: any) => {
+        if (tableItem.id == activeSearchId.value) {
+          tableItem = res.data.spec_item;
+        }
+        return tableItem;
+      });
+      quotationTableData.value.map((item: any, index: any) => {
+        item.index = index + 1;
+      });
+      activeSearchId.value = null;
+      showTableSearchTable.value = false;
+      tableSearchList.value = [];
+    } else {
+      $message.error(res.msg);
+    }
   }
+  const isBottom = ref<any>(null);
   const offsetStyle = ref<any>(null);
   function setColorAndShowTable(e: any, item: any, key: any) {
     const rect = e.target.getBoundingClientRect();
-    console.log(rect);
     let bodyHeight = document.documentElement.clientHeight;
     if (rect.bottom > bodyHeight / 2) {
-      offsetStyle.value = { bottom: bodyHeight - rect.y + 'px', left: rect.x - 12 + 'px', display: 'block' };
+      isBottom.value = true;
     } else {
-      offsetStyle.value = { top: rect.bottom + 2 + 'px', left: rect.x - 12 + 'px', display: 'block' };
+      isBottom.value = false;
     }
+    offsetStyle.value = { top: rect.bottom + 2 + 'px', left: rect.x - 12 + 'px', display: 'block' };
     setColor(item, key);
+    activeSearchId.value = item.id;
     showTableSearchTable.value = true;
   }
   // 结构
@@ -942,8 +1007,6 @@
   }
   // 修改价格
   async function changeSpecPrice(item: any) {
-    console.log(item.spec_id);
-    console.log(item.spec_price);
     let res = await specPriceEdit({ spec_id: item.spec_id, spec_price: item.spec_price });
     if (res.code == 200) {
       $message({
@@ -1036,7 +1099,6 @@
     let res = await myInfo({
       reset_quotation_id,
     });
-    console.log(res);
     if (res.code == 200) {
       quotationInfo.value = res.data;
       quotationTableData.value = res.data.spec_list.map((item: any, index: any) => {
@@ -1100,7 +1162,6 @@
       spec_list: JSON.stringify([{ sort: ind + 1 }]),
     });
     if (res.code == 200) {
-      console.log(res.data);
       quotationInfo.value.generation_amount = res.data.generation_amount;
       quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
       quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
@@ -1135,13 +1196,12 @@
     }
   }
   const remark_list = ref<any>([]);
-  // 根据报价单信息
+  // 修改报价单信息
   async function changeValue(key: any) {
     let data: any = {
       quotation_id: quotationInfo.value.id,
     };
     data[key] = quotationInfo.value[key];
-    console.log(data);
     let res = await editQuotation(data);
     if (res.code == 200) {
     } else {
@@ -1240,7 +1300,14 @@
   }
   // 修改数据
   async function changeTableValue(v: any, item: any, key: any) {
-    console.log(v, item, key);
+    let regex = /^\d+(\.\d+)?\s*(g|kg|G|KG)$/;
+    if (key == 'reference_weight' && regex.test(v) == false) {
+      $message({
+        message: '请输入正确的重量',
+        type: 'error',
+      });
+      return;
+    }
     let data: any = {
       quotation_id: quotationInfo.value.id,
       spec_list_id: item.id,
@@ -1248,7 +1315,6 @@
     data[key] = v;
     let res = await editSpec(data);
     if (res.code == 200) {
-      console.log(res.data);
       quotationInfo.value.generation_amount = res.data.generation_amount;
       quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
       quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
@@ -1285,7 +1351,6 @@
   }
   async function adjustPrice() {
     let ids: any = multipleQuotationSelection.value.map((item: any) => {
-      console.log(item);
       return item.id;
     });
     let res = await priceAdjustment({
@@ -1319,13 +1384,6 @@
     let res = await getShopList();
     if (res.code == 200) {
       shopList.value = res.data;
-      console.log(shopType.value);
-      console.log(
-        shopList.value.filter((item: any) => {
-          console.log(item.id);
-          return item.id == shopType.value;
-        })
-      );
       let result = shopList.value.filter((item: any) => item.id == shopType.value);
       if (result.length > 0) {
         remark_list.value = result[0].quotation_remark.map((item: any) => {
@@ -1364,7 +1422,6 @@
     } else {
       $message.error(res.msg);
     }
-    console.log(res);
   }
   const drawerAddPrise = ref<any>(false);
   const listKeyword = ref<any>(null);
