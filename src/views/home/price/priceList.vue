@@ -99,7 +99,7 @@
   import { ElLoading } from 'element-plus';
   import { recordList } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
-  const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  // const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const drawerPriseList: any = defineModel('drawerPriseList');
   const emit = defineEmits(['reset-price-by-id', 'show-detail-drawer']);
 

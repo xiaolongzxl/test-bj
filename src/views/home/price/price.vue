@@ -756,7 +756,6 @@
   import priceList from './priceList.vue';
   import priceDetail from './priceDetail.vue';
   import previewPdf from './previewPdf.vue';
-  import { transform } from 'lodash';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   // 一级分类

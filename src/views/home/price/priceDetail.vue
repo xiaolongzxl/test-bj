@@ -150,7 +150,7 @@
 
 <script setup lang="ts">
   import { ElLoading } from 'element-plus';
-  import { getProjectFile } from '@/api/index.ts';
+  // import { getProjectFile } from '@/api/index.ts';
   import { recordDetails } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $viewerApi: any = getCurrentInstance()?.appContext.config.globalProperties.$viewerApi;
