@@ -912,15 +912,14 @@
       quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
       quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
       quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
-      quotationTableData.value = quotationTableData.value.map((tableItem: any) => {
+      quotationTableData.value = quotationTableData.value.map((tableItem: any, index: any) => {
         if (tableItem.id == activeSearchId.value) {
           tableItem = res.data.spec_item;
         }
+        tableItem.index = index + 1;
         return tableItem;
       });
-      quotationTableData.value.map((item: any, index: any) => {
-        item.index = index + 1;
-      });
+
       activeSearchId.value = null;
       showTableSearchTable.value = false;
       tableSearchList.value = [];
@@ -1318,10 +1317,11 @@
       quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
       quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
       quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
-      quotationTableData.value = quotationTableData.value.map((tableItem: any) => {
+      quotationTableData.value = quotationTableData.value.map((tableItem: any, index: any) => {
         if (tableItem.id == item.id) {
           tableItem = res.data.spec_item;
         }
+        tableItem.index = index + 1;
         return tableItem;
       });
     } else {
