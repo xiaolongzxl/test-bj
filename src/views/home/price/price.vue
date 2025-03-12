@@ -360,10 +360,10 @@
           </el-table-column>
           <el-table-column label="专票价格" width="90" v-if="quotationType == 1">
             <template #default="scope">
-              <div class="flex-center" :style="{ color: scope.row.spec_price_tax.color }" v-if="scope.row.spec_price_tax">
+              <!-- <div class="flex-center" :style="{ color: scope.row.spec_price_tax.color }" v-if="scope.row.spec_price_tax">
                 {{ scope.row.spec_price_tax.content }}
-              </div>
-              <!-- <div class="flex-center" v-if="scope.row.spec_price_tax">
+              </div>-->
+              <div class="flex-center" v-if="scope.row.spec_price_tax">
                 <el-input
                   type="number"
                   class="table-input quantity-input"
@@ -372,15 +372,15 @@
                   @change="(e) => changeTableValue(e, scope.row, 'spec_price_tax')"
                   :class="scope.row.spec_price_tax.color"
                 />
-              </div> -->
+              </div>
             </template>
           </el-table-column>
           <el-table-column label="普票价格" width="90" v-if="quotationType == 2">
             <template #default="scope">
-              <div class="flex-center" :style="{ color: scope.row.spec_price_tax_ordinary.color }" v-if="scope.row.spec_price_tax_ordinary">
+              <!-- <div class="flex-center" :style="{ color: scope.row.spec_price_tax_ordinary.color }" v-if="scope.row.spec_price_tax_ordinary">
                 {{ scope.row.spec_price_tax_ordinary.content }}
-              </div>
-              <!-- <div class="flex-center" v-if="scope.row.spec_price_tax_ordinary">
+              </div>-->
+              <div class="flex-center" v-if="scope.row.spec_price_tax_ordinary">
                 <el-input
                   type="number"
                   class="table-input quantity-input"
@@ -389,7 +389,7 @@
                   @change="(e) => changeTableValue(e, scope.row, 'spec_price_tax_ordinary')"
                   :class="scope.row.spec_price_tax_ordinary.color"
                 />
-              </div> -->
+              </div>
             </template>
           </el-table-column>
           <el-table-column label="金额" width="90">
