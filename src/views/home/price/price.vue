@@ -1318,10 +1318,11 @@
       quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
       quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
       quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
-      quotationTableData.value.map((tableItem: any) => {
+      quotationTableData.value = quotationTableData.value.map((tableItem: any) => {
         if (tableItem.id == item.id) {
-          item = res.data.spec_item;
+          tableItem = res.data.spec_item;
         }
+        return tableItem;
       });
     } else {
       getQuotationInfo(null, false);
