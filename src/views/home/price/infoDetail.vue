@@ -136,7 +136,6 @@
 
   const dialogTableData = ref<any>([]);
   const activeTab = ref<number>(1);
-
   async function getDetail() {
     let loadingInstance = ElLoading.service({
       lock: true,
@@ -248,14 +247,14 @@
     }).view(activeIndex);
   }
   // 数量
-  const quantity = ref<any>(0);
+  const quantity = ref<any>(1);
   function changDialogNum(type: any) {
     if (type == '+') {
-      quantity.value += 1;
+      quantity.value = Number(quantity.value) + 1;
     } else {
-      quantity.value -= 1;
-      if (quantity.value < 0) {
-        quantity.value = 0;
+      quantity.value = Number(quantity.value) - 1;
+      if (quantity.value < 1) {
+        quantity.value = 1;
       }
     }
   }

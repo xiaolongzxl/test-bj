@@ -1,5 +1,6 @@
 import 'babel-polyfill';
 import ElementPlus from 'element-plus';
+import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import 'element-plus/dist/index.css';
 import App from './App.vue';
 
@@ -28,7 +29,9 @@ const app = createApp(App);
 app.use(store);
 app.use(i18n);
 app.use(VueViewer);
-app.use(ElementPlus);
+app.use(ElementPlus, {
+  locale: zhCn,
+});
 app.config.globalProperties.$getAssetsImages = (name: string) => {
   return new URL(`/src/assets/images/${name}`, import.meta.url).href; //本地文件路径
 };

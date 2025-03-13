@@ -526,7 +526,7 @@
           <img :src="$getAssetsImages('price/icon-title1.png')" alt="" class="mr-10" />
           <span>报价单详情页</span>
         </div>
-        <div class="px-40 pb-64" style="height: calc(100% - 136px)">
+        <div class="px-40 pb-64 scroll-none" style="height: calc(100% - 136px)">
           <div class="mb-20 flex search-box">
             <div class="label">报价日期：</div>
             <el-date-picker
@@ -1405,10 +1405,16 @@
           content: item.content,
         };
       });
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
     let res = await generateQuotation({
       quotation_id: quotationInfo.value.id,
       quotation_remark: JSON.stringify(resList),
     });
+    loadingInstance.close();
     if (res.code == 200) {
       $message.success('生成成功');
       // 关闭弹窗
