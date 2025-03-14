@@ -80,7 +80,8 @@
       <div class="select-box flex-between">
         <el-dropdown trigger="click">
           <div class="select-gg flex-between px-14 cursor-pointer el-dropdown-link">
-            <span class="text-over-1">全部</span>
+            <span class="text-over-1">{{ activeLabelIdLabel }}</span>
+
             <img :src="$getAssetsImages('price/icon-shaixuan.png')" alt="" />
           </div>
           <template #dropdown>
@@ -647,7 +648,21 @@
             <div class="label">收货地址：</div>
             <el-input v-model="quotationInfo.address" placeholder="请输入" style="width: 430px" @change="changeValue('address')"> </el-input>
           </div>
-          <div class="mt-20 flex items-center search-box">
+          <div class="mt-20 flex search-box">
+            <div class="label">展示铜价：</div>
+            <div class="flex items-center">
+              <el-switch
+                v-model="quotationInfo.is_copper_price"
+                class="mr-14"
+                style="--el-switch-on-color: #04b500"
+                :active-value="1"
+                :inactive-value="0"
+                @change="changeValue('is_copper_price')"
+              />
+              <div style="font-size: 14px; color: #666666"> {{ quotationInfo.is_copper_price ? '是' : '否' }} </div>
+            </div>
+          </div>
+          <div class="mt-20 flex search-box" v-if="quotationInfo.is_copper_price">
             <div class="label">铜<span style="opacity: 0">铜价</span>价：</div>
             <el-input
               v-model="quotationInfo.generation_copper_price"
@@ -657,9 +672,22 @@
               class="quantity-input"
               type="number"
             >
-            </el-input>
+            </el-input> </div
+          ><div class="mt-20 flex search-box">
+            <div class="label">展示铝价：</div>
+            <div class="flex items-center">
+              <el-switch
+                v-model="quotationInfo.is_aluminum_price"
+                class="mr-14"
+                style="--el-switch-on-color: #04b500"
+                :active-value="1"
+                :inactive-value="0"
+                @change="changeValue('is_aluminum_price')"
+              />
+              <div style="font-size: 14px; color: #666666"> {{ quotationInfo.is_aluminum_price ? '是' : '否' }} </div>
+            </div>
           </div>
-          <div class="mt-20 flex items-center search-box">
+          <div class="mt-20 flex search-box" v-if="quotationInfo.is_aluminum_price">
             <div class="label">铝<span style="opacity: 0">铝价</span>价：</div>
             <el-input
               v-model="quotationInfo.generation_aluminum_price"
@@ -671,6 +699,32 @@
             >
             </el-input>
           </div>
+          <!-- <div class="mt-20 flex search-box">
+            <div class="label">铝<span style="opacity: 0">铝价</span>价：</div>
+            <div>
+              <div class="flex items-center">
+                <el-switch
+                  v-model="quotationInfo.is_aluminum_price"
+                  class="mr-14"
+                  style="--el-switch-on-color: #04b500"
+                  :active-value="1"
+                  :inactive-value="0"
+                  @change="changeValue('is_aluminum_price')"
+                />
+                <div style="font-size: 14px; color: #666666"> {{ quotationInfo.is_aluminum_price ? '是' : '否' }} </div>
+              </div>
+              <el-input
+                v-if="quotationInfo.is_aluminum_price"
+                v-model="quotationInfo.generation_aluminum_price"
+                placeholder="请输入"
+                style="width: 430px"
+                @change="changeValue('generation_aluminum_price')"
+                class="quantity-input"
+                type="number"
+              >
+              </el-input>
+            </div>
+          </div> -->
           <div class="mt-20 flex search-box">
             <div class="label">备注信息：</div>
             <div class="flex-columns">
@@ -809,6 +863,15 @@
       searchSeriesSpecList();
     }
   }
+  const activeLabelIdLabel = computed(() => {
+    let label = '';
+    labelList.value.forEach((item: any) => {
+      if (item.id == activeLabelId.value) {
+        label = item.title;
+      }
+    });
+    return activeLabelId.value == '' ? '全部' : label;
+  });
   // 切换三级
   function handleNodeClick(data: any, node: any) {
     if (data.type_id) {
