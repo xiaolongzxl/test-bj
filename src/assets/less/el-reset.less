@@ -59,3 +59,85 @@
   color: #2d6cff;
   cursor: pointer;
 }
+
+.changeFileShowPopper.el-dropdown__popper {
+  .el-dropdown-menu__item {
+    padding: 2px 0 !important;
+  }
+}
+.btn-popover.el-popover {
+  padding: 0;
+  width: auto !important;
+}
+.self-dialog {
+  padding: 0;
+  border-radius: 12px 12px 12px 12px;
+  .el-dialog {
+    max-height: 80vh;
+    &__header {
+      background: linear-gradient(360deg, #ffffff 0%, #e7f0fc 100%);
+      border-radius: 12px 12px 12px 12px;
+      padding: 20px 20px;
+      display: flex;
+      align-items: center;
+    }
+    &__title {
+      font-family:
+        Microsoft YaHei,
+        Microsoft YaHei;
+      font-weight: bold;
+      font-size: 22px;
+      color: #0a1629;
+      line-height: 26px;
+      flex: auto;
+    }
+    &__headerbtn {
+      position: inherit;
+      --el-color-info: #0a1629;
+      font-weight: bold;
+      font-size: 1.5em;
+    }
+  }
+  .footer-btn {
+    &.center {
+      justify-content: center;
+    }
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 32px;
+    .el-button {
+      width: 120px;
+      height: 40px;
+    }
+  }
+}
+.self-transfer {
+  --transfer-color: #0052d9;
+  --el-color-primary: var(--transfer-color);
+  &.el-transfer {
+    --el-transfer-panel-width: 264px;
+    --el-transfer-panel-header-bg-color: transparent;
+    display: flex;
+    align-items: center;
+  }
+  .el-transfer {
+    &-panel {
+      flex: none;
+      .el-checkbox {
+        --el-checkbox-border-color: var(--transfer-color);
+        --el-checkbox-checked-border-color: var(--transfer-color);
+        --el-checkbox-checked-bg-color: var(--transfer-color);
+        --el-checkbox-checked-input-border-color: var(--transfer-color);
+        --el-checkbox-checked-text-color: var(--transfer-color);
+      }
+    }
+    &__buttons {
+      flex: none;
+      display: flex;
+      flex-direction: column;
+    }
+    &__button {
+      margin: 10px 0;
+    }
+  }
+}

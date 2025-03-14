@@ -4,9 +4,13 @@
       <leftBar />
     </div>
     <div class="right-content">
-      <div class="content-title"
+      <div class="content-title" v-if="topbar == 'title'"
         ><div class="content-title-text">{{ title }}</div>
       </div>
+      <div class="content-title" v-if="topbar == 'search'">
+        <Search @searchTrigger="searchTrigger" />
+      </div>
+
       <div class="content-body">
         <RouterView v-slot="{ Component, route }">
           <transition name="fade" mode="out-in">
@@ -18,12 +22,19 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
+  import leftBar from './components/left-navbar/index.vue';
+  import Search from './components/search.vue';
   const route = useRoute();
   const title = computed(() => {
     return route.meta.title;
   });
-  import leftBar from './components/left-navbar/index.vue';
+  const topbar = computed(() => {
+    return route.meta.topbar;
+  });
+  const searchTrigger = (value) => {
+    console.log('搜索结果:', value);
+  };
 </script>
 
 <style scoped lang="less">
@@ -56,6 +67,8 @@
       box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
       border-radius: 8px 8px 0px 0px;
       padding: 0 30px;
+      display: flex;
+      align-items: center;
       &-text {
         padding: 18px 0;
         font-weight: bold;
@@ -81,6 +94,7 @@
       overflow: hidden;
     }
   }
+
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.5s ease;

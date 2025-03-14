@@ -6,7 +6,6 @@
   </el-scrollbar>
 </template>
 <script setup>
-  import { all } from 'axios';
   import SideBarItem from './sidebarItem.vue';
   import { routes as allRoutes } from '@/router';
   const route = useRoute();
@@ -30,8 +29,40 @@
     }
   };
   const routers = computed(() => {
-    console.log(getFileRoute(allRoutes).children);
-    return getFileRoute(allRoutes).children;
+    let _routers = getFileRoute(allRoutes).children.map((e) => {
+      if (e.name == 'companySpace') {
+        e.children = [
+          {
+            id: '1',
+            isChangePath: true,
+
+            meta: {
+              title: '二级分类',
+            },
+          },
+          {
+            id: '2',
+            isChangePath: true,
+
+            meta: {
+              title: '二级分类2',
+            },
+          },
+          {
+            id: '3',
+            isChangePath: true,
+
+            meta: {
+              title: '二级分类3',
+            },
+          },
+        ];
+      }
+      return e;
+    });
+
+    console.log(_routers);
+    return _routers;
   });
   provide('activeMenu', activeMenu);
 </script>

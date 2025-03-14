@@ -1,14 +1,28 @@
 <template>
   <div v-if="!item.hidden">
     <template v-if="hasOneShowingChild(item.children, item)">
-      <RouterLink :to="resolvePath(oneChild.path)" @click="pathClick">
+      <RouterLink :to="resolvePath(oneChild.path)">
+        <el-menu-item :index="resolvePath(oneChild.path)">
+          <div class="flex flex-center menuitem">
+            <img v-if="oneChild.meta?.icon" class="menuitem-icon" :src="$getAssetsImages(imgIcon)" />
+            <div class="menuitem-text">{{ oneChild.meta?.title }}</div>
+          </div>
+        </el-menu-item>
+      </RouterLink>
+      <!-- <RouterLink :to="resolvePath(oneChild.path)" v-if="!props.isChangePath">
         <el-menu-item :index="resolvePath(oneChild.path)">
           <div class="flex flex-center menuitem">
             <img class="menuitem-icon" :src="$getAssetsImages(imgIcon)" />
             <div class="menuitem-text">{{ oneChild.meta?.title }}</div>
           </div>
         </el-menu-item>
-      </RouterLink>
+      </RouterLink> -->
+      <!-- <el-menu-item v-else @click="pathClick(basePath)" :index="basePath">
+        <div class="flex flex-center menuitem">
+          <img class="menuitem-icon" :src="$getAssetsImages(imgIcon)" />
+          <div class="menuitem-text">{{ oneChild.meta?.title }}</div>
+        </div>
+      </el-menu-item> -->
     </template>
 
     <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" popper-append-to-body>
@@ -20,10 +34,14 @@
       </template>
       <SidebarItem
         v-for="child in item.children"
+        :isChangePath="child.isChangePath"
+        :changePathData="{
+          ...child,
+        }"
         :key="child.path"
         :is-nest="true"
         :item="child"
-        :base-path="resolvePath(child.path)"
+        :base-path="resolvePath(child.isChangePath ? child.id : child.path)"
         class="nest-menu"
       />
     </el-sub-menu>
@@ -35,6 +53,14 @@
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
 
   const props = defineProps({
+    isChangePath: {
+      type: Boolean,
+      default: false,
+    },
+    changePathData: {
+      type: Object,
+      default: () => {},
+    },
     item: {
       type: Object,
       required: true,
@@ -51,12 +77,13 @@
   const oneChild = ref([]);
   const activeMenu = inject('activeMenu');
   const imgIcon = computed(() => {
-    let imgIcon = `file/menu-${oneChild.meta?.icon || props.item?.meta?.icon}`;
-    if (activeMenu.value === props.item.path) {
-      return imgIcon + '-ac.png';
-    } else {
-      return imgIcon + '.png';
-    }
+    let imgIcon = `file/menu/menu-${oneChild.meta?.icon || props.item?.meta?.icon}.png`;
+    return imgIcon;
+    // if (activeMenu.value === props.item.path) {
+    //   return imgIcon + '-ac.png';
+    // } else {
+    //   return imgIcon + '.png';
+    // }
   });
   const hasOneShowingChild = (children = [], parent) => {
     if (!children) {
@@ -90,7 +117,8 @@
   const resolvePath = (routePath, routeQuery) => {
     return getPath(props.basePath + '/' + routePath);
   };
-  const pathClick = () => {
+  const pathClick = (item) => {
+    console.log(item);
     console.log(oneChild.value);
   };
   const getPath = (p) => {
@@ -98,14 +126,22 @@
       return p;
     }
     let res = p.replace('//', '/');
+    let resArr = res.split('/');
+    let Idx = resArr.findIndex((e) => e.includes(':'));
+    if (Idx) {
+      resArr.splice(Idx, 1);
+      res = resArr.join('/');
+    }
     if (res[res.length - 1] === '/') {
       return res.slice(0, res.length - 1);
     }
+
     return res;
   };
 </script>
 <style scoped lang="less">
-  .el-menu-item {
+  .el-menu-item,
+  .el-sub-menu {
     transition:
       background 0.3s,
       color 0.3s;
@@ -125,6 +161,13 @@
       background: #e9efff;
       .menuitem {
         color: #000;
+      }
+    }
+  }
+  .el-sub-menu {
+    .el-menu-item {
+      .menuitem {
+        font-size: 15px;
       }
     }
   }

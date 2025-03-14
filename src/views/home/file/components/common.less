@@ -3,8 +3,9 @@
   display: flex;
   height: 100%;
   overflow: hidden;
-  padding: 30px;
+
   &-left {
+    padding: 30px;
     overflow: hidden;
     flex: auto;
     display: flex;
@@ -79,12 +80,116 @@
         --el-table-header-bg-color: #f4f5f7 !important;
 
         .cell {
-          line-height: 32px;
+          font-family:
+            Microsoft YaHei,
+            Microsoft YaHei;
+          line-height: 18px;
           font-weight: 400;
           font-size: 14px;
           color: #31373d;
         }
       }
+    }
+  }
+  .table-wrapper {
+    position: relative;
+    &.dlb {
+      :deep(.el-table) {
+        &__body-wrapper {
+          tbody,
+          tr {
+            height: 80px !important;
+          }
+        }
+      }
+    }
+    .grid {
+      &-wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      &-head {
+        display: flex;
+        align-items: center;
+        flex: none;
+        background: #f4f5f7;
+        border-radius: 8px 8px 0px 0px;
+        border: 1px solid #ececec;
+        height: 52px;
+        padding: 0 18px;
+        &-item {
+          margin-right: 50px;
+          font-family:
+            Microsoft YaHei,
+            Microsoft YaHei;
+          font-weight: 400;
+          font-size: 14px;
+          color: #31373d;
+          line-height: 16px;
+          cursor: pointer;
+        }
+      }
+      &-body {
+        flex: auto;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(auto-fill, 218px);
+        gap: 20px;
+      }
+      &-file {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        .showCheckbox {
+          display: none;
+          position: absolute;
+          top: 14px;
+          left: 12px;
+        }
+        &:hover {
+          background: #f3f4f9;
+          .showCheckbox {
+            display: block;
+          }
+        }
+        &.active {
+          background: #edf4fe;
+          .showCheckbox {
+            display: block;
+          }
+        }
+        &-icon {
+        }
+        &-text {
+          font-family:
+            Microsoft YaHei,
+            Microsoft YaHei;
+          font-weight: 400;
+          font-size: 12px;
+          color: #000000;
+          line-height: 22px;
+          margin-top: 20px;
+        }
+      }
+    }
+    .fixedUpload {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(1, 127, 253, 0.2);
+      border: 2px solid #017ffd;
+      z-index: 999;
     }
   }
 }

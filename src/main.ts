@@ -1,6 +1,7 @@
 import 'babel-polyfill';
 import ElementPlus from 'element-plus';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
+import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import 'element-plus/dist/index.css';
 import App from './App.vue';
 
@@ -9,8 +10,12 @@ import store from '@/store';
 import 'normalize.css';
 import '@/assets/less/reset.less';
 import '@/assets/less/variable.less';
+import '@/assets/less/el-reset.less';
+import SvgIcon from '@/views/home/file/components/svgIcon.vue';
+import FileBtns from '@/views/home/file/components/btns/index.vue';
 
 import 'virtual:uno.css';
+import 'virtual:svg-icons-register';
 // 自定义事件
 import mitt from 'mitt';
 // 预览图片
@@ -32,6 +37,12 @@ app.use(VueViewer);
 app.use(ElementPlus, {
   locale: zhCn,
 });
+
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component);
+}
+app.component('SvgIcon', SvgIcon);
+app.component('FileBtns', FileBtns);
 app.config.globalProperties.$getAssetsImages = (name: string) => {
   return new URL(`/src/assets/images/${name}`, import.meta.url).href; //本地文件路径
 };

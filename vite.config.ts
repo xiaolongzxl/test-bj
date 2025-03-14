@@ -4,6 +4,8 @@ import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import legacy from '@vitejs/plugin-legacy';
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import path from 'path';
 // import viteCompression from 'vite-plugin-compression';
 // https://vitejs.dev/config/
 
@@ -35,6 +37,11 @@ export default defineConfig({
       eslintrc: {
         enabled: true, // <-- this
       },
+    }),
+    /* 对svg图片处理 */
+    createSvgIconsPlugin({
+      iconDirs: [path.resolve(process.cwd(), 'src/assets/images/svg')],
+      symbolId: 'icon-[name]',
     }),
     legacy({
       targets: ['defaults', 'not IE 11', 'chrome 61'],
