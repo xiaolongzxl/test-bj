@@ -543,7 +543,7 @@
       <div class="dialog-btn confirm-btn" @click="clearQuotation([])">确定</div>
     </div>
   </el-dialog>
-  <el-drawer v-model="drawerAddPrise" direction="rtl" :with-header="false" size="1280">
+  <el-drawer v-model="drawerAddPrise" class="no-radius" direction="rtl" :with-header="false" size="1280">
     <template #default>
       <div class="drawer-content border-none">
         <img :src="$getAssetsImages('price/icon-close3.png')" alt="" class="close" @click="drawerAddPrise = false" />
@@ -587,13 +587,20 @@
             </el-input>
           </div>
           <div class="card-label mb-20">报价明细： </div>
-          <el-radio-group v-model="quotationType" @change="changePriceType" class="mb-20">
-            <el-radio :value="0">单价</el-radio>
-            <el-radio :value="1">专票</el-radio>
-            <el-radio :value="2">普票</el-radio>
-          </el-radio-group>
+          <div class="flex-between">
+            <el-radio-group v-model="quotationType" @change="changePriceType" class="mb-20">
+              <el-radio :value="0">单价</el-radio>
+              <el-radio :value="1">专票</el-radio>
+              <el-radio :value="2">普票</el-radio>
+            </el-radio-group>
 
+            <div class="card-tips mb-20 cursor-default">
+              <el-icon><Rank /></el-icon>
+              <span> 表格可进行拖拽排序</span>
+            </div>
+          </div>
           <el-table
+            ref="quotationSortTableRef"
             row-key="spec_id"
             :data="quotationTableData"
             class="no-radius"
@@ -602,25 +609,17 @@
             table-layout="fixed"
             highlight-current-row
           >
-            <el-table-column label="排序" width="60">
-              <template #default="scope">
-                <div class="flex-center">
-                  <el-icon><Rank /></el-icon>
-                  <div style="display: none">{{ scope.row.sort }}</div>
-                </div>
-              </template>
-            </el-table-column>
             <el-table-column label="序号" width="60">
               <template #default="scope">
                 <div class="flex-center"> {{ scope.row.index }} </div>
               </template>
             </el-table-column>
-            <el-table-column label="产品名称">
+            <el-table-column label="产品名称" min-width="180">
               <template #default="scope">
                 <div class="flex-center" :class="scope.row.name.color">{{ scope.row.name.content }}</div>
               </template>
             </el-table-column>
-            <el-table-column label="型号规格" prop="price">
+            <el-table-column label="型号规格" min-width="180">
               <template #default="scope">
                 <div class="flex-center" :class="scope.row.spec_name.color">{{ scope.row.spec_name.content }}</div>
               </template>
@@ -805,6 +804,8 @@
 </template>
 
 <script setup lang="ts">
+  import Sortable from 'sortablejs';
+  import _ from 'lodash';
   import { ElLoading } from 'element-plus';
   import {
     getSeriesList,
@@ -823,6 +824,7 @@
     specPriceEdit,
     generateQuotation,
     editSpec,
+    quotationSpecSort,
   } from '@/api/price.ts';
   import { ArrowRight } from '@element-plus/icons-vue';
   import InfoDetail from './infoDetail.vue';
@@ -1484,6 +1486,50 @@
   // 添加报价单详情
   function showCreatePrice() {
     getQuotationInfo(null, true);
+    nextTick(() => {
+      setTimeout(() => {
+        initSortable();
+      }, 500);
+    });
+  }
+  const quotationSortTableRef = ref<any>(null);
+  // 排序
+  function initSortable() {
+    const table = quotationSortTableRef.value.$el.querySelector('.el-table__body-wrapper tbody');
+    Sortable.create(table, {
+      animation: 150, // 拖拽动画时长（毫秒）
+      onEnd({ newIndex, oldIndex, from, to, item }: any) {
+        /*将sortable移动过去的DOM复位*/
+        to.removeChild(item); //删掉已移过去的dom
+        from.insertBefore(item, from.children[oldIndex]); //添加已移除的dom
+        // 拖拽结束时更新数据
+        let list = _.cloneDeep(quotationTableData.value);
+        const movedRow = list[oldIndex];
+        list.splice(oldIndex, 1); // 删除原位置
+        list.splice(newIndex, 0, movedRow); // 插入新位置
+        let arr: any = [];
+        quotationTableData.value = list.map((item: any, index: any) => {
+          item.index = index + 1;
+          arr.push({ spec_list_id: item.id });
+          return item;
+        });
+        sotrById(arr);
+      },
+    });
+  }
+  async function sotrById(sortIds: any) {
+    let res = await quotationSpecSort({
+      quotation_id: quotationInfo.value.id,
+      sort: JSON.stringify(sortIds),
+    });
+    if (res.code == 200) {
+    } else {
+      $message({
+        message: '排序失败',
+        type: 'success',
+      });
+      getQuotationInfo(null, false);
+    }
   }
   async function nowGenerateQuotation() {
     let resList = remark_list.value
@@ -2080,6 +2126,9 @@
       background: #197cfa;
     }
   }
+  .no-radius .drawer-content {
+    border-radius: 0;
+  }
   .drawer-content {
     position: relative;
     border-radius: 12px 12px 12px 12px;
@@ -2108,6 +2157,17 @@
       font-size: 16px;
       color: #1a202c;
       line-height: 20px;
+    }
+    .card-tips {
+      font-family: Microsoft YaHei;
+      font-weight: 400;
+      font-size: 12px;
+      color: #0052d9;
+      line-height: 20px;
+      span,
+      i {
+        vertical-align: middle;
+      }
     }
     .label {
       font-family: Microsoft YaHei;
