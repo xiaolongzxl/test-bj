@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogInfoVisible" width="1138" class="dialog-self dialog-self2" :show-close="false" align-center>
+  <el-dialog v-model="dialogInfoVisible" width="1000" class="dialog-self dialog-self2" :show-close="false" align-center>
     <img :src="$getAssetsImages('price/icon-clos.png')" alt="" class="close2" @click="dialogInfoVisible = false" />
     <div class="dialog-title2 pt-24 pb-24">产品详情</div>
     <div class="px-46" style="height: calc(100% - 120px)">
@@ -12,7 +12,7 @@
             <div class="left-btn flex-center cursor-pointer mr-7" @click="prevImageList">
               <img :src="$getAssetsImages('price/left-gray.png')" alt="" />
             </div>
-            <div style="flex: 0 0 440px" class="flex">
+            <div style="flex: 0 0 374px" class="flex">
               <img :src="img" alt="" class="img-item mr-7" v-for="img of imageList[activeImageIndex]" :key="img" @click="activeImage = img" />
             </div>
             <div class="right-btn flex-center cursor-pointer" @click="nextImageList">
@@ -24,7 +24,7 @@
           <div class="info-title mb-16"
             >{{ detailInfo.name }}
             <span class="cursor-pointer" @click="handleCopy(detailInfo.name)"
-              ><img :src="$getAssetsImages('price/icon-copy.png')" alt="" /> 一键复制</span
+              ><img :src="$getAssetsImages('price/icon-copy.png')" alt="" class="w-17px h-16px" /> 一键复制</span
             >
           </div>
           <div class="cate flex mb-7" v-if="detailInfo.float_list.length > 0">
@@ -81,7 +81,7 @@
         <div class="mr-46" :class="{ active: activeTab == 1 }" @click="activeTab = 1">产品详情</div>
         <div :class="{ active: activeTab == 2 }" @click="activeTab = 2">供应商</div>
       </div>
-      <el-scrollbar height=" calc(100% - 460px)" :always="true" v-if="activeTab == 1">
+      <el-scrollbar height=" calc(100% - 360px)" :always="true" v-if="activeTab == 1">
         <div class="card-list">
           <div class="flex my-24" v-for="(item, index) of detailInfo.refer" :key="index">
             <span class="label">{{ item.attribute }}</span>
@@ -95,7 +95,7 @@
           </div>
         </div>
       </el-scrollbar>
-      <el-table :data="dialogTableData" style="width: 100%" center height=" calc(100% - 460px)" v-else class="table-center">
+      <el-table :data="dialogTableData" style="width: 100%" center height=" calc(100% - 360px)" v-else class="table-center">
         <el-table-column prop="shop_name" label="公司名称" />
         <el-table-column prop="phone" label="电话" />
         <el-table-column prop="address" label="地址" />
@@ -365,8 +365,8 @@
       border-radius: 6px 0px 0px 6px;
     }
     .big-img {
-      width: 486px;
-      height: 258px;
+      width: 420px;
+      height: 224px;
       img {
         width: 100%;
         height: 100%;
@@ -374,7 +374,7 @@
       }
     }
     .img-item {
-      width: 81px;
+      width: 68px;
       height: 43px;
       border: 1px solid #ddd;
       border-radius: 2px;

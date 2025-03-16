@@ -36,8 +36,8 @@
           <div class="custom-tree-node">
             <div class="label" :class="data.series_type_list && data.series_type_list.length > 0 ? 'level1' : ''">{{ node.label }} </div>
             <div v-if="data.series_type_list && data.series_type_list.length > 0" class="pr-20">
-              <img class="xiala" :src="$getAssetsImages('price/icon-xiala.png')" alt="" />
-              <img class="huishou" :src="$getAssetsImages('price/icon-huishou.png')" alt="" />
+              <img class="xiala w-12px h-7px" :src="$getAssetsImages('price/icon1.png')" alt="" />
+              <img class="huishou w-12px h-7px" :src="$getAssetsImages('price/icon2.png')" alt="" />
             </div>
           </div> </template
       ></el-tree>
@@ -47,7 +47,7 @@
     <div class="list mr-10">
       <div class="search">
         <el-input
-          placeholder=""
+          placeholder="请输入关键词"
           v-model="keyword"
           clearable
           @focus="showSearchTable = true"
@@ -55,10 +55,10 @@
           @input="changeSearch"
         >
           <template #prefix>
-            <img :src="$getAssetsImages('price/icon-search.png')" alt="" />
+            <img :src="$getAssetsImages('price/icon5.png')" alt="" class="w-14px h-14px" />
           </template>
         </el-input>
-        <div class="search-table" v-if="showSearchTable" style="top: 40px; left: 0">
+        <div class="search-table" v-if="showSearchTable && keyword" style="top: 40px; left: 0">
           <div class="table-head flex-center" v-if="searchList.length != 0">
             <div class="f-48 pl-30">产品名称</div>
             <div class="xian f-26 pl-8">型号</div>
@@ -99,7 +99,7 @@
           </template>
         </el-dropdown>
         <div class="select-btn flex-between cursor-pointer" @click="appendSelectToPrice">
-          <img :src="$getAssetsImages('price/icon-pltj.png')" alt="" />
+          <img :src="$getAssetsImages('price/icon4.png')" alt="" />
           <span mx-6>批量添加</span>
           <div class="num">{{ multipleSelection.length ? multipleSelection.length : '' }}</div>
         </div>
@@ -116,7 +116,7 @@
         :current-row="11146"
         current-row-key="spec_id"
         style="width: 100%"
-        height="calc(100% - 216px)"
+        height="calc(100% - 146px)"
         class="self-hover-table"
         table-layout="fixed"
         highlight-current-row
@@ -165,9 +165,9 @@
           <template #default="scope">
             <div class="table-btn flex-center">
               <div @click="handleCopy(scope.row.copy_name)" class="flex-center">
-                <img :src="$getAssetsImages('price/icon-copy.png')" alt="" />
+                <img :src="$getAssetsImages('price/icon-copy.png')" alt="" class="w-17px h-16px" />
               </div>
-              <div class="ml-4" @click="appendItemToPrice(scope.row)">加入报价单</div>
+              <div class="ml-12" @click="appendItemToPrice(scope.row)">加入报价单</div>
             </div>
           </template>
         </el-table-column>
@@ -223,7 +223,7 @@
             ...offsetStyle,
             transform: isBottom ? 'translateY(' + (tableSearchList.length > 6 ? -242 : tableSearchList.length * -28 - 62) + 'px)' : '',
           }"
-          v-if="showTableSearchTable"
+          v-if="showTableSearchTable && searchKeyword"
         >
           <div class="search-table" style="top: 0; left: 0">
             <div class="table-head flex-center" v-if="tableSearchList.length != 0">
@@ -245,6 +245,7 @@
           <div class="popup-box-bg z-66" v-if="showTableSearchTable" @click="closeTableSearchTable"> </div>
         </div>
         <el-table
+          ref="quotationTableRef"
           row-key="id"
           :data="quotationTableData"
           class="no-radius"
@@ -256,26 +257,49 @@
           @selection-change="SelectionQuotationChange"
           empty-text="请添加产品"
         >
-          <el-table-column label="" width="54" cell-class-name="center-cell">
+          <!-- <el-table-column label="" width="54" cell-class-name="center-cell">
             <template #default="scope">
               <div class="flex-center">
-                <img :src="$getAssetsImages('price/icon-del-one.png')" alt="" class="cursor-pointer" @click="delQuotationItem(scope.row.id)" />
+                <img
+                  :src="$getAssetsImages('price/icon-del-one.png')"
+                  alt=""
+                  class="cursor-pointer w-18px h-18px"
+                  @click="delQuotationItem(scope.row.id)"
+                />
                 <img
                   :src="$getAssetsImages('price/icon-add-one.png')"
                   alt=""
-                  class="cursor-pointer ml-4"
+                  class="cursor-pointer ml-4 w-18px h-18px"
                   @click="appendNewItemToPrice(scope.row.id)"
                 />
               </div>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column type="selection" width="30" />
-          <el-table-column label="序号" width="44">
+          <el-table-column label="序号" width="60">
             <template #default="scope">
-              <div class="flex-center"> {{ scope.row.index }} </div>
+              <div class="table-index">
+                <div class="flex-center"> {{ scope.row.index }} </div>
+              </div>
+              <div class="table-btns">
+                <div class="flex-center">
+                  <img
+                    :src="$getAssetsImages('price/icon-del-one.png')"
+                    alt=""
+                    class="cursor-pointer w-18px h-18px"
+                    @click="delQuotationItem(scope.row.id)"
+                  />
+                  <img
+                    :src="$getAssetsImages('price/icon-add-one.png')"
+                    alt=""
+                    class="cursor-pointer ml-4 w-18px h-18px"
+                    @click="appendNewItemToPrice(scope.row.id)"
+                  />
+                </div>
+              </div>
             </template>
           </el-table-column>
-          <el-table-column label="产品名称" prop="name">
+          <el-table-column label="产品名称" prop="name" min-width="180">
             <template #default="scope">
               <el-input
                 class="table-input"
@@ -297,7 +321,7 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="型号规格" prop="spec_name">
+          <el-table-column label="型号规格" prop="spec_name" min-width="180">
             <template #default="scope">
               <div class="flex-center" v-if="scope.row.spec_name">
                 <el-input
@@ -578,7 +602,15 @@
             table-layout="fixed"
             highlight-current-row
           >
-            <el-table-column label="序号" width="44">
+            <el-table-column label="排序" width="60">
+              <template #default="scope">
+                <div class="flex-center">
+                  <el-icon><Rank /></el-icon>
+                  <div style="display: none">{{ scope.row.sort }}</div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="序号" width="60">
               <template #default="scope">
                 <div class="flex-center"> {{ scope.row.index }} </div>
               </template>
@@ -649,20 +681,20 @@
             <el-input v-model="quotationInfo.address" placeholder="请输入" style="width: 430px" @change="changeValue('address')"> </el-input>
           </div>
           <div class="mt-20 flex search-box">
-            <div class="label">展示铜价：</div>
+            <div class="label">铜价铝价：</div>
             <div class="flex items-center">
               <el-switch
-                v-model="quotationInfo.is_copper_price"
+                v-model="quotationInfo.is_raw_price"
                 class="mr-14"
                 style="--el-switch-on-color: #04b500"
                 :active-value="1"
                 :inactive-value="0"
-                @change="changeValue('is_copper_price')"
+                @change="changeValue('is_raw_price')"
               />
-              <div style="font-size: 14px; color: #666666"> {{ quotationInfo.is_copper_price ? '是' : '否' }} </div>
+              <div style="font-size: 14px; color: #666666"> {{ quotationInfo.is_raw_price ? '展示' : '隐藏' }} </div>
             </div>
           </div>
-          <div class="mt-20 flex search-box" v-if="quotationInfo.is_copper_price">
+          <div class="mt-20 flex search-box" v-if="quotationInfo.is_raw_price">
             <div class="label">铜<span style="opacity: 0">铜价</span>价：</div>
             <el-input
               v-model="quotationInfo.generation_copper_price"
@@ -672,22 +704,9 @@
               class="quantity-input"
               type="number"
             >
-            </el-input> </div
-          ><div class="mt-20 flex search-box">
-            <div class="label">展示铝价：</div>
-            <div class="flex items-center">
-              <el-switch
-                v-model="quotationInfo.is_aluminum_price"
-                class="mr-14"
-                style="--el-switch-on-color: #04b500"
-                :active-value="1"
-                :inactive-value="0"
-                @change="changeValue('is_aluminum_price')"
-              />
-              <div style="font-size: 14px; color: #666666"> {{ quotationInfo.is_aluminum_price ? '是' : '否' }} </div>
-            </div>
+            </el-input>
           </div>
-          <div class="mt-20 flex search-box" v-if="quotationInfo.is_aluminum_price">
+          <div class="mt-20 flex search-box" v-if="quotationInfo.is_raw_price">
             <div class="label">铝<span style="opacity: 0">铝价</span>价：</div>
             <el-input
               v-model="quotationInfo.generation_aluminum_price"
@@ -894,7 +913,7 @@
     clearTimeout(timer.value);
     timer.value = setTimeout(() => {
       searchByKeyword(e);
-    }, 300);
+    }, 200);
   }
   const searchList = ref<any>([]);
   const isHasSpec = ref<any>(false);
@@ -932,10 +951,12 @@
     offsetStyle.value = null;
   }
   const timer2 = ref<any>(null);
+  const searchKeyword = ref<any>(null);
   function changeTableSearch(e: any) {
     clearTimeout(timer2.value);
     timer2.value = setTimeout(() => {
       searchByTableKeyword(e);
+      searchKeyword.value = e;
     }, 300);
   }
   const tableSearchList = ref<any>([]);
@@ -992,7 +1013,10 @@
   }
   const isBottom = ref<any>(null);
   const offsetStyle = ref<any>(null);
+  const quotationTableRef = ref<any>(null);
+
   function setColorAndShowTable(e: any, item: any, key: any) {
+    searchKeyword.value = null;
     const rect = e.target.getBoundingClientRect();
     let bodyHeight = document.documentElement.clientHeight;
     if (rect.bottom > bodyHeight / 2) {
@@ -1001,6 +1025,7 @@
       isBottom.value = false;
     }
     offsetStyle.value = { top: rect.bottom + 2 + 'px', left: rect.x - 12 + 'px', display: 'block' };
+    quotationTableRef.value.setCurrentRow(item);
     setColor(item, key);
     activeSearchId.value = item.id;
     showTableSearchTable.value = true;
@@ -1648,7 +1673,8 @@
       max-height: 426px;
       overflow: hidden;
       .table-tr {
-        height: 28px;
+        padding: 2px 0;
+        min-height: 28px;
         background: #ffffff;
         border-radius: 0px 0px 0px 0px;
         font-family: Microsoft YaHei;
@@ -1702,6 +1728,9 @@
     background: #ffffff;
     border-radius: 0px 0px 0px 0px;
   }
+  :deep(.el-tree-node__children .el-tree-node__content) {
+    padding-left: 46px !important;
+  }
   :deep(.el-tree-node__expand-icon),
   :deep(.el-tree-node__leaf-icon) {
     display: none !important;
@@ -1733,17 +1762,45 @@
       color: #333333;
     }
   }
+  :deep(.el-tree div:not(.el-tree-node__children) .el-tree-node__content:hover) {
+    background: #f4f9ff;
+    border-radius: 0px 0px 0px 0px;
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    .label {
+      color: #0066ff;
+    }
+  }
+  :deep(.el-tree-node__children .el-tree-node:hover) {
+    background: #f4f9ff;
+    border-radius: 0px 0px 0px 0px;
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    .label {
+      color: #0066ff;
+    }
+  }
+  :deep(.el-tree-node__children .el-tree-node:hover) {
+    background: #f4f9ff;
+    border-radius: 0px 0px 0px 0px;
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    .label {
+      color: #0066ff;
+    }
+  }
   :deep(.el-tree--highlight-current .el-tree-node__children .el-tree-node.is-current > .el-tree-node__content) {
     background: #f4f9ff;
     border-radius: 0px 0px 0px 0px;
     font-family: Microsoft YaHei;
     font-weight: 400;
     border-right: 2px solid #0066ff;
-    .el-tree-node__label {
+    .label {
       font-size: 14px;
       color: #0066ff;
     }
   }
+
   .right-content {
     padding: 20px;
     flex: 0 0 calc(100% - 260px);
@@ -2363,6 +2420,31 @@
   :deep(.el-radio__inner:hover) {
     border-color: #dcdcdc;
   }
+
+  :deep(.el-table__row) {
+    .table-index {
+      display: block;
+    }
+    .table-btns {
+      display: none;
+    }
+  }
+  :deep(.el-table__row:hover) {
+    .table-index {
+      display: none;
+    }
+    .table-btns {
+      display: block;
+    }
+  }
+  :deep(.el-table__row.current-row) {
+    .table-index {
+      display: none;
+    }
+    .table-btns {
+      display: block;
+    }
+  }
 </style>
 <style>
   .select-type {
@@ -2477,12 +2559,15 @@
     background: rgba(233, 239, 255, 0.6);
     border: 1px solid #ececec;
   }
+  input {
+    font-size: 14px !important;
+  }
   .table-input input::placeholder {
-    font-size: 12px !important;
+    font-size: 14px !important;
     color: #333333 !important;
   }
   .quantity-input input::placeholder {
-    font-size: 12px !important;
+    font-size: 14px !important;
     color: #666 !important;
   } /* 针对 Chrome、Safari、Edge、Opera */
   .quantity-input .el-input__inner::-webkit-outer-spin-button,
