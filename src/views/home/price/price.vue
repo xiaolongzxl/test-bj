@@ -1194,7 +1194,7 @@
         return item;
       });
       shopType.value = res.data.shop_id;
-      if (shopList.value == 0) {
+      if (shopList.value.length == 0) {
         getShop();
       }
       if (res.data.is_unit_price == 1) {
@@ -1267,7 +1267,7 @@
   async function changeShopType() {
     let res = await editQuotation({
       quotation_id: quotationInfo.value.id,
-      shop_id: shopType.value,
+      template_id: shopType.value,
     });
     if (res.code == 200) {
       $message({
