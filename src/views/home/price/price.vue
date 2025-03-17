@@ -657,7 +657,7 @@
               <el-radio-group v-model="shopType" @change="changeShopType">
                 <el-radio v-for="item in shopList" :key="item.id" :value="item.id"
                   ><img :src="item.logo" alt="" class="mr-6" style="width: 18px; height: 18px; border-radius: 2px" />
-                  <span>{{ item.shop_name }}</span>
+                  <span>{{ item.company_name }}</span>
                 </el-radio>
               </el-radio-group>
             </div>

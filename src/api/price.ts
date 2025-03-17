@@ -185,7 +185,7 @@ export function quotationSpecSort(data: any) {
  */
 export function getShopList() {
   return defHttp.request({
-    url: root + '/api/quotation_pc/getShopList',
+    url: root + '/api/quotation_pc/getTemplateList',
     method: 'post',
   });
 }
