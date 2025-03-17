@@ -1193,7 +1193,7 @@
         item.index = index + 1;
         return item;
       });
-      shopType.value = res.data.shop_id;
+      shopType.value = res.data.template_id;
       if (shopList.value.length == 0) {
         getShop();
       }
