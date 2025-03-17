@@ -1513,11 +1513,11 @@
           arr.push({ spec_list_id: item.id });
           return item;
         });
-        sotrById(arr);
+        sortById(arr);
       },
     });
   }
-  async function sotrById(sortIds: any) {
+  async function sortById(sortIds: any) {
     let res = await quotationSpecSort({
       quotation_id: quotationInfo.value.id,
       sort: JSON.stringify(sortIds),
