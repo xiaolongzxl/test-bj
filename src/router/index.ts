@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
-import { fileMenuStore } from '@/store/fileMenu.js';
+// import { fileMenuStore } from '@/store/fileMenu.js';
 
 export let routes: RouteRecordRaw[] = [];
 routes = [
@@ -164,15 +164,15 @@ const router = createRouter({
   routes,
 });
 
-let isFirst: Boolean = true;
+// let isFirst: Boolean = true;
 
-const getFirst = (to, next) => {
-  if (to?.meta?.needAutoFind) {
-    if (fileMenuStore()[`${to.meta.idx}Cate`]?.length) {
-      return next({ path: `${to.path}/${fileMenuStore()[`${to.meta.idx}Cate`][0].id}`, replace: true });
-    }
-  }
-};
+// const getFirst = (to: any, next: any) => {
+//   if (to?.meta?.needAutoFind) {
+//     if (fileMenuStore()[`${to.meta.idx}Cate`]?.length) {
+//       return next({ path: `${to.path}/${fileMenuStore()[`${to.meta.idx}Cate`][0].id}`, replace: true });
+//     }
+//   }
+// };
 router.beforeEach(async (to: any, _from, next) => {
   let token = localStorage.getItem('token') || '';
   if (!token) {
@@ -183,13 +183,13 @@ router.beforeEach(async (to: any, _from, next) => {
     }
     return; // 结束逻辑
   } else {
-    if (isFirst) {
-      await fileMenuStore().addFileRouter();
-      isFirst = false;
-      getFirst(to, next);
-      return next({ ...to, replace: true });
-    }
-    getFirst(to, next);
+    // if (isFirst) {
+    //   await fileMenuStore().addFileRouter();
+    //   isFirst = false;
+    //   getFirst(to, next);
+    //   return next({ ...to, replace: true });
+    // }
+    // getFirst(to, next);
     next(); // 如果已经是登录页，直接放行
   }
 });
