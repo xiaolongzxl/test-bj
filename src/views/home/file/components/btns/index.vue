@@ -49,5 +49,19 @@
   const handleUploadBtnClick = (item) => {
     console.log('点击了上传', item);
   };
+  const handleDownload = (url, fileName) => {
+    const parallelDownload = (files) => {
+      files.forEach((file) => {
+        const link = document.createElement('a');
+        link.href = file.url;
+        link.download = file.name;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        URL.revokeObjectURL(link.href);
+        document.body.removeChild(link);
+      });
+    };
+  };
 </script>
 <style lang="less" scoped></style>

@@ -3,83 +3,112 @@
     <div class="contain-left">
       <div class="btns">
         <div class="btns-left">
-          <el-button type="info" plain>新建</el-button>
-          <el-button type="info" plain>上传</el-button>
+          <FileBtns :btnType="['add', 'upload']" />
         </div>
         <div class="btns-right">
-          <el-button type="info" plain>下载</el-button>
-          <el-button type="info" plain>移动</el-button>
-          <el-button type="info" plain>复制</el-button>
-          <el-button type="info" plain>删除</el-button>
+          <FileBtns :btnType="['download', 'move', 'copy', 'del']" />
         </div>
       </div>
       <div class="search">
         <div class="search-left">
-          <div class="title-icon"></div>
-          <div> 文件列表：</div>
+          <BreadCrumbs :addLevel="addLevel" :activeBread="activeBread" @routeChange="routeChange" />
         </div>
         <div class="search-right">
-          <el-input v-model="input1" style="width: 240px" placeholder="搜索当前文件夹">
-            <template #append>
-              <div class="flex flex-center">
-                <img class="mr1" :src="$getAssetsImages('file/table-inp.png')" />
-                搜索
-              </div>
-            </template>
-          </el-input>
+          <Search searchType="pageSearch" />
+          <FileShow v-model:fileShowType="fileShowType" />
         </div>
       </div>
-
-      <div class="table-wrapper">
-        <el-table class="contain-table" v-loading="loading" :data="dataList" row-key="id" :header-row-style="{ cursor: 'move' }">
-          <el-table-column label="" align="center" min-width="40">
-            <template #default>
-              <img class="drag-handle" :src="$getAssetsImages('file/table-drag.png')" />
-            </template>
-          </el-table-column>
-          <el-table-column label="文件名称" sortable prop="name" align="center" min-width="120"></el-table-column>
-          <el-table-column label="创建人" prop="creatby" align="center" min-width="120"></el-table-column>
-          <el-table-column label="修改时间" sortable prop="updateTime" align="center" min-width="120"></el-table-column>
-          <el-table-column label="文件大小" sortable prop="size" align="center" min-width="120"></el-table-column>
-          <el-table-column label="操作" align="center" min-width="120"></el-table-column>
-        </el-table>
-      </div>
+      <SelfTable :row="row" v-model:checkedList="checkedList" @clickFile="handleClickFile" :dataList="dataList" :fileShowType="fileShowType" />
     </div>
+    <div class="contain-right"><FileDetail :file="clickFile" /> </div>
+    <UploadCeri />
   </div>
 </template>
 <script setup>
+  import SelfTable from '@/views/home/file/components/selfTable.vue';
+  import UploadCeri from '../components/certificateModel.vue';
+  import Search from '@/views/home/file/components/search.vue';
+  import BreadCrumbs from '@/views/home/file/components/breadCrumbs.vue';
+
+  import FileShow from '@/views/home/file/components/changeFileShowType.vue';
+  import FileDetail from '@/views/home/file/components/fileDetail/index.vue';
+  import { fileType } from '@/utils/util';
+  const activeBread = ref('电缆项目1-文件夹');
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-  import Sortable from 'sortablejs';
+  const fileShowType = ref('ggst');
   const input1 = ref('');
   const loading = ref(false);
+  const addLevel = ref([{ name: '电缆项目1-文件夹', id: 2, path: '456' }]);
   const dataList = ref([
-    { name: 'name1', creatby: '姓名', updateTime: '1', size: '2', id: 1 },
-    { name: 'name2', creatby: '姓名', updateTime: '2', size: '3', id: 2 },
-    { name: 'name3', creatby: '姓名', updateTime: '3', size: '4', id: 3 },
+    { name: 'name1', creatby: '姓名', updateTime: '1', size: '2', id: 1, type: 'wjj' },
+    { name: 'name2', creatby: '姓名', updateTime: '2', size: '3', id: 2, type: 'word' },
+    { name: 'name3', creatby: '姓名', updateTime: '3', size: '4', id: 3, type: 'ppt' },
+  ]);
+  const checkedList = ref([1, 2]);
+  const clickFile = ref({});
+  const route = useRoute();
+  import fileMenuStore from '@/store/fileMenu';
+  const row = ref([
+    {
+      key: 'drag',
+      label: '',
+      minWidth: 80,
+      align: 'center',
+    },
+    {
+      isSort: true,
+      key: 'name',
+      prop: 'name',
+      addType: true,
+      label: '合同模板',
+      minWidth: 120,
+      align: 'center',
+    },
+    {
+      key: 'creatby',
+      prop: 'creatby',
+      label: '创建人',
+      minWidth: 120,
+      align: 'center',
+    },
+    {
+      key: 'updateTime',
+      prop: 'updateTime',
+      isSort: true,
+      label: '修改时间',
+      minWidth: 120,
+      align: 'center',
+    },
+    {
+      key: 'size',
+      prop: 'size',
+      isSort: true,
+      label: '文件大小',
+      minWidth: 120,
+      align: 'center',
+    },
+    {
+      key: 'handle',
+      label: '操作',
+      minWidth: 120,
+      align: 'center',
+    },
   ]);
 
-  // 初始化拖拽
-  const initRowDrag = () => {
-    const tbody = document.querySelector('.el-table__body-wrapper tbody');
-    Sortable.create(tbody, {
-      handle: '.drag-handle', // 拖拽手柄选择器
-      animation: 150,
-      onEnd: ({ newIndex, oldIndex }) => {
-        // 同步数据顺序
-        const temp = dataList.value[oldIndex];
-        dataList.value.splice(oldIndex, 1);
-        dataList.value.splice(newIndex, 0, temp);
-      },
-    });
+  watch(
+    () => route.params.cateId,
+    (n) => {},
+    {
+      immediate: true,
+    }
+  );
+  const handleClickFile = (item) => {
+    console.log(item);
+    clickFile.value = item;
   };
-  onMounted(() => {
-    initRowDrag();
-  });
+  const routeChange = (item) => {};
+  provide('checkedList', checkedList.value);
 </script>
 <style lang="less" scoped>
   @import '../components/common.less';
-  .drag-handle {
-    cursor: move;
-    user-select: none;
-  }
 </style>
