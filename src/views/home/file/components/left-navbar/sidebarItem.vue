@@ -1,35 +1,22 @@
 <template>
-  <div v-if="!item.hidden">
+  <div v-if="!item.meta?.hidden">
     <template v-if="hasOneShowingChild(item.children, item)">
       <RouterLink :to="resolvePath(oneChild.path)">
         <el-menu-item :index="resolvePath(oneChild.path)">
           <div class="flex flex-center menuitem">
             <img v-if="oneChild.meta?.icon" class="menuitem-icon" :src="$getAssetsImages(imgIcon)" />
+            <!-- <div class="menuitem-icon" v-else></div> -->
             <div class="menuitem-text">{{ oneChild.meta?.title }}</div>
           </div>
         </el-menu-item>
       </RouterLink>
-      <!-- <RouterLink :to="resolvePath(oneChild.path)" v-if="!props.isChangePath">
-        <el-menu-item :index="resolvePath(oneChild.path)">
-          <div class="flex flex-center menuitem">
-            <img class="menuitem-icon" :src="$getAssetsImages(imgIcon)" />
-            <div class="menuitem-text">{{ oneChild.meta?.title }}</div>
-          </div>
-        </el-menu-item>
-      </RouterLink> -->
-      <!-- <el-menu-item v-else @click="pathClick(basePath)" :index="basePath">
-        <div class="flex flex-center menuitem">
-          <img class="menuitem-icon" :src="$getAssetsImages(imgIcon)" />
-          <div class="menuitem-text">{{ oneChild.meta?.title }}</div>
-        </div>
-      </el-menu-item> -->
     </template>
 
-    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" popper-append-to-body>
+    <el-sub-menu v-else ref="subMenu" :index="item.path" popper-append-to-body>
       <template #title>
         <div class="flex flex-center menuitem">
           <img class="menuitem-icon" :src="$getAssetsImages(imgIcon)" />
-          <div class="menuitem-text">{{ oneChild.meta?.title }}</div>
+          <div class="menuitem-text">{{ item.meta?.title }}</div>
         </div>
       </template>
       <SidebarItem
@@ -41,7 +28,7 @@
         :key="child.path"
         :is-nest="true"
         :item="child"
-        :base-path="resolvePath(child.isChangePath ? child.id : child.path)"
+        :base-path="resolvePath(child.path)"
         class="nest-menu"
       />
     </el-sub-menu>
@@ -111,27 +98,20 @@
 
       return true;
     }
-    console.log(oneChild.value);
+
     return false;
   };
   const resolvePath = (routePath, routeQuery) => {
     return getPath(props.basePath + '/' + routePath);
   };
-  const pathClick = (item) => {
-    console.log(item);
-    console.log(oneChild.value);
-  };
+  const pathClick = (item) => {};
   const getPath = (p) => {
     if (p.length === 0 || !p || p == 'undefined') {
       return p;
     }
     let res = p.replace('//', '/');
     let resArr = res.split('/');
-    let Idx = resArr.findIndex((e) => e.includes(':'));
-    if (Idx) {
-      resArr.splice(Idx, 1);
-      res = resArr.join('/');
-    }
+
     if (res[res.length - 1] === '/') {
       return res.slice(0, res.length - 1);
     }
@@ -166,6 +146,7 @@
   }
   .el-sub-menu {
     .el-menu-item {
+      --el-menu-level-padding: 32px;
       .menuitem {
         font-size: 15px;
       }

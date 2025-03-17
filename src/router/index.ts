@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
+import { fileMenuStore } from '@/store/fileMenu.js';
 
 export let routes: RouteRecordRaw[] = [];
 routes = [
@@ -33,16 +34,32 @@ routes = [
         redirect: '/file/company-space',
         children: [
           {
-            path: '/file/company-space/:cateId(\\d+)',
+            path: '/file/company-space',
             name: 'companySpace',
             meta: {
               // keepAlive: false,
               title: '公司空间',
               icon: 'gskj',
               topbar: 'search',
+              needAutoFind: true,
+              idx: 'gs',
             },
+            children: [
+              {
+                path: ':cateId(\\d+)',
+                name: 'companySpaceCategory',
 
-            component: defineAsyncComponent(() => import('@/views/home/file/company-space/index.vue')),
+                meta: {
+                  hidden: true,
+                  needAutoFind: false,
+                  activeOpen: '/file/company-space',
+                  // keepAlive: false,
+                  topbar: 'search',
+                },
+                component: defineAsyncComponent(() => import('@/views/home/file/company-space/index.vue')),
+              },
+            ],
+            component: () => import('@/views/home/file/company-space/routerLink.vue'),
           },
 
           {
@@ -53,8 +70,25 @@ routes = [
               title: '部门空间',
               icon: 'bmkj',
               topbar: 'search',
+              needDynamicRoute: true,
+              needAutoFind: true,
+              idx: 'bm',
             },
-            component: defineAsyncComponent(() => import('@/views/home/file/sector-space/index.vue')),
+            children: [
+              {
+                path: ':cateId(\\d+)',
+                name: 'sectorSpaceCategory',
+                meta: {
+                  hidden: true,
+                  needAutoFind: false,
+                  activeOpen: '/file/sector-space',
+                  // keepAlive: false,
+                  topbar: 'search',
+                },
+                component: defineAsyncComponent(() => import('@/views/home/file/sector-space/index.vue')),
+              },
+            ],
+            component: defineAsyncComponent(() => import('@/views/home/file/sector-space/routerLink.vue')),
           },
           {
             path: '/file/contract-template',
@@ -130,7 +164,16 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, _from, next) => {
+let isFirst: Boolean = true;
+
+const getFirst = (to, next) => {
+  if (to?.meta?.needAutoFind) {
+    if (fileMenuStore()[`${to.meta.idx}Cate`]?.length) {
+      return next({ path: `${to.path}/${fileMenuStore()[`${to.meta.idx}Cate`][0].id}`, replace: true });
+    }
+  }
+};
+router.beforeEach(async (to: any, _from, next) => {
   let token = localStorage.getItem('token') || '';
   if (!token) {
     if (to.path !== '/login') {
@@ -139,7 +182,15 @@ router.beforeEach(async (to, _from, next) => {
       next(); // 如果已经是登录页，直接放行
     }
     return; // 结束逻辑
+  } else {
+    if (isFirst) {
+      await fileMenuStore().addFileRouter();
+      isFirst = false;
+      getFirst(to, next);
+      return next({ ...to, replace: true });
+    }
+    getFirst(to, next);
+    next(); // 如果已经是登录页，直接放行
   }
-  next(); // 如果已经是登录页，直接放行
 });
 export default router;
