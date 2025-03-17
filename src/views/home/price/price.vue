@@ -1547,6 +1547,7 @@
     let res = await generateQuotation({
       quotation_id: quotationInfo.value.id,
       quotation_remark: JSON.stringify(resList),
+      template_id: shopType.value,
     });
     loadingInstance.close();
     if (res.code == 200) {
