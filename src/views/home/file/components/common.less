@@ -75,6 +75,16 @@
         border-radius: 8px 8px 0px 0px;
         border: 1px solid #ececec;
       }
+      &__row {
+        &.drop-target-folder {
+          transform: scale(1.1);
+          transition: transform 0.2s;
+        }
+        &.drop-line {
+          transform: scale(0.8);
+          transition: transform 0.2s;
+        }
+      }
 
       &__cell {
         --el-table-header-bg-color: #f4f5f7 !important;
@@ -163,10 +173,6 @@
           }
         }
         &-icon {
-          /* 禁用图片拖拽 */
-          pointer-events: none;
-          user-drag: none;
-          -webkit-user-drag: none;
         }
         &-text {
           font-family:

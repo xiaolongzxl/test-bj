@@ -18,7 +18,7 @@
           <FileShow v-model:fileShowType="fileShowType" />
         </div>
       </div>
-      <SelfTable :row="row" v-model:checkedList="checkedList" @clickFile="handleClickFile" :dataList="dataList" :fileShowType="fileShowType" />
+      <SelfTable :row="row" v-model:checkedList="checkedList" @clickFile="handleClickFile" v-model:dataList="dataList" :fileShowType="fileShowType" />
     </div>
     <div class="contain-right"><FileDetail :file="clickFile" /> </div>
     <UploadCeri />
