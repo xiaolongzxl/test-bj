@@ -85,8 +85,7 @@
   </div>
 </template>
 <script setup>
-  import { Sortable, MultiDrag } from 'sortablejs';
-
+  import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
   const props = defineProps({
     dataList: {
       type: Array,
@@ -159,22 +158,25 @@
     } else {
       containDom = document.querySelector('.el-table__body-wrapper tbody');
     }
-
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const multiDragKey = isMac ? 'Meta' : 'Ctrl';
     // if (!containDom) return;
     sortInstance = Sortable.create(containDom, {
       ...options,
       handle: '.drag-handle',
       multiDrag: true,
-      multiDragKey: 'Ctrl',
+      multiDragKey: multiDragKey,
       avoidImplicitDeselect: false,
       ghostClass: 'sortable-ghost', // 新增幽灵类
       chosenClass: 'sortable-chosen', // 新增选中类
       forceFallback: true,
-      selectedClass: 'avtice',
+      selectedClass: 'active',
       animation: 150,
+      fallbackTolerance: 3,
       // 核心事件处理
       onSelect: function (evt) {
         console.log(evt);
+        console.log(sortInstance);
         let { item } = evt;
         const id = item.dataset.id;
         if (!checkedList.value.includes(id)) {
@@ -246,6 +248,11 @@
         // emits('update:dataList', newList);
       },
     });
+    const items = document.querySelectorAll('.multi-selected.active');
+    if (items.length > 1) {
+      Sortable.utils.select(items[0]); // 默认选中第一个
+      Sortable.utils.select(items[1]); // 默认选中第二个
+    }
   };
   // 数组重排序工具
   const reorderArray = (arr, oldIndexes, newIndex) => {
@@ -313,7 +320,6 @@
   const handleCommand = (command) => {};
 
   onMounted(() => {
-    Sortable.mount(new MultiDrag());
     initRowDrag();
     nextTick(() => {
       // 初始选中状态同步
