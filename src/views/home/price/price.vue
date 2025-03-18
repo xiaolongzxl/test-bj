@@ -1799,6 +1799,7 @@
   :deep(.el-tree-node:focus > .el-tree-node__content) {
     background: rgba(0, 0, 0, 0);
   }
+
   :deep(.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content) {
     background: rgba(0, 0, 0, 0);
     border-radius: 0px 0px 0px 0px;
@@ -1809,7 +1810,14 @@
       color: #333333;
     }
   }
-  :deep(.el-tree div:not(.el-tree-node__children) .el-tree-node__content:hover) {
+  :deep(.el-tree-node .el-tree-node__content:not(.el-tree-node__children .el-tree-node__content)) {
+    background: #fff;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+  }
+  :deep(.el-tree .el-tree-node__content:not(.el-tree-node__children .el-tree-node__content):hover) {
     background: #f4f9ff;
     border-radius: 0px 0px 0px 0px;
     font-family: Microsoft YaHei;
