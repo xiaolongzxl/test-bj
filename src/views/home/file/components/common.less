@@ -77,12 +77,29 @@
       }
       &__row {
         &.drop-target-folder {
-          transform: scale(1.1);
+          transform: scale(1.05);
           transition: transform 0.2s;
+
+          .el-table__cell {
+            background-color: rgba(145, 167, 255, 0.3);
+          }
+        }
+        &.moving-to-folder {
+          transform: scale(0.95);
+          transition: transform 0.2s;
+
+          .el-table__cell {
+            opacity: 0.6;
+          }
         }
         &.drop-line {
           transform: scale(0.8);
           transition: transform 0.2s;
+        }
+        &.active {
+          .el-table__cell {
+            background-color: var(--el-table-row-hover-bg-color);
+          }
         }
       }
 
@@ -171,6 +188,8 @@
           .showCheckbox {
             display: block;
           }
+
+          border: 2px solid #017ffd !important;
         }
         &-icon {
         }

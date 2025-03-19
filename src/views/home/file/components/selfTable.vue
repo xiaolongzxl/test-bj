@@ -1,20 +1,28 @@
 <template>
-  <div class="table-wrapper" :class="fileShowType" @dragover.prevent="handleDragOver" @dragleave.prevent="handleDragLeave" @drop.prevent="handleDrop">
-    <template v-if="fileShowType != 'ggst'">
+  <el-checkbox-group v-model="checkedList">
+    <div
+      class="table-wrapper"
+      :class="fileShowType"
+      @dragover.prevent="handleDragOver"
+      @dragleave.prevent="handleDragLeave"
+      @drop.prevent="handleDrop"
+    >
       <el-table
+        ref="tableRef"
+        v-show="fileShowType != 'ggst'"
         @row-click="handleClickFile"
         @row-dblclick="handleChangeFolder"
         class="contain-table"
         v-loading="loading"
         :data="dataList"
         row-key="id"
-        :header-row-style="{ cursor: 'move' }"
+        :row-class-name="({ row }) => (selectable(row) ? 'active' : '')"
       >
         <template v-for="item in props.row" :key="item.key">
           <el-table-column v-bind="item" :sortable="item.isSort">
             <template #default="scope">
               <template v-if="item.key == 'drag'">
-                <img class="drag-handle" :src="$getAssetsImages('file/table-drag.png')" />
+                <img v-show="checkedList?.length ? selectable(scope.row) : true" class="drag-handle" :src="$getAssetsImages('file/table-drag.png')" />
               </template>
               <template v-if="item.custom">
                 <slot name="custom" :row="scope.row" :index="scope.$index"></slot>
@@ -41,6 +49,9 @@
                   </template>
                 </el-dropdown>
               </template>
+              <template v-else-if="item.key == 'select'">
+                <el-checkbox :value="scope.row.id"></el-checkbox>
+              </template>
               <template v-else>
                 <!-- 默认内容或空状态 -->
                 {{ scope.row[item.key] }}
@@ -49,43 +60,46 @@
           </el-table-column>
         </template>
       </el-table>
-    </template>
-    <div class="grid-wrapper" v-else>
-      <div class="grid-head">
-        <div class="grid-head-item"> 全选 </div>
-        <div class="grid-head-item"> 排序 </div>
-      </div>
-      <el-checkbox-group class="grid-body" v-loading="loading" v-model="checkedList" @change="handleCheckedListChange">
-        <div
-          class="grid-file"
-          :class="{
-            'multi-selected active': checkedList.includes(item.id),
-            'drop-target-folder': isDropTarget,
-          }"
-          @click="handleClickFile(item)"
-          @dblclick="handleChangeFolder(item)"
-          v-for="(item, index) in dataList"
-          :key="item.id"
-          :data-index="index"
-        >
-          <el-checkbox :value="item.id" class="showCheckbox"></el-checkbox>
-          <div class="drag-handle">
-            <div class="grid-file-icon">
-              <img :src="$getAssetsImages(fileType(item.type, true))" />
+      <div class="grid-wrapper" v-show="fileShowType == 'ggst'">
+        <div class="grid-head">
+          <div class="grid-head-item"> 全选 </div>
+          <div class="grid-head-item"> 排序 </div>
+        </div>
+        <!-- <el-checkbox-group class="grid-body" v-loading="loading" v-model="checkedList">
+
+      </el-checkbox-group> -->
+        <div class="grid-body">
+          <div
+            class="grid-file"
+            :class="{
+              active: selectable(item),
+            }"
+            @click="handleClickFile(item)"
+            @dblclick="handleChangeFolder(item)"
+            v-for="item in dataList"
+            :key="item.id"
+            :data-index="item.id"
+          >
+            <el-checkbox :value="item.id" class="showCheckbox"></el-checkbox>
+            <div :class="(checkedList?.length ? selectable(item) : true) ? 'drag-handle' : 'drag-no'">
+              <div class="grid-file-icon">
+                <img :src="$getAssetsImages(fileType(item.type, true))" />
+              </div>
+              <div class="grid-file-text">{{ item.name }}</div>
             </div>
-            <div class="grid-file-text">{{ item.name }}</div>
           </div>
         </div>
-      </el-checkbox-group>
+      </div>
+      <div class="fixedUpload" v-if="!tableDrag && isDropTable">
+        <img :src="$getAssetsImages('file/dropUpload.png')" />
+        <el-button class="mt-10" color="#017FFD">拖动到这里进行上传</el-button>
+      </div>
     </div>
-    <div class="fixedUpload" v-if="!tableDrag && isDropTable">
-      <img :src="$getAssetsImages('file/dropUpload.png')" />
-      <el-button class="mt-10" color="#017FFD">拖动到这里进行上传</el-button>
-    </div>
-  </div>
+  </el-checkbox-group>
 </template>
 <script setup>
   import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
+  const tableRef = ref(null);
   const props = defineProps({
     dataList: {
       type: Array,
@@ -116,14 +130,25 @@
   const emits = defineEmits(['clickFile', 'update:checkedList', 'update:dataList']);
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   import { fileType } from '@/utils/util';
+  import { update } from 'lodash';
   const isDropTable = ref(false);
-  const isDropTarget = ref(false);
-  const selectedItems = ref(new Set());
+
+  const selectable = (row) => {
+    return checkedList.value.includes(row?.id);
+  };
   watch(
     () => props.fileShowType,
     (nval) => {
       nextTick(() => {
-        initRowDrag();
+        if (props.checkedList.length) {
+          checkedList.value = [...props.checkedList];
+        }
+        if (nval != 'ggst') {
+          tableRef.value.doLayout();
+        }
+        if (nval != 'xlb') {
+          initRowDrag();
+        }
       });
     }
   );
@@ -136,13 +161,54 @@
       }
     }
   );
+  watch(
+    () => checkedList.value,
+    (newVal, oldVal) => {
+      nextTick(() => {
+        const containDom =
+          props.fileShowType == 'ggst' ? document.querySelector('.grid-body') : document.querySelector('.el-table__body-wrapper tbody');
+        if (sortInstance) {
+          if (!oldVal?.length) {
+          } else {
+            console.log(oldVal);
+            oldVal.forEach((id) => {
+              const index = indexMap.value.get(id);
+              console.log(id, index);
+              if (index >= 0) {
+                const Griditem = document.querySelector('.grid-body').children[index];
+                const Tableitem = document.querySelector('.el-table__body-wrapper tbody').children[index];
+                console.log(id, Griditem, Tableitem);
+                Sortable.utils.deselect(Griditem);
+                Sortable.utils.deselect(Tableitem);
+              }
+            });
+          }
+
+          // 同步新选中项
+          newVal.forEach((id) => {
+            const index = indexMap.value.get(id);
+            if (index !== undefined) {
+              const item = containDom.children[index];
+              Sortable.utils.select(item);
+            }
+          });
+        }
+        // 触发外部更新
+
+        emits('update:checkedList', newVal);
+      });
+    },
+    {
+      immediate: true,
+      deep: true,
+    }
+  );
   // 索引映射优化
   const indexMap = computed(() => new Map(props.dataList.map((item, index) => [item.id, index])));
   // 初始化拖拽
   const initRowDrag = () => {
     const isGrid = props.fileShowType === 'ggst';
     if (sortInstance) {
-      sortInstance.destroy();
     }
     let containDom = null;
     let handle = '';
@@ -166,103 +232,87 @@
       handle: '.drag-handle',
       multiDrag: true,
       multiDragKey: multiDragKey,
-      avoidImplicitDeselect: false,
-      ghostClass: 'sortable-ghost', // 新增幽灵类
-      chosenClass: 'sortable-chosen', // 新增选中类
       forceFallback: true,
       selectedClass: 'active',
       animation: 150,
+      avoidImplicitDeselect: true,
       fallbackTolerance: 3,
       // 核心事件处理
-      onSelect: function (evt) {
-        console.log(evt);
-        console.log(sortInstance);
-        let { item } = evt;
-        const id = item.dataset.id;
+      onSelect: function ({ item }) {
+        const { id } = getItemByDOM(item);
+        console.log(item, 219);
         if (!checkedList.value.includes(id)) {
           checkedList.value = [...checkedList.value, id];
         }
       },
 
       onDeselect: ({ item }) => {
-        const id = item.dataset.id;
+        // console.log(item, 222);
+        console.log(item);
+        const { id } = getItemByDOM(item);
         checkedList.value = checkedList.value.filter((v) => v !== id);
       },
       onStart: (evt) => {
         tableDrag.value = true;
       },
       onMove(evt) {
-        const targetItem = getItemByDOM(evt.related);
-        const targetRow = getItemByDOM(evt.related, 'row');
+        const targetRow = evt.related.closest('.el-table__row, .grid-file');
+        const targetItem = getItemByDOM(targetRow, 'data', 'move');
 
         // 如果是文件夹则显示移动样式
         if (targetItem?.type === 'wjj') {
-          evt.dragged.classList.add('moving-to-folder');
-
-          targetRow.classList.add('drop-target-folder');
+          // evt.dragged.classList.add('moving-to-folder');
+          // targetRow.classList.add('drop-target-folder');
           return false;
         } else {
-          evt.dragged.classList.remove('moving-to-folder');
-          document.querySelectorAll('.drop-target-folder').forEach((el) => el.classList.remove('drop-target-folder'));
+          // document.querySelectorAll('.drop-target-folder').forEach((el) => el.classList.remove('drop-target-folder'));
+          // evt.dragged.classList.remove('moving-to-folder');
         }
         return true;
       },
 
       onEnd: (evt) => {
+        // document.querySelectorAll('.drop-target-folder').forEach((el) => el.classList.remove('drop-target-folder'));
         // 处理文件夹拖放
-        const targetItem = getItemByDOM(evt.to);
+        const targetRow = evt.item.closest('.el-table__row, .grid-file');
+        const targetItem = getItemByDOM(targetRow, 'data', 'end');
         if (targetItem?.type === 'folder') {
-          handleMoveToFolder(targetItem);
+          // handleMoveToFolder(targetItem);
           return;
         }
-
-        // 正常排序逻辑
-        const oldIndexes = [...evt.oldIndicies].map((i) => i.index);
-        const newIndex = evt.newIndex > evt.oldIndex ? evt.newIndex - oldIndexes.length + 1 : evt.newIndex;
+        console.log(evt);
 
         // 执行批量移动
-        const newList = reorderArray(props.dataList, oldIndexes, newIndex);
+        const newList = reorderArray(evt);
+        emits('update:checkedList', []);
         emits('update:dataList', newList);
-        // 清理样式
-        // item.classList.remove('moving-to-folder');
-        // document.querySelectorAll('.drop-target-folder').forEach((el) => {
-        //   el.classList.remove('drop-target-folder');
-        // });
-
-        // // 获取目标项（双重验证）
-        // const targetDom = getItemByDOM(item, 'dom');
-        // const targetData = getItemByDOM(targetDom);
-
-        // // 如果目标是文件夹
-        // if (targetData?.type === 'wjj') {
-        //   console.log('移动');
-        //   return;
-        // }
-
-        // // 同步数据顺序
-        // // 正常排序逻辑
-        // const newList = [...props.dataList];
-        // const [movedItem] = newList.splice(oldIndex, 1);
-        // newList.splice(newIndex, 0, movedItem);
-        // tableDrag.value = false;
-        // emits('update:dataList', newList);
       },
     });
-    const items = document.querySelectorAll('.multi-selected.active');
-    if (items.length > 1) {
-      Sortable.utils.select(items[0]); // 默认选中第一个
-      Sortable.utils.select(items[1]); // 默认选中第二个
-    }
+    console.log(sortInstance);
   };
   // 数组重排序工具
-  const reorderArray = (arr, oldIndexes, newIndex) => {
-    const movedItems = oldIndexes.map((i) => arr[i]).reverse();
-    let tempArr = arr.filter((_, i) => !oldIndexes.includes(i));
-    tempArr.splice(newIndex, 0, ...movedItems);
+  const reorderArray = ({ oldIndicies, newIndicies, newIndex, oldIndex }) => {
+    const tempArr = [...props.dataList];
+    if (oldIndicies.length > 0) {
+      //多行拖动排序
+      let targetRowList = [];
+      oldIndicies.forEach((item) => {
+        let data = tempArr[item.index];
+        targetRowList.push(data);
+      });
+      tempArr.splice(oldIndicies[0].index, oldIndicies.length);
+      tempArr.splice(newIndicies[0].index, 0, ...targetRowList);
+    } else {
+      //单行拖动排序
+      const targetRow = tempArr[oldIndex];
+      tempArr.splice(oldIndex, 1);
+      tempArr.splice(newIndex, 0, targetRow);
+    }
     return tempArr;
   };
   // 新增DOM到数据项的映射方法
-  const getItemByDOM = (domElement, type = 'data') => {
+  const getItemByDOM = (domElement, type = 'data', flag) => {
+    // console.log(flag)
     if (!domElement) return null;
 
     // 统一处理两种视图
@@ -277,9 +327,10 @@
     if (isGrid) {
       const container = row.parentElement;
       // 过滤有效子元素（重要！）
-      const validChildren = Array.from(container.children).filter((el) => el.classList.contains(selector.replace('.', '')));
+      const validChildren = Array.from(container.children).filter((el) => el.classList.contains('grid-file'));
       index = validChildren.indexOf(row);
     } else {
+      // console.log(row, row.rowIndex, 297, flag);
       index = row.rowIndex; // 表格视图使用原生rowIndex
     }
 
@@ -294,37 +345,15 @@
     console.log('双击某个数据');
   };
   const handleCheckedListChange = (val) => {
-    // 同步到 Sortable
-    if (sortInstance) {
-      const indexes = val.map((id) => indexMap.value.get(id)).filter((i) => i !== undefined);
-      const doms = document.querySelectorAll('.grid-body .grid-file');
-      // // 模拟用户点击事件以触发插件选中逻辑（关键步骤！）
-      function simulateMultiSelect(element) {
-        const event = new MouseEvent('click', {
-          bubbles: true,
-          ctrlKey: true, // 模拟按住 Ctrl 键
-        });
-        element.dispatchEvent(event);
-      }
-      indexes.forEach((i) => {
-        nextTick(() => {
-          simulateMultiSelect(doms[i]);
-        });
-      });
-    }
-
-    // 触发外部更新
-
-    emits('update:checkedList', val);
+    emits(
+      'update:checkedList',
+      val.map((e) => e.id)
+    );
   };
   const handleCommand = (command) => {};
 
   onMounted(() => {
     initRowDrag();
-    nextTick(() => {
-      // 初始选中状态同步
-      handleCheckedListChange(checkedList.value);
-    });
   });
   const handleDragOver = () => {
     // console.log('dropover');
@@ -345,38 +374,15 @@
 </script>
 <style lang="less" scoped>
   @import '../components/common.less';
-  // 多选拖拽样式
-  .multi-drag-ghost {
-    position: fixed;
-    background: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    transform: rotate(-3deg);
-    z-index: 9999;
 
-    .badge {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background: #017ffd;
-      color: white;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-  }
-
-  .multi-selected {
-    background: #f0f6ff;
-    border: 2px solid #017ffd !important;
-  }
   .drag-handle {
     cursor: move;
     user-select: none;
+  }
+  .drag-no {
+    cursor: no-drop;
+    user-select: none;
+    pointer-events: none;
   }
   /* 新增拖拽到文件夹的样式 */
 

@@ -43,6 +43,7 @@
     { name: 'name1', creatby: '姓名', updateTime: '1', size: '2', id: 1, type: 'wjj' },
     { name: 'name2', creatby: '姓名', updateTime: '2', size: '3', id: 2, type: 'word' },
     { name: 'name3', creatby: '姓名', updateTime: '3', size: '4', id: 3, type: 'ppt' },
+    { name: 'name4', creatby: '姓名', updateTime: '3', size: '4', id: 4, type: 'excel' },
   ]);
   const checkedList = ref([1, 2]);
   const clickFile = ref({});
@@ -52,7 +53,13 @@
     {
       key: 'drag',
       label: '',
-      minWidth: 80,
+      minWidth: 40,
+      align: 'center',
+    },
+    {
+      key: 'select',
+      label: '',
+      minWidth: 40,
       align: 'center',
     },
     {
