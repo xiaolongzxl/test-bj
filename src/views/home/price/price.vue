@@ -228,7 +228,7 @@
           <div class="search-table" style="top: 0; left: 0">
             <div class="table-head flex-center" v-if="tableSearchList.length != 0">
               <div class="f-48 pl-30">产品名称</div>
-              <div class="f-48 xian pl-8">型号规格</div>
+              <div class="f-48 xian pl-8" v-if="isTableHasSpec">型号规格</div>
             </div>
             <div class="table-body scroll-none">
               <div class="table-tr flex-center" v-if="tableSearchList.length == 0">
