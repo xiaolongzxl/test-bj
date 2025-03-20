@@ -168,8 +168,9 @@ let isFirst: Boolean = true;
 
 const getFirst = (to: any, next: any) => {
   if (to?.meta?.needAutoFind) {
-    if (fileMenuStore()[`${to.meta.idx}Cate`]?.length) {
-      return next({ path: `${to.path}/${fileMenuStore()[`${to.meta.idx}Cate`][0].id}`, replace: true });
+    let fileMenuStoreValue: any = fileMenuStore();
+    if (fileMenuStoreValue[`${to.meta.idx}Cate`]?.length) {
+      return next({ path: `${to.path}/${fileMenuStoreValue[`${to.meta.idx}Cate`][0].id}`, replace: true });
     }
   }
 };
