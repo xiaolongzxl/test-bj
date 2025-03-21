@@ -1,7 +1,9 @@
 <template>
   <el-popover popper-class="btn-popover" placement="bottom" trigger="click" key="add">
     <template #reference>
-      <el-button type="info" plain>新建</el-button>
+      <el-button text bg size="large"
+        >新建 <el-icon class="ml-4"><CaretBottom /></el-icon
+      ></el-button>
     </template>
     <div class="popover-wrapper">
       <div class="popover-top">新建</div>

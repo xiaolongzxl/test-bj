@@ -1,7 +1,9 @@
 <template>
   <el-popover popper-class="btn-popover" placement="bottom" trigger="click" key="upload">
     <template #reference>
-      <el-button type="info" plain>上传</el-button>
+      <el-button text bg size="large"
+        >上传<el-icon class="ml-4"><CaretBottom /></el-icon
+      ></el-button>
     </template>
     <div class="popover-wrapper uploadPopover">
       <div class="popover-top">上传</div>

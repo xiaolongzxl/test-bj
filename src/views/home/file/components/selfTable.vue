@@ -1,106 +1,102 @@
 <template>
-  <el-checkbox-group v-model="checkedList">
-    <div
-      class="table-wrapper"
-      :class="fileShowType"
-      @dragover.prevent="handleDragOver"
-      @dragleave.prevent="handleDragLeave"
-      @drop.prevent="handleDrop"
+  <div class="table-wrapper" :class="fileShowType" @dragover.prevent="handleDragOver" @dragleave.prevent="handleDragLeave" @drop.prevent="handleDrop">
+    <el-table
+      ref="tableRef"
+      v-show="fileShowType != 'ggst'"
+      @row-click="handleClickFile"
+      @row-dblclick="handleChangeFolder"
+      class="contain-table"
+      v-loading="loading"
+      :data="dataList"
+      row-key="id"
+      current-row-key="id"
+      :highlight-current-row="props.isCurrentRow"
+      :border="tableBorder"
+      :row-class-name="({ row }) => (isCheck(row) ? 'active' : '')"
     >
-      <el-table
-        ref="tableRef"
-        v-show="fileShowType != 'ggst'"
-        @row-click="handleClickFile"
-        @row-dblclick="handleChangeFolder"
-        class="contain-table"
-        v-loading="loading"
-        :data="dataList"
-        row-key="id"
-        :row-class-name="({ row }) => (selectable(row) ? 'active' : '')"
-      >
-        <template v-for="item in props.row" :key="item.key">
-          <el-table-column v-bind="item" :sortable="item.isSort">
-            <template #default="scope">
-              <template v-if="item.key == 'drag'">
-                <img v-show="checkedList?.length ? selectable(scope.row) : true" class="drag-handle" :src="$getAssetsImages('file/table-drag.png')" />
-              </template>
-              <template v-if="item.custom">
-                <slot name="custom" :row="scope.row" :index="scope.$index"></slot>
-              </template>
-              <template v-else-if="item.addType">
-                <div :data-is-folder="scope.row.type == 'wjj'">
-                  <img :src="$getAssetsImages(fileType(scope.row?.type))" />
-                  <span class="ml1">{{ scope.row.name }}</span>
-                </div>
-              </template>
-              <template v-else-if="item.key == 'handle'">
-                <el-button class="mr-4" plain type="info"><svg-icon name="more" class="mr-4"></svg-icon> 下载 </el-button>
-                <el-dropdown popper-class="changeFileShowPopper" type="primary" @command="handleCommand">
-                  <el-button plain type="info"><svg-icon name="table-download" class="mr-4"></svg-icon> 更多 </el-button>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item command="move">
-                        <div class="dropItem">移动</div>
-                      </el-dropdown-item>
-                      <el-dropdown-item command="copy"> <div class="dropItem">复制</div></el-dropdown-item>
-                      <el-dropdown-item command="del"><div class="dropItem">删除</div></el-dropdown-item>
-                      <el-dropdown-item command="rename"><div class="dropItem">重命名</div></el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-              </template>
-              <template v-else-if="item.key == 'select'">
-                <el-checkbox :value="scope.row.id"></el-checkbox>
-              </template>
-              <template v-else>
-                <!-- 默认内容或空状态 -->
-                {{ scope.row[item.key] }}
-              </template>
+      <template v-for="item in props.row" :key="item.key">
+        <el-table-column v-bind="item" :sortable="item.isSort">
+          <template #default="scope">
+            <template v-if="item.key == 'drag'">
+              <img v-show="checkedList?.length ? isCheck(scope.row) : true" class="drag-handle" :src="$getAssetsImages('file/table-drag.png')" />
             </template>
-          </el-table-column>
-        </template>
-      </el-table>
-      <div class="grid-wrapper" v-show="fileShowType == 'ggst'">
-        <div class="grid-head">
-          <div class="grid-head-item"> 全选 </div>
-          <div class="grid-head-item"> 排序 </div>
-        </div>
-        <!-- <el-checkbox-group class="grid-body" v-loading="loading" v-model="checkedList">
-
-      </el-checkbox-group> -->
-        <div class="grid-body">
-          <div
-            class="grid-file"
-            :class="{
-              active: selectable(item),
-            }"
-            @click="handleClickFile(item)"
-            @dblclick="handleChangeFolder(item)"
-            v-for="item in dataList"
-            :key="item.id"
-            :data-index="item.id"
-          >
-            <el-checkbox :value="item.id" class="showCheckbox"></el-checkbox>
-            <div :class="(checkedList?.length ? selectable(item) : true) ? 'drag-handle' : 'drag-no'">
-              <div class="grid-file-icon">
-                <img :src="$getAssetsImages(fileType(item.type, true))" />
+            <template v-if="item.custom">
+              <slot :name="`${item.key}Custom`" :row="scope.row" :index="scope.$index"></slot>
+            </template>
+            <template v-else-if="item.addType">
+              <div :data-is-folder="scope.row.type == 'wjj'">
+                <img :src="$getAssetsImages(fileType(scope.row?.type))" />
+                <span class="ml1">{{ scope.row.name }}</span>
               </div>
-              <div class="grid-file-text">{{ item.name }}</div>
+            </template>
+            <template v-else-if="item.key == 'handle'">
+              <Btns :btnType="['tablePreview', 'tableDownload', 'tableMore']" />
+            </template>
+            <template v-else-if="item.key == 'select'">
+              <el-checkbox :model-value="isCheck(scope.row)" @change="handleNormalCheck(scope.row)"></el-checkbox>
+            </template>
+            <template v-else>
+              <!-- 默认内容或空状态 -->
+              {{ scope.row[item.key] }}
+            </template>
+          </template>
+          <template #header v-if="item.key == 'select'">
+            <el-checkbox :model-value="isCheckAll" @change="handleCheckAllChange" :indeterminate="isHalfCheck"></el-checkbox>
+          </template>
+        </el-table-column>
+      </template>
+    </el-table>
+    <div class="grid-wrapper" v-show="fileShowType == 'ggst'">
+      <div class="grid-head">
+        <div class="grid-head-item">
+          <el-checkbox :model-value="isCheckAll" @change="handleCheckAllChange" :indeterminate="isHalfCheck">
+            <span>全选</span>
+          </el-checkbox>
+        </div>
+        <div class="grid-head-item"> 排序 </div>
+      </div>
+
+      <div class="grid-body">
+        <div
+          class="grid-file"
+          :class="{
+            active: isCheck(item),
+          }"
+          @click="handleClickFile(item)"
+          @dblclick="handleChangeFolder(item)"
+          v-for="item in dataList"
+          :key="item.id"
+          :data-index="item.id"
+        >
+          <el-checkbox class="showCheckbox" :model-value="isCheck(item)" @change="handleNormalCheck(item)"></el-checkbox>
+          <div class="morebtn">
+            <Btns :btnType="['tableMore']" tableMoreType="card" :lineRow="item" />
+          </div>
+          <div class></div>
+          <div :class="(checkedList?.length ? isCheck(item) : true) ? 'drag-handle' : 'drag-no'">
+            <div class="grid-file-icon">
+              <img :src="$getAssetsImages(fileType(item.type, true))" />
             </div>
+            <div class="grid-file-text">{{ item.name }}</div>
           </div>
         </div>
       </div>
-      <div class="fixedUpload" v-if="!tableDrag && isDropTable">
-        <img :src="$getAssetsImages('file/dropUpload.png')" />
-        <el-button class="mt-10" color="#017FFD">拖动到这里进行上传</el-button>
-      </div>
     </div>
-  </el-checkbox-group>
+    <div class="fixedUpload" v-if="!tableDrag && isDropTable">
+      <img :src="$getAssetsImages('file/dropUpload.png')" />
+      <el-button class="mt-10" color="#017FFD">拖动到这里进行上传</el-button>
+    </div>
+  </div>
 </template>
 <script setup>
   import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
+  import Btns from './btns/index.vue';
   const tableRef = ref(null);
   const props = defineProps({
+    tableBorder: {
+      type: Boolean,
+      default: false,
+    },
     dataList: {
       type: Array,
       default: () => [],
@@ -118,6 +114,10 @@
       type: Array,
       default: () => [],
     },
+    isCurrentRow: {
+      type: Boolean,
+      default: false,
+    },
     row: {
       type: Array,
       default: () => [],
@@ -127,15 +127,21 @@
   const tableDrag = ref(false);
   const clickFile = ref();
   const checkedList = ref([...props.checkedList]);
-  const emits = defineEmits(['clickFile', 'update:checkedList', 'update:dataList']);
+  const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList']);
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   import { fileType } from '@/utils/util';
-  import { update } from 'lodash';
-  const isDropTable = ref(false);
 
-  const selectable = (row) => {
+  const isDropTable = ref(false);
+  const isHalfCheck = computed(() => {
+    return checkedList.value.length > 0 && checkedList.value.length < props.dataList.length;
+  });
+  const isCheckAll = computed(() => {
+    return checkedList.value.length == props.dataList.length;
+  });
+  const isCheck = (row) => {
     return checkedList.value.includes(row?.id);
   };
+
   watch(
     () => props.fileShowType,
     (nval) => {
@@ -159,6 +165,9 @@
       if (JSON.stringify(newVal) !== JSON.stringify(checkedList.value)) {
         checkedList.value = [...newVal];
       }
+    },
+    {
+      immediate: true,
     }
   );
   watch(
@@ -170,14 +179,14 @@
         if (sortInstance) {
           if (!oldVal?.length) {
           } else {
-            console.log(oldVal);
+            // console.log(oldVal, newVal);
             oldVal.forEach((id) => {
               const index = indexMap.value.get(id);
-              console.log(id, index);
+              // console.log(id, index);
               if (index >= 0) {
                 const Griditem = document.querySelector('.grid-body').children[index];
                 const Tableitem = document.querySelector('.el-table__body-wrapper tbody').children[index];
-                console.log(id, Griditem, Tableitem);
+                // console.log(id, Griditem, Tableitem);
                 Sortable.utils.deselect(Griditem);
                 Sortable.utils.deselect(Tableitem);
               }
@@ -197,10 +206,6 @@
 
         emits('update:checkedList', newVal);
       });
-    },
-    {
-      immediate: true,
-      deep: true,
     }
   );
   // 索引映射优化
@@ -239,18 +244,20 @@
       fallbackTolerance: 3,
       // 核心事件处理
       onSelect: function ({ item }) {
-        const { id } = getItemByDOM(item);
-        console.log(item, 219);
-        if (!checkedList.value.includes(id)) {
-          checkedList.value = [...checkedList.value, id];
-        }
+        // const { id } = getItemByDOM(item);
+        // console.log(item, 219);
+        // if (!checkedList.value.includes(id)) {
+        //   checkedList.value = [...checkedList.value, id];
+        // }
+        Sortable.utils.deselect(item);
       },
 
       onDeselect: ({ item }) => {
         // console.log(item, 222);
         console.log(item);
-        const { id } = getItemByDOM(item);
-        checkedList.value = checkedList.value.filter((v) => v !== id);
+        // const { id } = getItemByDOM(item);
+        // checkedList.value = checkedList.value.filter((v) => v !== id);
+        Sortable.utils.select(item);
       },
       onStart: (evt) => {
         tableDrag.value = true;
@@ -288,7 +295,7 @@
         emits('update:dataList', newList);
       },
     });
-    console.log(sortInstance);
+    // console.log(sortInstance);
   };
   // 数组重排序工具
   const reorderArray = ({ oldIndicies, newIndicies, newIndex, oldIndex }) => {
@@ -343,14 +350,28 @@
   };
   const handleChangeFolder = (item) => {
     console.log('双击某个数据');
+    emits('dbClick', item);
   };
-  const handleCheckedListChange = (val) => {
-    emits(
-      'update:checkedList',
-      val.map((e) => e.id)
-    );
+
+  const handleCheckAllChange = () => {
+    let _checkedList = [...checkedList.value];
+
+    if (_checkedList.length == props.dataList.length) {
+      _checkedList = [];
+    } else {
+      _checkedList = props.dataList.map((e) => e.id);
+    }
+    emits('update:checkedList', _checkedList);
   };
-  const handleCommand = (command) => {};
+  const handleNormalCheck = (val) => {
+    let _checkedList = [...checkedList.value];
+    if (_checkedList.includes(val.id)) {
+      _checkedList = _checkedList.filter((e) => e !== val.id);
+    } else {
+      _checkedList.push(val.id);
+    }
+    emits('update:checkedList', _checkedList);
+  };
 
   onMounted(() => {
     initRowDrag();
@@ -384,23 +405,7 @@
     user-select: none;
     pointer-events: none;
   }
-  /* 新增拖拽到文件夹的样式 */
 
-  .dropItem {
-    transition:
-      background-color 0.3s,
-      color 0.3s;
-    width: 100%;
-    padding: 10px 20px;
-    &:hover {
-      background: #f4f9ff;
-      color: #0066ff;
-    }
-    &.active {
-      background: #f4f9ff;
-      color: #0066ff;
-    }
-  }
   /* 拖拽过程样式优化 */
   .sortable-ghost {
     opacity: 0.5;

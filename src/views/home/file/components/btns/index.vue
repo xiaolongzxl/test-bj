@@ -5,16 +5,47 @@
   <template v-if="btnType.includes('upload')">
     <Upload @uploadBtnClick="handleUploadBtnClick" />
   </template>
-  <template v-if="btnType.includes('download')"> <el-button type="info" plain>下载</el-button></template>
+  <template v-if="btnType.includes('download')"> <el-button text bg size="large" class="ml-10">下载</el-button></template>
   <template v-if="btnType.includes('move')"><Move /></template>
-  <template v-if="btnType.includes('copy')"> <el-button type="info" plain class="ml-10">复制</el-button></template>
+  <template v-if="btnType.includes('copy')"> <el-button text bg size="large" plain class="ml-10">复制</el-button></template>
   <template v-if="btnType.includes('del')"><Del /></template>
+  <template v-if="btnType.includes('tablePreview')">
+    <el-button class="mr-4" plain><svg-icon name="preview" class="mr-4"></svg-icon> 预览 </el-button>
+  </template>
+  <template v-if="btnType.includes('tableDownload')">
+    <el-button class="mr-4" plain><svg-icon name="table-download" class="mr-4"></svg-icon> 下载 </el-button>
+  </template>
+  <template v-if="btnType.includes('tableMore')">
+    <TableMore @tableCommand="handleTableCommand" :tableMoreType="props.tableMoreType" />
+  </template>
+  <template v-if="btnType.includes('tableCopy')">
+    <TableCopy :lineRow="lineRow" />
+  </template>
+  <template v-if="btnType.includes('tableHistory')">
+    <TableHistory :lineRow="lineRow" />
+  </template>
+  <template v-if="btnType.includes('tableDel')">
+    <el-button class="tableBtn" @click="handleTrigger('tableDel', props.lineRow)">删除</el-button>
+  </template>
+  <template v-if="btnType.includes('tableRestore')">
+    <el-button class="tableBtn">还原</el-button>
+  </template>
+  <template v-if="btnType.includes('tableAlwaysRemove')">
+    <el-button class="tableBtn">彻底删除</el-button>
+  </template>
+  <template v-if="btnType.includes('tableProperty')">
+    <TableProperty :linerow="lineRow" />
+  </template>
 </template>
 <script setup>
   import Add from './add.vue';
   import Upload from './upload.vue';
   import Del from './del.vue';
   import Move from './move.vue';
+  import TableMore from './tableMore.vue';
+  import TableCopy from './tableCopy.vue';
+  import TableHistory from './tableHistory.vue';
+  import TableProperty from './tableProperty.vue';
   import { fileType } from '@/utils/util';
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   const props = defineProps({
@@ -26,28 +57,25 @@
       type: Array,
       default: () => [],
     },
+    lineRow: {
+      type: Object,
+      default: () => ({}),
+    },
+    tableMoreType: {
+      type: String,
+      default: 'table',
+    },
   });
 
-  const uploadBtns = ref([
-    {
-      line: 1,
-      data: [
-        {
-          type: 'wjj',
-          name: '文件夹',
-        },
-        {
-          type: 'any',
-          name: '文件',
-        },
-      ],
-    },
-  ]);
+  const emits = defineEmits(['btnClickTrigger']);
   const handleAddBtnClick = (item) => {
     console.log('点击了新建', item);
   };
   const handleUploadBtnClick = (item) => {
     console.log('点击了上传', item);
+  };
+  const handleTableCommand = (command) => {
+    console.log('点击了表格更多操作', command);
   };
   const handleDownload = (url, fileName) => {
     const parallelDownload = (files) => {
@@ -63,5 +91,24 @@
       });
     };
   };
+  const handleTrigger = (type, item) => {
+    emits('btnClickTrigger', { type, item });
+  };
 </script>
-<style lang="less" scoped></style>
+<style lang="less">
+  .tableBtn {
+    border: 1px solid #ececec;
+    background: #ffffff;
+    border-radius: 4px 4px 4px 4px;
+    font-family:
+      Microsoft YaHei,
+      Microsoft YaHei;
+    font-weight: 400;
+    font-size: 14px;
+    color: #666666;
+    cursor: pointer;
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+</style>

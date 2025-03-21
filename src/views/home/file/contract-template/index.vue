@@ -14,14 +14,13 @@
           <BreadCrumbs :addLevel="addLevel" :activeBread="activeBread" @routeChange="routeChange" />
         </div>
         <div class="search-right">
-          <Search searchType="pageSearch" />
+          <Search searchType="pageSearch" @searchTrigger="pageSearch" />
           <FileShow v-model:fileShowType="fileShowType" />
         </div>
       </div>
       <SelfTable :row="row" v-model:checkedList="checkedList" @clickFile="handleClickFile" :dataList="dataList" :fileShowType="fileShowType" />
     </div>
     <div class="contain-right"><FileDetail :file="clickFile" /> </div>
-    <UploadCeri />
   </div>
 </template>
 <script setup>
@@ -44,7 +43,7 @@
     { name: 'name2', creatby: '姓名', updateTime: '2', size: '3', id: 2, type: 'word' },
     { name: 'name3', creatby: '姓名', updateTime: '3', size: '4', id: 3, type: 'ppt' },
   ]);
-  const checkedList = ref([1, 2]);
+  const checkedList = ref([]);
   const clickFile = ref({});
   const route = useRoute();
   import fileMenuStore from '@/store/fileMenu';
@@ -53,6 +52,12 @@
       key: 'drag',
       label: '',
       minWidth: 80,
+      align: 'center',
+    },
+    {
+      key: 'select',
+      label: '',
+      minWidth: 40,
       align: 'center',
     },
     {
@@ -94,21 +99,41 @@
       align: 'center',
     },
   ]);
+  const pageSearchTit = ref('');
+  const topSearchTit = inject('topSearch');
 
-  watch(
-    () => route.params.cateId,
-    (n) => {},
-    {
-      immediate: true,
+  watchEffect(() => {
+    if (topSearchTit.value || pageSearchTit.value) {
+      getFileList();
     }
-  );
+  });
+  const init = () => {
+    fileShowType.value = 'dlb';
+    input1.value = '';
+    activeBread.value = '';
+    addLevel.value = [{ name: '电缆项目1-文件夹', id: 2, path: '456' }];
+    dataList.value = [];
+    checkedList.value = [];
+    clickFile.value = {};
+    getFileList();
+  };
+
+  const dblclick = (item) => {
+    console.log(item, '双击');
+  };
+
   const handleClickFile = (item) => {
-    console.log(item);
     clickFile.value = item;
   };
+  const pageSearch = (val) => {
+    pageSearchTit.value = val;
+  };
+  const getFileList = () => {};
   const routeChange = (item) => {};
   provide('checkedList', checkedList.value);
+  init();
 </script>
+
 <style lang="less" scoped>
   @import '../components/common.less';
 </style>

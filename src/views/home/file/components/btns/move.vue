@@ -1,5 +1,5 @@
 <template>
-  <el-button type="info" plain @click="handleOpenMove" :disabled="!checkFiles?.length">移动</el-button>
+  <el-button text bg size="large" @click="handleOpenMove" :disabled="!checkFiles?.length">移动</el-button>
 
   <el-dialog class="self-dialog" :title="title" v-model="moveShow" width="830" center>
     <div class="move-wrapper">

@@ -1,5 +1,5 @@
 <template>
-  <el-button type="info" plain @click="handleOpenDel" :disabled="!checkFiles?.length">删除</el-button>
+  <el-button text bg size="large" @click="handleOpenDel" :disabled="!checkFiles?.length">删除</el-button>
 
   <el-dialog class="self-dialog" title="提示" v-model="delShow" width="500" center>
     <div class="del-wrapper">

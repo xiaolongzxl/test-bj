@@ -32,9 +32,13 @@
   const topbar = computed(() => {
     return route.meta.topbar;
   });
+  const topSearch = ref('');
+
   const searchTrigger = (value) => {
     console.log('搜索结果:', value);
+    topSearch.value = value;
   };
+  provide('topSearch', topSearch.value);
 </script>
 
 <style scoped lang="less">

@@ -49,6 +49,7 @@
   const clickFile = ref({});
   const route = useRoute();
   import fileMenuStore from '@/store/fileMenu';
+  const routeCateId = ref('');
   const row = ref([
     {
       key: 'drag',
@@ -97,18 +98,36 @@
     {
       key: 'handle',
       label: '操作',
-      minWidth: 120,
+      minWidth: 160,
       align: 'center',
     },
   ]);
 
   watch(
     () => route.params.cateId,
-    (n) => {},
+    (n) => {
+      nextTick(() => {
+        routeCateId.value = route.params.cateId;
+        init();
+      });
+    },
     {
       immediate: true,
     }
   );
+  const init = () => {
+    fileShowType.value = 'dlb';
+    input1.value = '';
+    activeBread.value = '';
+    addLevel.value = [];
+    // dataList.value = [];
+    checkedList.value = [];
+    clickFile.value = {};
+    getFileList();
+  };
+
+  const dblclick = () => {};
+  const getFileList = () => {};
   const handleClickFile = (item) => {
     console.log(item);
     clickFile.value = item;

@@ -1,8 +1,9 @@
 <template>
   <el-input
+    :style="{ width: props.width ? props.width : '' }"
     :class="searchType == 'topbar' ? 'topbar-search' : 'page-search'"
     v-model="searchInp"
-    :placeholder="searchType == 'topbar' ? '请输入关键词搜索相关文件...' : '搜索当前文件夹'"
+    :placeholder="props?.placeHolder ? props.placeHolder : searchType == 'topbar' ? '请输入关键词搜索相关文件...' : '搜索当前文件夹'"
   >
     <template #prefix v-if="searchType == 'topbar'">
       <img :src="$getAssetsImages('file/icon-search.png')" />
@@ -21,6 +22,12 @@
     searchType: {
       type: String,
       default: 'topbar',
+    },
+    width: {
+      type: String,
+    },
+    placeHolder: {
+      type: String,
     },
   });
 

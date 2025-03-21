@@ -2,13 +2,13 @@
   <el-dropdown popper-class="changeFileShowPopper" placement="bottom" @command="handleChangeFileShowType">
     <div class="btn">
       <svgIcon :name="activeTypeItem.value" />
-      <img class="btn-icon" :src="$getAssetsImages('file/fileshow/arrow-down.png')" />
+      <img class="btn-icon ml-2" :src="$getAssetsImages('file/fileshow/arrow-down.png')" />
     </div>
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item v-for="item in fileShowList" :key="item.value" :command="item.value"
           ><div class="dropItem" :class="activeType == item.value ? 'active' : ''">
-            <svgIcon :name="item.value" />
+            <svgIcon class="mr-2" :name="item.value" />
             {{ item.name }}
           </div></el-dropdown-item
         >
