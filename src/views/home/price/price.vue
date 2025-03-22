@@ -1151,15 +1151,20 @@
   }
   // 添加报价信息
   async function addQuotationInfo(spec_list: any, isArray: any) {
-    let loadingInstance = ElLoading.service({
-      lock: true,
-      text: 'Loading',
-      background: 'rgba(0, 0, 0, 0.4)',
-    });
+    let loadingInstance = null;
+    if (isArray) {
+      loadingInstance = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.4)',
+      });
+    }
     let res = await addQuotation({
       spec_list,
     });
-    loadingInstance.close();
+    if (isArray) {
+      loadingInstance.close();
+    }
     if (res.code == 200) {
       $message({
         message: '添加成功',
@@ -1813,7 +1818,7 @@
     position: sticky;
     top: 0;
     left: 0;
-    z-index: 9999;
+    z-index: 999;
   }
   :deep(.el-tree .el-tree-node__content:not(.el-tree-node__children .el-tree-node__content):hover) {
     background: #f4f9ff;
