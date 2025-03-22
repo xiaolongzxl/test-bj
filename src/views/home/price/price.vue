@@ -1151,7 +1151,7 @@
   }
   // 添加报价信息
   async function addQuotationInfo(spec_list: any, isArray: any) {
-    let loadingInstance = null;
+    let loadingInstance: any = null;
     if (isArray) {
       loadingInstance = ElLoading.service({
         lock: true,
