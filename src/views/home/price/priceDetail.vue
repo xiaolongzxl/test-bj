@@ -28,7 +28,7 @@
             </div>
             <div style="flex: 0 0 20%" flex>
               <div class="label">报价人：</div>
-              <div class="value">{{ detailInfo.nickname }}</div>
+              <div class="value">{{ detailInfo.generation_user_name }}</div>
             </div>
           </div>
           <div style="height: calc(100% - 220px)">
