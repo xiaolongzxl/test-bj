@@ -1,7 +1,5 @@
 <template>
-  <div class="login-header flex-start pl-24">
-    <img :src="$getAssetsImages('login/logo.png')" alt="" />
-  </div>
+  <div class="login-header flex-start pl-24"> <img :src="$getAssetsImages('logo/logo.png')" alt="" style="height: 36px" /> </div>
   <div class="login-body flex justify-evenly items-center">
     <div class="login-img">
       <div>
@@ -216,7 +214,7 @@
 <style scoped lang="less">
   .login-header {
     width: 100%;
-    height: 85px;
+    height: 70px;
     background: #ffffff;
     border-radius: 0px 0px 0px 0px;
     box-shadow: 0px 3px 6px 0px rgba(128, 128, 128, 0.2);
@@ -225,7 +223,7 @@
   }
   .login-body {
     // padding: 0 334px;
-    height: calc(100% - 85px);
+    height: calc(100% - 70px);
     background: url('@/assets/images/login/bg-login.png') no-repeat;
     background-position: center center;
     background-size: 100% 100%;

@@ -198,10 +198,10 @@
           <div class="add-btns ml-10" @click="changeColor('isBlackText')" :style="isBlackText ? 'opacity:1' : 'opacity:.5'">
             <img :src="$getAssetsImages('price/icon-black.png')" alt="" />
           </div>
-          <!-- <div class="add-btns ml-10">
+          <div class="add-btns ml-10" @click="appendNewItemToPrice(null)">
             <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
-            <span>新增空白数据</span>
-          </div> -->
+            <span>新增数据</span>
+          </div>
           <div class="add-btns ml-10" @click="showAdjustPrice">
             <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
             <span>价格调整</span>
@@ -254,6 +254,7 @@
           highlight-current-row
           @selection-change="SelectionQuotationChange"
           empty-text="请添加产品"
+          @click="handleQuotationClick"
         >
           <!-- <el-table-column label="" width="54" cell-class-name="center-cell">
             <template #default="scope">
@@ -315,6 +316,7 @@
                 @focus="(e: any) => setColorAndShowTable(e, scope.row, 'name')"
                 :class="scope.row.name.color"
                 @input="changeTableSearch"
+                @change="(e) => changeTableValue(e, scope.row, 'name')"
                 v-else
               />
             </template>
@@ -1246,9 +1248,15 @@
   }
   // 再指定位置插入
   async function appendNewItemToPrice(id: any) {
-    let ind = quotationTableData.value.findIndex((item: any) => {
-      return item.id == id;
-    });
+    let ind: any = '';
+    if (id) {
+      ind = quotationTableData.value.findIndex((item: any) => {
+        return item.id == id;
+      });
+    } else {
+      ind = quotationTableData.value.length - 1;
+    }
+
     let res = await addQuotation({
       spec_list: JSON.stringify([{ sort: ind + 1 }]),
     });
@@ -1304,6 +1312,11 @@
   const multipleQuotationSelection = ref<any>([]);
   function SelectionQuotationChange(val: any) {
     multipleQuotationSelection.value = val;
+  }
+  function handleQuotationClick(event: any) {
+    if (event.target.className.includes('el-scrollbar__wrap')) {
+      quotationTableRef.value.setCurrentRow();
+    }
   }
   // 清空报价单
   const clearDialog = ref<boolean>(false);

@@ -1,7 +1,7 @@
 <template>
   <div class="home-header flex-between pl-24 pr-40">
     <div class="flex-between left-logo">
-      <img :src="$getAssetsImages('logo/logo.png')" alt="" />
+      <img :src="$getAssetsImages('logo/logo.png')" alt="" style="height: 36px" />
       <div class="card-tab flex">
         <div :class="{ active: activePage == '/price' }" @click="changePage('/price')" class="no-select cursor-pointer mr-50 ml-130 flex-center"
           >报价系统</div
