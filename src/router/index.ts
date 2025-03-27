@@ -192,9 +192,7 @@ const router = createRouter({
 });
 
 const getFirst = (to: any, next: any) => {
-  console.log(123);
-  const fileMenuStoreValue: any = fileMenuStore();
-  const fileRoutes = fileMenuStoreValue.allRoutes;
+  const fileRoutes = fileMenuStore().allRoutes;
   if (to) {
     let cur = fileRoutes.find((item: any) => item.path == to.path);
     if (cur) {
@@ -221,8 +219,9 @@ router.beforeEach(async (to: any, _from, next) => {
     }
     return; // 结束逻辑
   } else {
-    if (to.path === '/file' || fileMenuStore().allRoutes.length === 0) {
+    if (to.path.includes('/file') && fileMenuStore().allRoutes.length === 0) {
       await fileMenuStore().getMenus();
+
       getFirst(to.path === '/file' ? null : to, next);
       return;
     }
