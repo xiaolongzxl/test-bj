@@ -203,6 +203,8 @@ const getFirst = (to: any, next: any) => {
       } else {
         next({ path: cur.meta.fullpath, replace: true });
       }
+    } else {
+      next(to);
     }
   } else {
     getFirst(fileRoutes[0], next);
@@ -221,10 +223,12 @@ router.beforeEach(async (to: any, _from, next) => {
   } else {
     if (to.path === '/file' || fileMenuStore().allRoutes.length === 0) {
       await fileMenuStore().getMenus();
-      return getFirst(to.path === '/file' ? null : to, next);
+      getFirst(to.path === '/file' ? null : to, next);
+      return;
     }
     if (to?.meta?.needAutoFind) {
-      return getFirst(to, next);
+      getFirst(to, next);
+      return;
     }
     next(); // 如果已经是登录页，直接放行
   }
