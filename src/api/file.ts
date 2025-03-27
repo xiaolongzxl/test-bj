@@ -3,12 +3,11 @@ const root = '';
 import defHttp from '@/service';
 
 /***
- * 接口名称
+ * 验证码登录
  */
-export function interface_name(data: any) {
+export function getLeftMenus() {
   return defHttp.request({
-    url: root + 'interface_url',
-    method: 'post',
-    data,
+    url: root + '/api/pan/getFolderCategory',
+    method: 'POST',
   });
 }

@@ -15,20 +15,7 @@
     const { path } = route;
     return path;
   });
-  const gsMenu = ref([
-    {
-      id: 1,
-      title: '二级分类',
-    },
-    {
-      id: 2,
-      title: '二级分类2',
-    },
-    {
-      id: 3,
-      title: '二级分类3',
-    },
-  ]);
+
   const activeOpen = computed(() => {
     if (route.meta?.activeOpen) {
       return [route.meta.activeOpen];
@@ -38,7 +25,8 @@
   });
 
   const routers = computed(() => {
-    return fileMenuStore().getFileRoute()?.children;
+    // console.log(fileMenuStore().getFileRoute());
+    return fileMenuStore().routes;
     let _routers = getFileRoute(allRoutes).children.map((e) => {
       if (e.name == 'companySpace') {
         e.children = gsMenu.value.map((e) => ({
