@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 import fileMenuStore from '@/store/fileMenu.js';
-import { get } from 'lodash';
+// import { get } from 'lodash';
 
 export let routes: RouteRecordRaw[] = [];
 routes = [
@@ -194,7 +194,7 @@ const router = createRouter({
 const getFirst = (to: any, next: any) => {
   const fileRoutes = fileMenuStore().allRoutes;
   if (to) {
-    let cur = fileRoutes.find((item: any) => item.path == to.path);
+    let cur: any = fileRoutes.find((item: any) => item.path == to.path);
     if (cur) {
       if (cur.meta.needAutoFind) {
         getFirst(cur.children[0], next);

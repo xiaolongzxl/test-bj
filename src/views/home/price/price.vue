@@ -634,7 +634,17 @@
                 <div class="flex-center" :class="scope.row.quantity.color">{{ scope.row.quantity.content }}</div>
               </template>
             </el-table-column>
-
+            <el-table-column label="单价" prop="number" width="90">
+              <template #default="scope">
+                <div class="flex-center" v-if="quotationType == 0" :class="scope.row.spec_price.color">{{ scope.row.spec_price.content }}</div>
+                <div class="flex-center" v-if="quotationType == 1" :class="scope.row.spec_price_tax.color">{{
+                  scope.row.spec_price_tax.content
+                }}</div>
+                <div class="flex-center" v-if="quotationType == 2" :class="scope.row.spec_price_tax_ordinary.color">{{
+                  scope.row.spec_price_tax_ordinary.content
+                }}</div>
+              </template>
+            </el-table-column>
             <el-table-column label="金额" prop="number" width="90">
               <template #default="scope">
                 <div class="flex-center" :class="scope.row.amount.color">{{ scope.row.amount.content }}</div>
