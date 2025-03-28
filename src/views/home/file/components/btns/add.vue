@@ -30,23 +30,23 @@
         },
       ],
     },
-    {
-      line: 2,
-      data: [
-        {
-          type: 'word',
-          name: '文档',
-        },
-        {
-          type: 'excel',
-          name: '表格',
-        },
-        {
-          type: 'ppt',
-          name: '幻灯片',
-        },
-      ],
-    },
+    // {
+    //   line: 2,
+    //   data: [
+    //     {
+    //       type: 'word',
+    //       name: '文档',
+    //     },
+    //     {
+    //       type: 'excel',
+    //       name: '表格',
+    //     },
+    //     {
+    //       type: 'ppt',
+    //       name: '幻灯片',
+    //     },
+    //   ],
+    // },
   ]);
   const handleAddBtnClick = (item) => {
     console.log('点击了新建', item);

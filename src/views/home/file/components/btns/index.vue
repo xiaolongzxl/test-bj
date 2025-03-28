@@ -5,9 +5,13 @@
   <template v-if="btnType.includes('upload')">
     <Upload @uploadBtnClick="handleUploadBtnClick" />
   </template>
-  <template v-if="btnType.includes('download')"> <el-button text bg size="large" class="ml-10">下载</el-button></template>
+  <template v-if="btnType.includes('download')">
+    <el-button text bg size="large" class="ml-10" :disabled="props.checkedFiles.length == 0">下载</el-button></template
+  >
   <template v-if="btnType.includes('move')"><Move /></template>
-  <template v-if="btnType.includes('copy')"> <el-button text bg size="large" plain class="ml-10">复制</el-button></template>
+  <template v-if="btnType.includes('copy')">
+    <el-button :disabled="props.checkedFiles.length == 0" text bg size="large" plain class="ml-10">复制</el-button></template
+  >
   <template v-if="btnType.includes('del')"><Del /></template>
   <template v-if="btnType.includes('tablePreview')">
     <el-button class="mr-4" plain><svg-icon name="preview" class="mr-4"></svg-icon> 预览 </el-button>
@@ -47,6 +51,7 @@
   import TableHistory from './tableHistory.vue';
   import TableProperty from './tableProperty.vue';
   import { fileType } from '@/utils/util';
+
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   const props = defineProps({
     btnType: {
@@ -67,7 +72,7 @@
     },
   });
 
-  const emits = defineEmits(['btnClickTrigger']);
+  const emits = defineEmits(['btnClickTrigger', 'update:checkedFiles']);
   const handleAddBtnClick = (item) => {
     console.log('点击了新建', item);
   };
@@ -90,6 +95,9 @@
         document.body.removeChild(link);
       });
     };
+  };
+  const handleChangeCheckedFiles = (item = []) => {
+    emits('updeta:checkedFiles', item);
   };
   const handleTrigger = (type, item) => {
     emits('btnClickTrigger', { type, item });

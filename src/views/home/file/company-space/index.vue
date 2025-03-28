@@ -6,7 +6,7 @@
           <FileBtns :btnType="['add', 'upload']" />
         </div>
         <div class="btns-right">
-          <FileBtns :btnType="['download', 'move', 'copy', 'del']" />
+          <FileBtns v-model:checkedFiles="checkedList" :btnType="['download', 'move', 'copy', 'del']" />
         </div>
       </div>
       <div class="search">
@@ -29,10 +29,10 @@
   import UploadCeri from '../components/certificateModel.vue';
   import Search from '@/views/home/file/components/search.vue';
   import BreadCrumbs from '@/views/home/file/components/breadCrumbs.vue';
-
   import FileShow from '@/views/home/file/components/changeFileShowType.vue';
   import FileDetail from '@/views/home/file/components/fileDetail/index.vue';
   import { fileType } from '@/utils/util';
+  import { getFileListApi } from '@/api/file';
   const activeBread = ref('电缆项目1-文件夹');
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   const fileShowType = ref('ggst');
@@ -45,7 +45,7 @@
     { name: 'name3', creatby: '姓名', updateTime: '3', size: '4', id: 3, type: 'ppt' },
     { name: 'name4', creatby: '姓名', updateTime: '3', size: '4', id: 4, type: 'excel' },
   ]);
-  const checkedList = ref([1, 2]);
+  const checkedList = ref([]);
   const clickFile = ref({});
   const route = useRoute();
   import fileMenuStore from '@/store/fileMenu';
@@ -98,7 +98,7 @@
     {
       key: 'handle',
       label: '操作',
-      minWidth: 160,
+      minWidth: 200,
       align: 'center',
     },
   ]);
@@ -115,25 +115,38 @@
       immediate: true,
     }
   );
+  const activeRouteValue = computed(() => {
+    return fileMenuStore().allRoutes.find((e) => e.meta.id == routeCateId.value);
+  });
+
   const init = () => {
-    fileShowType.value = 'dlb';
+    fileShowType.value = 'ggst';
     input1.value = '';
     activeBread.value = '';
     addLevel.value = [];
     // dataList.value = [];
     checkedList.value = [];
     clickFile.value = {};
+    console.log(activeRouteValue.value);
     getFileList();
   };
 
   const dblclick = () => {};
-  const getFileList = () => {};
+  const getFileList = async () => {
+    try {
+      const { id, parentId: folder_category_id } = activeRouteValue.value.meta;
+      const res = await getFileListApi({ id, folder_category_id });
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleClickFile = (item) => {
     console.log(item);
     clickFile.value = item;
   };
   const routeChange = (item) => {};
-  provide('checkedList', checkedList.value);
+  provide('checkedList', checkedList);
 </script>
 <style lang="less" scoped>
   @import '../components/common.less';

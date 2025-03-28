@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 import fileMenuStore from '@/store/fileMenu.js';
-// import { get } from 'lodash';
 
 export let routes: RouteRecordRaw[] = [];
 routes = [
@@ -31,6 +30,7 @@ routes = [
         name: 'file',
         meta: {
           keepAlive: false,
+          needAutoFind: true,
         },
         children: [
           {
@@ -43,10 +43,10 @@ routes = [
               // keepAlive: false,
               topbar: 'search',
             },
-            component: defineAsyncComponent(() => import('@/views/home/file/sector-space/index.vue')),
+            component: () => import('@/views/home/file/company-space/index.vue'),
           },
           {
-            path: '/sector-space/:cateId(\\d+)',
+            path: '/file/sector-space/:cateId(\\d+)',
             name: 'sectorSpaceCategory',
             meta: {
               hidden: true,
@@ -55,10 +55,10 @@ routes = [
               // keepAlive: false,
               topbar: 'search',
             },
-            component: defineAsyncComponent(() => import('@/views/home/file/sector-space/index.vue')),
+            component: () => import('@/views/home/file/sector-space/index.vue'),
           },
         ],
-        component: defineAsyncComponent(() => import('@/views/home/file/file.vue')),
+        component: () => import('@/views/home/file/file.vue'),
         // redirect: '/file/company-space',
         // children: [
         //   {
