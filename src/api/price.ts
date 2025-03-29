@@ -183,10 +183,21 @@ export function quotationSpecSort(data: any) {
 /***
  * 获取公司列表
  */
-export function getShopList() {
+export function getShopList(data: any) {
   return defHttp.request({
     url: root + '/api/quotation_pc/getTemplateList',
     method: 'post',
+    data,
+  });
+}
+/***
+ * 获取公司列表
+ */
+export function editRemark(data: any) {
+  return defHttp.request({
+    url: root + '/api/quotation_pc/editRemark',
+    method: 'post',
+    data,
   });
 }
 

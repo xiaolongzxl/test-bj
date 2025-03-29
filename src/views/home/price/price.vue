@@ -764,11 +764,12 @@
                 style="width: 430px"
                 class="mb-10"
                 :value="item.content"
+                @change="(value) => changeRemarkValue(item, value)"
               >
                 <template #prefix>
                   <div class="cursor-pointer">
-                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="item.isSelect" @click="item.isSelect = !item.isSelect" />
-                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="item.isSelect = !item.isSelect" />
+                    <img :src="$getAssetsImages('price/Vector1.png')" alt="" v-if="item.is_selected" @click="changeMarker(item)" />
+                    <img :src="$getAssetsImages('price/Vector.png')" alt="" v-else @click="changeMarker(item)" />
                   </div>
                 </template>
               </el-input>
@@ -831,6 +832,7 @@
     priceAdjustment,
     colorAdjustment,
     getShopList,
+    editRemark,
     specPriceEdit,
     generateQuotation,
     editSpec,
@@ -1209,9 +1211,9 @@
         return item;
       });
       shopType.value = res.data.template_id;
-      if (shopList.value.length == 0) {
-        getShop();
-      }
+      // if (shopList.value.length == 0) {
+      getShop();
+      // }
       if (res.data.is_unit_price == 1) {
         quotationType.value = 0;
       } else if (res.data.is_special_ticket == 1) {
@@ -1297,10 +1299,7 @@
       });
       let result = shopList.value.filter((item: any) => item.id == shopType.value);
       if (result.length > 0) {
-        remark_list.value = result[0].quotation_remark.map((item: any) => {
-          item.isSelect = false;
-          return item;
-        });
+        remark_list.value = result[0].quotation_remark;
       }
     }
   }
@@ -1497,16 +1496,53 @@
   // 获取企业列表
   const shopList = ref<any>([]);
   async function getShop() {
-    let res = await getShopList();
+    let res = await getShopList({
+      quotation_id: quotationInfo.value.id,
+    });
     if (res.code == 200) {
       shopList.value = res.data;
       let result = shopList.value.filter((item: any) => item.id == shopType.value);
       if (result.length > 0) {
-        remark_list.value = result[0].quotation_remark.map((item: any) => {
-          item.isSelect = false;
-          return item;
-        });
+        remark_list.value = result[0].quotation_remark;
       }
+    }
+  }
+  async function changeRemarkValue(item: any, value: any) {
+    let str = item.content;
+    item.content = value;
+    let res = await editRemark({
+      quotation_id: quotationInfo.value.id,
+      remark_id: item.id,
+      content: value,
+    });
+    if (res.code == 200) {
+      remark_list.value = remark_list.value.map((ite: any) => {
+        if (item.id == ite.id) {
+          ite.content = value;
+        }
+        return ite;
+      });
+    } else {
+      item.content = str;
+    }
+  }
+  async function changeMarker(item: any) {
+    if (item.is_require) {
+      return;
+    }
+
+    let res = await editRemark({
+      quotation_id: quotationInfo.value.id,
+      remark_id: item.id,
+      is_selected: !item.is_selected,
+    });
+    if (res.code == 200) {
+      remark_list.value = remark_list.value.map((ite: any) => {
+        if (item.id == ite.id) {
+          ite.is_selected = !item.is_selected;
+        }
+        return ite;
+      });
     }
   }
   // 添加报价单详情
@@ -1559,7 +1595,7 @@
   }
   async function nowGenerateQuotation() {
     let resList = remark_list.value
-      .filter((item: any) => item.isSelect)
+      .filter((item: any) => item.is_selected)
       .map((item: any) => {
         return {
           content: item.content,
