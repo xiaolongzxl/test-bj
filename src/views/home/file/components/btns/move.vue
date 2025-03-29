@@ -63,7 +63,7 @@
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   import { ArrowRight } from '@element-plus/icons-vue';
   import Search from '../search.vue';
-
+  console.log(checkFiles.value);
   const title = ref('123');
   const moveShow = ref(false);
   const breadcrumbs = ref([

@@ -182,6 +182,8 @@ export const fileMenuStore = defineStore('fileMenu', {
             path: menu.id.toString(),
 
             meta: {
+              parentId: menu.parent_id,
+              id: menu.id,
               fullpath: `${activeOpen}/${menu.id}`,
               activeOpen,
               title: menu.name,
@@ -203,6 +205,8 @@ export const fileMenuStore = defineStore('fileMenu', {
 
               name: routeName,
               meta: {
+                parentId: menu.parent_id,
+                id: menu.id,
                 fullpath: `/file${menu.route}`,
                 title: menu.name,
                 icon: menu.icon,

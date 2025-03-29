@@ -91,6 +91,8 @@
 <script setup>
   import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
   import Btns from './btns/index.vue';
+
+  const DROP_THRESHOLD = 0.05; // 20%边界区域
   const tableRef = ref(null);
   const props = defineProps({
     tableBorder: {
@@ -138,17 +140,18 @@
   const isCheckAll = computed(() => {
     return checkedList.value.length == props.dataList.length;
   });
-  const isCheck = (row) => {
-    return checkedList.value.includes(row?.id);
-  };
+  // 优化isCheck计算
+  const checkedSet = computed(() => new Set(checkedList.value));
+  const isCheck = (row) => checkedSet.value.has(row?.id);
 
   watch(
     () => props.fileShowType,
-    (nval) => {
+    async (nval, oldv) => {
+      if (props.checkedList.length) {
+        await handleClearSortList(props.checkedList, oldv);
+        checkedList.value = [...props.checkedList];
+      }
       nextTick(() => {
-        if (props.checkedList.length) {
-          checkedList.value = [...props.checkedList];
-        }
         if (nval != 'ggst') {
           tableRef.value.doLayout();
         }
@@ -162,8 +165,8 @@
   watch(
     () => props.checkedList,
     (newVal) => {
-      if (JSON.stringify(newVal) !== JSON.stringify(checkedList.value)) {
-        checkedList.value = [...newVal];
+      if (newVal.length !== checkedList.value.length || newVal.some((v, i) => v !== checkedList.value[i])) {
+        checkedList.value = newVal.slice();
       }
     },
     {
@@ -184,11 +187,13 @@
               const index = indexMap.value.get(id);
               // console.log(id, index);
               if (index >= 0) {
-                const Griditem = document.querySelector('.grid-body').children[index];
-                const Tableitem = document.querySelector('.el-table__body-wrapper tbody').children[index];
-                // console.log(id, Griditem, Tableitem);
-                Sortable.utils.deselect(Griditem);
-                Sortable.utils.deselect(Tableitem);
+                const item = containDom.children[index];
+                Sortable.utils.deselect(item);
+                // const Griditem = document.querySelector('.grid-body').children[index];
+                // const Tableitem = document.querySelector('.el-table__body-wrapper tbody').children[index];
+                // // console.log(id, Griditem, Tableitem);
+                // Sortable.utils.deselect(Griditem);
+                // Sortable.utils.deselect(Tableitem);
               }
             });
           }
@@ -214,6 +219,7 @@
   const initRowDrag = () => {
     const isGrid = props.fileShowType === 'ggst';
     if (sortInstance) {
+      sortInstance.destroy();
     }
     let containDom = null;
     let handle = '';
@@ -265,29 +271,36 @@
       onMove(evt) {
         const targetRow = evt.related.closest('.el-table__row, .grid-file');
         const targetItem = getItemByDOM(targetRow, 'data', 'move');
-
         // 如果是文件夹则显示移动样式
         if (targetItem?.type === 'wjj') {
-          // evt.dragged.classList.add('moving-to-folder');
-          // targetRow.classList.add('drop-target-folder');
-          return false;
-        } else {
-          // document.querySelectorAll('.drop-target-folder').forEach((el) => el.classList.remove('drop-target-folder'));
-          // evt.dragged.classList.remove('moving-to-folder');
+          const rect = targetRow.getBoundingClientRect();
+          const mouseX = evt.originalEvent.clientX;
+          const mouseY = evt.originalEvent.clientY;
+
+          // 计算相对位置百分比
+          const xPercent = (mouseX - rect.left) / rect.width;
+          const yPercent = (mouseY - rect.top) / rect.height;
+
+          // 判断是否在中心区域 (80%)
+          const isInCentralArea =
+            xPercent > DROP_THRESHOLD && xPercent < 1 - DROP_THRESHOLD && yPercent > DROP_THRESHOLD && yPercent < 1 - DROP_THRESHOLD;
+          // 添加视觉反馈
+
+          // 在中心区域则阻断排序操作
+          return !isInCentralArea;
         }
         return true;
       },
 
       onEnd: (evt) => {
-        // document.querySelectorAll('.drop-target-folder').forEach((el) => el.classList.remove('drop-target-folder'));
         // 处理文件夹拖放
+
         const targetRow = evt.item.closest('.el-table__row, .grid-file');
         const targetItem = getItemByDOM(targetRow, 'data', 'end');
         if (targetItem?.type === 'folder') {
           // handleMoveToFolder(targetItem);
           return;
         }
-        console.log(evt);
 
         // 执行批量移动
         const newList = reorderArray(evt);
@@ -343,6 +356,24 @@
 
     // 返回结果
     return type === 'data' ? (index >= 0 ? props.dataList[index] : null) : row;
+  };
+  const handleClearSortList = (checkList, fileShowType) => {
+    const containDom = fileShowType == 'ggst' ? document.querySelector('.grid-body') : document.querySelector('.el-table__body-wrapper tbody');
+    checkList.forEach((id) => {
+      const index = indexMap.value.get(id);
+      // console.log(id, index);
+      if (index >= 0) {
+        // const Griditem = document.querySelector('.grid-body').children[index];
+        // const Tableitem = document.querySelector('.el-table__body-wrapper tbody').children[index];
+        // // console.log(id, Griditem, Tableitem);
+        // Sortable.utils.deselect(Griditem);
+        // Sortable.utils.deselect(Tableitem);
+
+        const item = containDom.children[index];
+        Sortable.utils.deselect(item);
+        return true;
+      }
+    });
   };
   const handleClickFile = (item) => {
     clickFile.value = item;
