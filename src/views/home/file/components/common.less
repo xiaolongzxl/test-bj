@@ -69,7 +69,7 @@
   }
   &-table {
     max-height: 100%;
-    // height: 100%;
+    height: 100%;
     border: 1px solid #ececec;
     border-top-color: transparent;
     :deep(.el-table) {
@@ -116,6 +116,10 @@
           font-weight: 400;
           font-size: 14px;
           color: #31373d;
+          .tableFileImg {
+            width: 26px;
+            height: 26px;
+          }
         }
       }
     }
@@ -174,6 +178,7 @@
         grid-template-columns: repeat(6, 1fr);
         grid-template-rows: repeat(auto-fill, 218px);
         gap: 20px;
+        overflow: auto;
       }
       &-file {
         display: flex;
@@ -210,6 +215,8 @@
           border: 2px solid #017ffd !important;
         }
         &-icon {
+          width: 110px;
+          height: 110px;
         }
         &-text {
           font-family:
@@ -220,6 +227,7 @@
           color: #000000;
           line-height: 22px;
           margin-top: 20px;
+          text-align: center;
         }
       }
     }

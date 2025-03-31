@@ -31,11 +31,11 @@ class HRequest {
     // 添加默认的拦截器 ->响应拦截器
     this.instance.interceptors.response.use(
       (res: any) => {
-        // console.log(res);
+        console.log(res, '拦截');
         if (res.name == 'AxiosError') {
           throw '请求失败';
         }
-        if (res.data.code == 202) {
+        if (res.data?.code == 202) {
           router.replace({
             path: '/login',
           });
@@ -65,7 +65,7 @@ class HRequest {
           resolve(res);
         })
         .catch((err) => {
-          console.log(err);
+          console.log(err, 456);
         });
     });
   }

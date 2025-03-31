@@ -38,6 +38,7 @@
   const route = useRoute();
   const router = useRouter();
   const userInfoStore: any = UserStore();
+  const fileMenu: any = fileMenuStore();
   // const activePage = ref<any>(null);
   // 默认激活的菜单
   const activePage = computed(() => {
@@ -63,6 +64,7 @@
       company_name: '',
     };
     userInfoStore.setUserInfo(data);
+    fileMenu.clear();
     router.push('/login');
   }
   onMounted(() => {

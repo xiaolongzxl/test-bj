@@ -1,14 +1,14 @@
 <template>
   <el-popover popper-class="btn-popover" placement="bottom" trigger="click" key="add">
     <template #reference>
-      <el-button text bg size="large"
+      <el-button class="mr-10" text bg size="large"
         >新建 <el-icon class="ml-4"><CaretBottom /></el-icon
       ></el-button>
     </template>
     <div class="popover-wrapper">
       <div class="popover-top">新建</div>
       <div class="popover-line" v-for="item in addBtns" :key="item.line">
-        <div class="popover-line-item" v-for="iitem in item.data" :key="iitem.type" @click="handleAddBtnClick(iitem)">
+        <div class="popover-line-item" v-for="iitem in item.data" :key="iitem.type" @click="emits('addBtnClick')">
           <img :src="$getAssetsImages(fileType(iitem.type))" />
           <div class="popover-line-item-text">{{ iitem.name }}</div>
         </div>
@@ -18,6 +18,7 @@
 </template>
 <script setup>
   import { fileType } from '@/utils/util';
+
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   const emits = defineEmits(['addBtnClick']);
   const addBtns = ref([
@@ -25,7 +26,7 @@
       line: 1,
       data: [
         {
-          type: 'wjj',
+          type: '1',
           name: '文件夹',
         },
       ],
@@ -48,10 +49,6 @@
     //   ],
     // },
   ]);
-  const handleAddBtnClick = (item) => {
-    console.log('点击了新建', item);
-    emits('addBtnClick');
-  };
 </script>
 <style lang="less" scoped>
   .popover {
@@ -78,7 +75,7 @@
     }
     &-line {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       &-item {
         cursor: pointer;
         border-radius: 6px 6px 6px 6px;

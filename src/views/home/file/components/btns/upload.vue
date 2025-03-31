@@ -19,15 +19,17 @@
 <script setup>
   import { fileType } from '@/utils/util';
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-  const emits = defineEmits(['uploadBtnClick']);
+  const emits = defineEmits(['listRefresh']);
+  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  import { ElLoading } from 'element-plus';
   const uploadBtns = ref([
     {
       line: 1,
       data: [
-        {
-          type: 'wjj',
-          name: '文件夹',
-        },
+        // {
+        //   type: 'wjj',
+        //   name: '文件夹',
+        // },
         {
           type: 'any',
           name: '文件',
@@ -35,10 +37,55 @@
       ],
     },
   ]);
+  import { fileUpload } from '@/utils/util';
+  const uploadRef = ref(null);
+  const folderQuery = inject('folderQuery');
 
   const handleUploadBtnClick = (item) => {
+    const query = {
+      folder_category_id: folderQuery.value.folder_category_id,
+      folder_id: folderQuery.value.parent_id,
+      type: 1,
+    };
+
     console.log('点击了上传', item);
-    emits('uploadBtnClick', item);
+    // 创建隐藏的 input 元素
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    // 监听文件选择完成事件
+    input.addEventListener('change', async (event) => {
+      const files = event.target.files;
+      if (files.length > 0) {
+        const loading = ElLoading.service({
+          text: '请稍等...',
+          lock: true,
+          background: 'rgba(0, 0, 0, 0.4)',
+        });
+        const res = await fileUpload(files, query);
+
+        let flag = 'success';
+        loading.close();
+        if (res.length) {
+          res.forEach((element) => {
+            if (element.status == 'error') {
+              $message.error(element.error);
+            }
+            if (element.status != 'success') {
+              flag = 'error';
+            }
+          });
+          if (flag == 'success') {
+            $message.success('上传成功');
+          }
+          emits('listRefresh');
+          input.remove();
+        }
+      }
+    });
+
+    // 触发文件选择窗口
+    input.click();
   };
 </script>
 <style lang="less" scoped>
@@ -88,5 +135,8 @@
         }
       }
     }
+  }
+  .noneUpload {
+    display: none;
   }
 </style>

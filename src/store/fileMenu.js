@@ -155,7 +155,7 @@ export const fileMenuStore = defineStore('fileMenu', {
         //   ],
         // };
         if (res.code == 200) {
-          console.log(router, router.hasRoute('file'));
+          // console.log(router, router.hasRoute('file'));
           const lastRoutes = await this.formatMenus(res.data, '/file');
 
           this.setMenu(lastRoutes);
@@ -246,6 +246,10 @@ export const fileMenuStore = defineStore('fileMenu', {
         }
       }
       return res;
+    },
+    clear() {
+      this.allRoutes = [];
+      this.routes = [];
     },
   },
 });

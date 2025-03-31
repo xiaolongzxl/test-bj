@@ -8,8 +8,8 @@
       class="contain-table"
       v-loading="loading"
       :data="dataList"
-      row-key="id"
-      current-row-key="id"
+      row-key="open"
+      current-row-key="open"
       :highlight-current-row="props.isCurrentRow"
       :border="tableBorder"
       :row-class-name="({ row }) => (isCheck(row) ? 'active' : '')"
@@ -24,8 +24,8 @@
               <slot :name="`${item.key}Custom`" :row="scope.row" :index="scope.$index"></slot>
             </template>
             <template v-else-if="item.addType">
-              <div :data-is-folder="scope.row.type == 'wjj'">
-                <img :src="$getAssetsImages(fileType(scope.row?.type))" />
+              <div style="display: flex; align-items: center" :data-is-folder="scope.row.type == 'wjj'">
+                <img class="tableFileImg" :src="$getAssetsImages(fileType(scope.row?.extension))" />
                 <span class="ml1">{{ scope.row.name }}</span>
               </div>
             </template>
@@ -65,19 +65,21 @@
           @click="handleClickFile(item)"
           @dblclick="handleChangeFolder(item)"
           v-for="item in dataList"
-          :key="item.id"
-          :data-index="item.id"
+          :key="item.open"
+          :data-index="item.open"
         >
           <el-checkbox class="showCheckbox" :model-value="isCheck(item)" @change="handleNormalCheck(item)"></el-checkbox>
           <div class="morebtn">
             <Btns :btnType="['tableMore']" tableMoreType="card" :lineRow="item" />
           </div>
-          <div class></div>
+
           <div :class="(checkedList?.length ? isCheck(item) : true) ? 'drag-handle' : 'drag-no'">
-            <div class="grid-file-icon">
-              <img :src="$getAssetsImages(fileType(item.type, true))" />
+            <div class="flex-col flex-center">
+              <div class="grid-file-icon">
+                <img :src="$getAssetsImages(fileType(item.extension, true))" />
+              </div>
+              <div class="grid-file-text">{{ item.name }}</div>
             </div>
-            <div class="grid-file-text">{{ item.name }}</div>
           </div>
         </div>
       </div>
@@ -91,9 +93,9 @@
 <script setup>
   import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
   import Btns from './btns/index.vue';
-
-  const DROP_THRESHOLD = 0.05; // 20%边界区域
-  const tableRef = ref(null);
+  import { ElLoading } from 'element-plus';
+  import { fileType, fileUpload } from '@/utils/util';
+  const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList']);
   const props = defineProps({
     tableBorder: {
       type: Boolean,
@@ -125,24 +127,32 @@
       default: () => [],
     },
   });
+
+  const DROP_THRESHOLD = 0.05; // 20%边界区域
+  const tableRef = ref(null);
+
+  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
+  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const folderQuery = inject('folderQuery');
+
   let sortInstance = null;
   const tableDrag = ref(false);
   const clickFile = ref();
   const checkedList = ref([...props.checkedList]);
-  const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList']);
-  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-  import { fileType } from '@/utils/util';
 
   const isDropTable = ref(false);
+
   const isHalfCheck = computed(() => {
     return checkedList.value.length > 0 && checkedList.value.length < props.dataList.length;
   });
   const isCheckAll = computed(() => {
-    return checkedList.value.length == props.dataList.length;
+    return props.dataList.length && checkedList.value.length == props.dataList.length;
   });
   // 优化isCheck计算
   const checkedSet = computed(() => new Set(checkedList.value));
-  const isCheck = (row) => checkedSet.value.has(row?.id);
+  // 索引映射优化
+  const indexMap = computed(() => new Map(props.dataList.map((item, index) => [item.open, index])));
+  const isCheck = (row) => checkedSet.value.has(row?.open);
 
   watch(
     () => props.fileShowType,
@@ -213,8 +223,7 @@
       });
     }
   );
-  // 索引映射优化
-  const indexMap = computed(() => new Map(props.dataList.map((item, index) => [item.id, index])));
+
   // 初始化拖拽
   const initRowDrag = () => {
     const isGrid = props.fileShowType === 'ggst';
@@ -390,16 +399,16 @@
     if (_checkedList.length == props.dataList.length) {
       _checkedList = [];
     } else {
-      _checkedList = props.dataList.map((e) => e.id);
+      _checkedList = props.dataList.map((e) => e.open);
     }
     emits('update:checkedList', _checkedList);
   };
   const handleNormalCheck = (val) => {
     let _checkedList = [...checkedList.value];
-    if (_checkedList.includes(val.id)) {
-      _checkedList = _checkedList.filter((e) => e !== val.id);
+    if (_checkedList.includes(val.open)) {
+      _checkedList = _checkedList.filter((e) => e !== val.open);
     } else {
-      _checkedList.push(val.id);
+      _checkedList.push(val.open);
     }
     emits('update:checkedList', _checkedList);
   };
@@ -421,6 +430,36 @@
     isDropTable.value = false;
     if (e.dataTransfer.files.length > 0) {
       console.log('handleDrop', e.dataTransfer.files);
+      uploadFiles(e.dataTransfer.files);
+    }
+  };
+  const uploadFiles = async (files) => {
+    const query = {
+      folder_category_id: folderQuery.value.folder_category_id,
+      folder_id: folderQuery.value.parent_id,
+      type: 1,
+    };
+    const loading = ElLoading.service({
+      text: '请稍等...',
+      lock: true,
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
+    const res = await fileUpload(files, query);
+    let flag = 'success';
+    loading.close();
+    if (res.length) {
+      res.forEach((element) => {
+        if (element.status == 'error') {
+          $message.error(element.error);
+        }
+        if (element.status != 'success') {
+          flag = 'error';
+        }
+      });
+      if (flag == 'success') {
+        $message.success('上传成功');
+      }
+      emits('listRefresh');
     }
   };
 </script>

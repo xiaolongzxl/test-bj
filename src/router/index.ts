@@ -193,6 +193,10 @@ const router = createRouter({
 
 const getFirst = (to: any, next: any) => {
   const fileRoutes = fileMenuStore().allRoutes;
+  if (!fileRoutes.length) {
+    next(false);
+    return;
+  }
   if (to) {
     let cur: any = fileRoutes.find((item: any) => item.path == to.path);
     if (cur) {

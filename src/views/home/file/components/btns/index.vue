@@ -3,16 +3,18 @@
     <Add @addBtnClick="handleAddBtnClick" />
   </template>
   <template v-if="btnType.includes('upload')">
-    <Upload @uploadBtnClick="handleUploadBtnClick" />
+    <Upload @uploadBtnClick="handleUploadBtnClick" @listRefresh="listRefresh" />
   </template>
   <template v-if="btnType.includes('download')">
     <el-button text bg size="large" class="ml-10" :disabled="props.checkedFiles.length == 0">下载</el-button></template
   >
-  <template v-if="btnType.includes('move')"><Move /></template>
+  <template v-if="btnType.includes('move')"><Move @listRefresh="listRefresh" /></template>
   <template v-if="btnType.includes('copy')">
     <el-button :disabled="props.checkedFiles.length == 0" text bg size="large" plain class="ml-10">复制</el-button></template
   >
-  <template v-if="btnType.includes('del')"><Del /></template>
+  <template v-if="btnType.includes('del')"
+    ><el-button text bg size="large" @click="handleOpenMutliDel" :disabled="props.checkedFiles.length == 0">删除</el-button>
+  </template>
   <template v-if="btnType.includes('tablePreview')">
     <el-button class="mr-4" plain><svg-icon name="preview" class="mr-4"></svg-icon> 预览 </el-button>
   </template>
@@ -40,18 +42,25 @@
   <template v-if="btnType.includes('tableProperty')">
     <TableProperty :linerow="lineRow" />
   </template>
+  <div>
+    <handleFolder ref="handleFolderRef" @listRefresh="emits('listRefresh')" />
+    <handleDelModel ref="handleDelModelRef" @listRefresh="emits('listRefresh')" />
+  </div>
 </template>
 <script setup>
   import Add from './add.vue';
   import Upload from './upload.vue';
-  import Del from './del.vue';
+
   import Move from './move.vue';
   import TableMore from './tableMore.vue';
   import TableCopy from './tableCopy.vue';
   import TableHistory from './tableHistory.vue';
   import TableProperty from './tableProperty.vue';
   import { fileType } from '@/utils/util';
-
+  import handleFolder from './handleFolder.vue';
+  import handleDelModel from './delModel.vue';
+  const handleFolderRef = ref(null);
+  const handleDelModelRef = ref(null);
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   const props = defineProps({
     btnType: {
@@ -72,14 +81,19 @@
     },
   });
 
-  const emits = defineEmits(['btnClickTrigger', 'update:checkedFiles']);
-  const handleAddBtnClick = (item) => {
-    console.log('点击了新建', item);
+  const emits = defineEmits(['btnClickTrigger', 'update:checkedFiles', 'listRefresh']);
+  const handleAddBtnClick = () => {
+    handleFolderRef.value.open();
   };
   const handleUploadBtnClick = (item) => {
     console.log('点击了上传', item);
   };
   const handleTableCommand = (command) => {
+    if (command == 'rename') {
+      handleFolderRef.value.open(props.lineRow.name, props.lineRow.id);
+    } else if (command == 'del') {
+      handleOpenSignelDel();
+    }
     console.log('点击了表格更多操作', command);
   };
   const handleDownload = (url, fileName) => {
@@ -96,11 +110,20 @@
       });
     };
   };
+  const handleOpenMutliDel = () => {
+    handleDelModelRef.value.open(props.checkedFiles);
+  };
+  const handleOpenSignelDel = () => {
+    handleDelModelRef.value.open(props.lineRow);
+  };
   const handleChangeCheckedFiles = (item = []) => {
     emits('updeta:checkedFiles', item);
   };
   const handleTrigger = (type, item) => {
     emits('btnClickTrigger', { type, item });
+  };
+  const listRefresh = () => {
+    emits('listRefresh');
   };
 </script>
 <style lang="less">

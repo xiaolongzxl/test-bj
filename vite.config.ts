@@ -31,6 +31,7 @@ export default defineConfig({
           '@/store/userinfo': [
             'UserStore', // import { UserStore } from '@/store/userinfo',
           ],
+          '@/store/fileMenu': ['fileMenuStore'],
         },
       ],
 

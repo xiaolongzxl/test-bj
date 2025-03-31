@@ -8,7 +8,7 @@
       <div class="file-line tip">
         <div class="file-line-label"> 说明： </div>
         <div class="file-line-value"> </div>
-        <div class="file-line-icon effect-btn">
+        <div class="file-line-icon effect-btn" @click="remarkModelRef.handleOpen()">
           <svg-icon name="edit"></svg-icon>
         </div>
       </div>
@@ -40,6 +40,7 @@
       </template>
     </div>
   </div>
+  <RemarkModel title="说明" @confirm="handleChangeRemark" ref="remarkModelRef" />
 </template>
 <script setup>
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
@@ -47,6 +48,8 @@
   import User from './user.vue';
   import Dynamic from './dynamic.vue';
   import { fileType } from '@/utils/util';
+  import RemarkModel from './remarksModel.vue';
+  const remarkModelRef = ref(null);
   const props = defineProps({
     file: {
       type: Object,
@@ -78,6 +81,8 @@
       immediate: true,
     }
   );
+  /* 修改说明 */
+  const handleChangeRemark = (val) => {};
 </script>
 
 <style lang="less" scoped>

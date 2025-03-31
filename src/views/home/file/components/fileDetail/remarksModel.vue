@@ -1,7 +1,13 @@
 <template>
-  <el-dialog v-model="modelShow" class="self-dialog" title="备注信息" width="500" center>
+  <el-dialog v-model="modelShow" class="self-dialog" :title="props.title" width="500" center>
     <div class="box-wrapper">
-      <el-input v-model="textarea1" style="width: 400px" :autosize="{ minRows: 4, maxRows: 6 }" type="textarea" placeholder="请输入备注" />
+      <el-input
+        v-model="textarea1"
+        style="width: 400px"
+        :autosize="{ minRows: 4, maxRows: 6 }"
+        type="textarea"
+        :placeholder="`请输入${props.title}`"
+      />
     </div>
     <template #footer>
       <div class="footer-btn center">
@@ -12,11 +18,24 @@
   </el-dialog>
 </template>
 <script setup>
+  const props = defineProps({
+    title: {
+      type: String,
+      default: '备注信息',
+    },
+  });
+  const defineEmits = defineEmits(['confirm']);
+  const textarea1 = ref('');
   const modelShow = ref(false);
-  const handleOpen = () => {
+  const handleOpen = (content) => {
+    if (content) {
+      textarea1.value = content || '';
+    }
     modelShow.value = true;
   };
-  const handleConfirm = () => {};
+  const handleConfirm = () => {
+    defineEmits('confirm', textarea1.value);
+  };
 
   defineExpose({
     handleOpen,
