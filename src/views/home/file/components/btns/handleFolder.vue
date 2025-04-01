@@ -1,7 +1,14 @@
 <template>
-  <el-dialog v-model="modelShow" class="self-dialog" :title="isAdd ? '新增' : '修改' + '文件夹'" width="500" center>
+  <el-dialog
+    v-model="modelShow"
+    class="self-dialog"
+    append-to-body
+    :title="`${isAdd ? '新增' : '修改'}${fileType == 'folder' ? '文件夹' : '文件'}`"
+    width="500"
+    center
+  >
     <div class="box-wrapper px-30">
-      <el-form-item label="文件夹名称：">
+      <el-form-item :label="fileType == 'folder' ? '文件夹名称：' : '文件名称：'">
         <el-input v-model="name" style="width: 300px" placeholder="请输入文件夹名称" />
       </el-form-item>
     </div>
@@ -14,7 +21,7 @@
   </el-dialog>
 </template>
 <script setup>
-  import { addFolderApi, updateFolderApi } from '@/api/file';
+  import { addFolderApi, updateFolderApi, updateFileApi } from '@/api/file';
   import { ElLoading } from 'element-plus';
   const emits = defineEmits(['listRefresh']);
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
@@ -23,6 +30,7 @@
   const folderQuery = inject('folderQuery');
   const folderId = ref('');
   const isAdd = ref(true);
+  const fileType = ref('folder');
   const handleConfirm = async () => {
     const loading = ElLoading.service({
       text: '请稍等...',
@@ -31,9 +39,9 @@
     });
     try {
       if (!name.value) {
-        throw new Error('请输入文件夹名称');
+        throw new Error(`请输入${fileType == 'folder' ? '文件夹名称：' : '文件名称：'}`);
       }
-      const api = isAdd.value ? addFolderApi : updateFolderApi;
+      const api = isAdd.value ? addFolderApi : fileType.value == 'folder' ? updateFolderApi : updateFileApi;
       const data = {
         ...folderQuery.value,
         name: name.value,
@@ -57,11 +65,12 @@
       $message.error(err.message);
     }
   };
-  const open = (val, id) => {
+  const open = (val, id, type = 'folder') => {
     if (val && id) {
       name.value = val;
       folderId.value = id;
       isAdd.value = false;
+      fileType.value = type;
     } else {
       name.value = '';
       folderId.value = '';

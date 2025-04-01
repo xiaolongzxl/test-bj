@@ -11,7 +11,7 @@
       </div>
       <div class="search">
         <div class="search-left">
-          <BreadCrumbs :addLevel="addLevel" :activeBread="activeBread" @routeChange="routeChange" />
+          <BreadCrumbs :activeBread="activeBread" @routeChange="routeChange" />
         </div>
         <div class="search-right">
           <Search searchType="pageSearch" />
@@ -23,6 +23,7 @@
         :loading="tableLoading"
         v-model:checkedList="checkedList"
         @clickFile="handleClickFile"
+        @dbClick="dblclick"
         v-model:dataList="dataList"
         :fileShowType="fileShowType"
         @listRefresh="handleRefresh"
@@ -41,25 +42,19 @@
   import FileDetail from '@/views/home/file/components/fileDetail/index.vue';
   import { fileType } from '@/utils/util';
   import { getFileListApi } from '@/api/file';
-  const activeBread = ref('电缆项目1-文件夹');
+
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const fileShowType = ref('ggst');
   const input1 = ref('');
   const loading = ref(false);
-  const addLevel = ref([{ name: '电缆项目1-文件夹', id: 2, path: '456' }]);
-  const dataList = ref([
-    // { name: 'name1', creatby: '姓名', updateTime: '1', size: '2', id: 1, type: 'wjj' },
-    // { name: 'name2', creatby: '姓名', updateTime: '2', size: '3', id: 2, type: 'word' },
-    // { name: 'name3', creatby: '姓名', updateTime: '3', size: '4', id: 3, type: 'ppt' },
-    // { name: 'name4', creatby: '姓名', updateTime: '3', size: '4', id: 4, type: 'excel' },
-  ]);
+  const dataList = ref([]);
   const checkedList = ref([]);
   const clickFile = ref({});
   const route = useRoute();
-
+  const router = useRouter();
   const tableLoading = ref(false);
-  const routeCateId = ref('');
+
   const row = ref([
     {
       key: 'drag',
@@ -114,10 +109,16 @@
     },
   ]);
 
-  const pageFolderId = ref('0');
   const folderQuery = ref({
     folder_category_id: null,
     parent_id: '0',
+  });
+  const activeBread = computed(() => {
+    if (folderQuery.value.parent_id == '0') {
+      return folderQuery.value.folder_category_id;
+    } else {
+      return folderQuery.value.parent_id;
+    }
   });
   const btnCheckedList = computed({
     get: () => {
@@ -128,45 +129,45 @@
       checkedList.value = vals.map((e) => e.open) || [];
     },
   });
+
   watch(
-    () => route.params.cateId,
+    () => route.params.folderId,
     (n) => {
       nextTick(() => {
         folderQuery.value.folder_category_id = route.params.cateId;
-        init();
+        folderQuery.value.parent_id = route.params.folderId;
+        handleRefresh();
       });
-    },
-    {
-      immediate: true,
     }
   );
   const activeRouteValue = computed(() => {
     return fileMenuStore().allRoutes.find((e) => e.meta.id == folderQuery.value.folder_category_id);
   });
-
   const init = () => {
     fileShowType.value = 'ggst';
     input1.value = '';
-    activeBread.value = '';
-    addLevel.value = [];
-    // dataList.value = [];
+    dataList.value = [];
     checkedList.value = [];
     clickFile.value = {};
-    console.log(activeRouteValue.value);
     getFileList();
   };
   const handleRefresh = () => {
     input1.value = '';
-    activeBread.value = '';
-    addLevel.value = [];
-    // dataList.value = [];
     checkedList.value = [];
     clickFile.value = {};
-    console.log(activeRouteValue.value);
+    dataList.value = [];
     getFileList();
   };
 
-  const dblclick = () => {};
+  const dblclick = (item) => {
+    if (item) {
+      let path = route.meta.activeOpen;
+      console.log(`${path}/${folderQuery.value.folder_category_id}/${item.id}`);
+      router.push(`${path}/${folderQuery.value.folder_category_id}/${item.id}`);
+      // folderQuery.value.parent_id = item.id;
+      // handleRefresh();
+    }
+  };
   const getFileList = async () => {
     try {
       tableLoading.value = true;
@@ -190,11 +191,26 @@
       console.log(err);
     }
   };
+
   const handleClickFile = (item) => {
-    console.log(item);
     clickFile.value = item;
   };
-  const routeChange = (item) => {};
+  const routeChange = (item) => {
+    if (item.type == 2) {
+      folderQuery.value.parent_id = 0;
+    } else {
+      folderQuery.value.parent_id = item.id;
+    }
+    let path = route.meta.activeOpen;
+    // console.log(`${path}/${folderQuery.value.folder_category_id}/${item.id}`);
+    router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}`);
+    // handleRefresh();
+  };
+  onMounted(() => {
+    folderQuery.value.folder_category_id = route.params.cateId;
+    folderQuery.value.parent_id = route.params.folderId;
+    init();
+  });
   provide('checkedList', checkedList);
   provide('folderQuery', folderQuery);
 </script>

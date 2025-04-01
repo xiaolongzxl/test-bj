@@ -34,7 +34,7 @@ routes = [
         },
         children: [
           {
-            path: '/file/company-space/:cateId(\\d+)',
+            path: '/file/company-space/:cateId(\\d+)/:folderId(\\d+)',
             name: 'companySpaceCategory',
             meta: {
               hidden: true,
@@ -46,7 +46,7 @@ routes = [
             component: () => import('@/views/home/file/company-space/index.vue'),
           },
           {
-            path: '/file/sector-space/:cateId(\\d+)',
+            path: '/file/sector-space/:cateId(\\d+)/:folderId(\\d+)',
             name: 'sectorSpaceCategory',
             meta: {
               hidden: true,
@@ -188,6 +188,7 @@ routes = [
 ];
 const router = createRouter({
   history: createWebHashHistory(),
+
   routes,
 });
 

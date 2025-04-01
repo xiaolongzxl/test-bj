@@ -1,28 +1,28 @@
 <template>
-  <div class="fileDetail" v-if="file">
-    <div class="file-info">
+  <div class="fileDetail" v-if="file?.id">
+    <div class="file-info" v-loading="loading">
       <div class="file-title">
-        <img :src="$getAssetsImages(fileType(file?.type))" />
-        <span class="ml1">{{ file.name }}</span>
+        <img :src="$getAssetsImages(fileType(fileDetail?.extension))" />
+        <span class="ml1">{{ fileDetail.name }}</span>
       </div>
       <div class="file-line tip">
         <div class="file-line-label"> 说明： </div>
-        <div class="file-line-value"> </div>
-        <div class="file-line-icon effect-btn" @click="remarkModelRef.handleOpen()">
+        <div class="file-line-value">{{ fileDetail.remark || '' }} </div>
+        <div class="file-line-icon effect-btn" @click="handleOpenRemark">
           <svg-icon name="edit"></svg-icon>
         </div>
       </div>
       <div class="file-line">
         <div class="file-line-label"> 大小： </div>
-        <div class="file-line-value"> </div>
+        <div class="file-line-value"> {{ fileDetail.size }}</div>
       </div>
       <div class="file-line">
         <div class="file-line-label"> 创建时间： </div>
-        <div class="file-line-value"> </div>
+        <div class="file-line-value">{{ fileDetail.create_time }} </div>
       </div>
       <div class="file-line">
         <div class="file-line-label"> 修改时间： </div>
-        <div class="file-line-value"> </div>
+        <div class="file-line-value">{{ fileDetail.update_time }} </div>
       </div>
     </div>
     <el-tabs v-model="activeTab" class="file-tabs" @tab-click="handleClick">
@@ -40,20 +40,26 @@
       </template>
     </div>
   </div>
-  <RemarkModel title="说明" @confirm="handleChangeRemark" ref="remarkModelRef" />
+  <RemarkModel title="说明" @detailRefresh="handleGetDetail" ref="remarkModelRef" />
 </template>
 <script setup>
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
+  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  import { getFolderDetailApi, getFileDetailApi } from '@/api/file';
+
   import History from './history.vue';
   import User from './user.vue';
   import Dynamic from './dynamic.vue';
-  import { fileType } from '@/utils/util';
+  import { fileType, getIsFolder } from '@/utils/util';
   import RemarkModel from './remarksModel.vue';
+
+  const folderQuery = inject('folderQuery');
+  const loading = ref(false);
   const remarkModelRef = ref(null);
   const props = defineProps({
     file: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
     },
   });
   const tabs = ref([
@@ -70,17 +76,45 @@
       value: '3',
     },
   ]);
-  const activeTab = ref('3');
+  const activeTab = ref('1');
+  const fileDetail = ref({});
   const handleClick = () => {};
+  const handleGetDetail = async () => {
+    if (!props?.file?.id) return;
+    const { id, extension } = props?.file;
+    loading.value = true;
+    try {
+      const data = {
+        folder_category_id: folderQuery.value.folder_category_id,
+        id: id || 0,
+      };
+      const api = getIsFolder(extension) ? getFolderDetailApi : getFileDetailApi;
+      const res = await api(data);
+      loading.value = false;
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
+      fileDetail.value = { ...props.file, ...res.data };
+    } catch (err) {
+      loading.value = false;
+      $message.error(err?.message || err?.msg);
+    }
+  };
+  const handleOpenRemark = () => {
+    const { remark, id, extension } = fileDetail.value;
+    console.log(remark, id, extension);
+    remarkModelRef.value.handleOpen(remark, id, extension);
+  };
   watch(
     () => props.file,
     (val) => {
-      console.log(val);
+      handleGetDetail();
     },
     {
       immediate: true,
     }
   );
+
   /* 修改说明 */
   const handleChangeRemark = (val) => {};
 </script>

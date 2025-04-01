@@ -1,10 +1,12 @@
 <template>
-  <div class="user-list-wrapper">
+  <div class="user-list-wrapper" v-loading="loading">
     <div class="user-list">
-      <div class="user-item" v-for="item in userList" :key="item.id">
-        <div class="user-item-avatar" :style="'background-color:' + getColor()">{{ item.firstName }}</div>
+      <div class="user-item" v-for="item in userList" :key="item.user_id">
+        <div class="user-item-avatar" :style="'background-color:' + getColor()">
+          <img :src="item.avatar" />
+        </div>
         <div class="user-item-info">
-          <div class="user-item-name">{{ item.name }}</div>
+          <div class="user-item-name">{{ item.nickname }}</div>
           <div class="user-item-phone">{{ item.phone }}</div>
         </div>
         <div class="user-item-icon effect-btn"><svg-icon name="del" /></div>
@@ -12,49 +14,40 @@
     </div>
     <div class="user-list-fixed" @click="userModelRef.handleShow()"> <img />成员管理 </div>
   </div>
-  <userModel ref="userModelRef" />
+  <userModel ref="userModelRef" :users="userList" />
 </template>
 <script setup>
   import userModel from './user-manage.vue';
-  const userModelRef = ref(null);
+  import { memberListApi } from '@/api/file';
   import { getColor } from '@/utils/util';
-  const userList = ref([
-    {
-      name: '管理员（我）',
-      avatar: '',
-      phone: '13513549160',
-      firstName: '霍',
-      id: 1,
-    },
-    {
-      name: '李丽萍',
-      avatar: '',
-      phone: '18003469106',
-      firstName: '李',
-      id: 2,
-    },
-    {
-      name: '赵雪霞',
-      avatar: '',
-      phone: '13569856234',
-      firstName: '李',
-      id: 3,
-    },
-    {
-      name: '王晨光',
-      avatar: '',
-      phone: '15896874521',
-      firstName: '李',
-      id: 4,
-    },
-    {
-      name: '刘 洋',
-      avatar: '',
-      phone: '18269874563',
-      firstName: '李',
-      id: 5,
-    },
-  ]);
+  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+
+  const folderQuery = inject('folderQuery');
+
+  const loading = ref(false);
+  const userModelRef = ref(null);
+
+  const userList = ref([]);
+  const getMemberList = async () => {
+    loading.value = true;
+    try {
+      const res = await memberListApi({
+        folder_category_id: folderQuery.value.folder_category_id,
+      });
+      console.log(res);
+      if (res.code != 200) {
+        throw new Error(err?.msg);
+      }
+      userList.value = res.data;
+      loading.value = false;
+    } catch (err) {
+      $message.error(err?.msg || err?.message);
+      loading.value = false;
+    }
+  };
+  onMounted(() => {
+    getMemberList();
+  });
 </script>
 <style lang="less" scoped>
   .user {
@@ -67,6 +60,7 @@
     &-list {
       flex: auto;
       overflow: auto;
+      margin-bottom: 10px;
 
       &-fixed {
         margin-top: auto;
@@ -101,6 +95,10 @@
         color: #ffffff;
         text-align: center;
         line-height: 32px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
       &-info {
         flex: auto;

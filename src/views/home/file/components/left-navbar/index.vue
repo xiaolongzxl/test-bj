@@ -13,7 +13,13 @@
   import fileMenuStore from '@/store/fileMenu';
   const activeMenu = computed(() => {
     const { path } = route;
-    return path;
+    console.log(route);
+    if (route.params?.cateId) {
+      return `${route.meta?.activeOpen}/${route.params.cateId}/0`;
+    } else {
+      return path;
+    }
+    // console.log(route);
   });
 
   const activeOpen = computed(() => {

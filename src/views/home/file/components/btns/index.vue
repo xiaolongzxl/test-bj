@@ -6,7 +6,9 @@
     <Upload @uploadBtnClick="handleUploadBtnClick" @listRefresh="listRefresh" />
   </template>
   <template v-if="btnType.includes('download')">
-    <el-button text bg size="large" class="ml-10" :disabled="props.checkedFiles.length == 0">下载</el-button></template
+    <el-button text bg size="large" class="ml-10" :disabled="props.checkedFiles.length == 0" @click="handleDownload('mutli')"
+      >下载</el-button
+    ></template
   >
   <template v-if="btnType.includes('move')"><Move @listRefresh="listRefresh" /></template>
   <template v-if="btnType.includes('copy')">
@@ -16,10 +18,12 @@
     ><el-button text bg size="large" @click="handleOpenMutliDel" :disabled="props.checkedFiles.length == 0">删除</el-button>
   </template>
   <template v-if="btnType.includes('tablePreview')">
-    <el-button class="mr-4" plain><svg-icon name="preview" class="mr-4"></svg-icon> 预览 </el-button>
+    <el-button class="mr-4" plain :disabled="getIsFolder(props.lineRow.extension)"><svg-icon name="preview" class="mr-4"></svg-icon> 预览 </el-button>
   </template>
   <template v-if="btnType.includes('tableDownload')">
-    <el-button class="mr-4" plain><svg-icon name="table-download" class="mr-4"></svg-icon> 下载 </el-button>
+    <el-button class="mr-4" plain :disabled="getIsFolder(props.lineRow.extension)" @click="handleDownload('single')"
+      ><svg-icon name="table-download" class="mr-4"></svg-icon> 下载
+    </el-button>
   </template>
   <template v-if="btnType.includes('tableMore')">
     <TableMore @tableCommand="handleTableCommand" :tableMoreType="props.tableMoreType" />
@@ -56,12 +60,16 @@
   import TableCopy from './tableCopy.vue';
   import TableHistory from './tableHistory.vue';
   import TableProperty from './tableProperty.vue';
-  import { fileType } from '@/utils/util';
+  import { fileType, getIsFolder, downLoadFile } from '@/utils/util';
   import handleFolder from './handleFolder.vue';
   import handleDelModel from './delModel.vue';
+  import { ElLoading } from 'element-plus';
+
+  const folderQuery = inject('folderQuery');
   const handleFolderRef = ref(null);
   const handleDelModelRef = ref(null);
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
+  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const props = defineProps({
     btnType: {
       type: Array,
@@ -90,34 +98,40 @@
   };
   const handleTableCommand = (command) => {
     if (command == 'rename') {
-      handleFolderRef.value.open(props.lineRow.name, props.lineRow.id);
+      handleFolderRef.value.open(props.lineRow.name, props.lineRow.id, getIsFolder(props.lineRow.extension) ? 'folder' : 'file');
     } else if (command == 'del') {
       handleOpenSignelDel();
     }
     console.log('点击了表格更多操作', command);
   };
-  const handleDownload = (url, fileName) => {
-    const parallelDownload = (files) => {
-      files.forEach((file) => {
-        const link = document.createElement('a');
-        link.href = file.url;
-        link.download = file.name;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        URL.revokeObjectURL(link.href);
-        document.body.removeChild(link);
+  const handleDownload = (flag) => {
+    let files = flag == 'mutli' ? [...props.checkedFiles] : [props.lineRow];
+    let name = files[0].name;
+    files = files.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? '1' : '2' }));
+    const loading = ElLoading.service({
+      text: '请稍等...',
+      lock: true,
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
+    const res = downLoadFile(files, folderQuery.value.folder_category_id, name)
+      .then((res) => {
+        console.log(res);
+        loading.close();
+        handleChangeCheckedFiles();
+      })
+      .catch((err) => {
+        loading.close();
+        $message.error(err?.message || err?.msg);
       });
-    };
   };
   const handleOpenMutliDel = () => {
     handleDelModelRef.value.open(props.checkedFiles);
   };
   const handleOpenSignelDel = () => {
-    handleDelModelRef.value.open(props.lineRow);
+    handleDelModelRef.value.open([props.lineRow]);
   };
   const handleChangeCheckedFiles = (item = []) => {
-    emits('updeta:checkedFiles', item);
+    emits('update:checkedFiles', item);
   };
   const handleTrigger = (type, item) => {
     emits('btnClickTrigger', { type, item });

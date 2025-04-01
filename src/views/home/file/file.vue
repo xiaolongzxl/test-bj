@@ -7,7 +7,7 @@
       <div class="content-title" v-if="topbar == 'title'"
         ><div class="content-title-text">{{ title }}</div>
       </div>
-      <div class="content-title" v-if="topbar == 'search'">
+      <div class="content-title nopy" v-if="topbar == 'search'">
         <Search @searchTrigger="searchTrigger" />
       </div>
 
@@ -73,6 +73,7 @@
       padding: 0 30px;
       display: flex;
       align-items: center;
+      position: relative;
       &-text {
         padding: 18px 0;
         font-weight: bold;
@@ -91,6 +92,9 @@
           width: 100%;
           background: linear-gradient(130deg, #3796ff 0%, #005eff 100%);
         }
+      }
+      &.nopy {
+        padding: 0;
       }
     }
     .content-body {

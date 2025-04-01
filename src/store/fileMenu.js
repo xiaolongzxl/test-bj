@@ -179,13 +179,14 @@ export const fileMenuStore = defineStore('fileMenu', {
       try {
         const formatSecond = (juniorMenus, activeOpen) => {
           return juniorMenus.map((menu) => ({
-            path: menu.id.toString(),
+            path: `${menu.id}${menu.junior?.length > 0 ? '' : '/0'}`,
 
             meta: {
               parentId: menu.parent_id,
               id: menu.id,
-              fullpath: `${activeOpen}/${menu.id}`,
-              activeOpen,
+              fullpath: `${activeOpen}/${menu.id}/0`,
+              // activeOpen,
+              activeOpen: `${activeOpen}/${menu.id}${menu.junior?.length > 0 ? '' : '/0'}`,
               title: menu.name,
               needAutoFind: false,
             },
@@ -201,7 +202,7 @@ export const fileMenuStore = defineStore('fileMenu', {
             const routeName = this.formatRouteName(menu.route);
 
             const route = {
-              path: '/file' + menu.route,
+              path: menu.junior?.length > 0 ? `/file${menu.route}` : `/file${menu.route}/:cateId(\\d+)/:folderId(\\d+)`,
 
               name: routeName,
               meta: {
@@ -223,14 +224,13 @@ export const fileMenuStore = defineStore('fileMenu', {
               route.children = children;
               allMenus.push(...children);
             }
-
+            route.path = `/file${menu.route}${menu.junior?.length > 0 ? '' : '/' + menu.id + '/0'}`;
             lastRoutes.push(route);
             allMenus.push(route);
           }
         });
 
         this.allRoutes = allMenus;
-
         return lastRoutes;
       } catch (e) {
         console.log(e);

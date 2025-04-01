@@ -31,9 +31,9 @@ class HRequest {
     // 添加默认的拦截器 ->响应拦截器
     this.instance.interceptors.response.use(
       (res: any) => {
-        console.log(res, '拦截');
+        // console.log(res, '拦截');
         if (res.name == 'AxiosError') {
-          throw '请求失败';
+          throw new Error('请求失败');
         }
         if (res.data?.code == 202) {
           router.replace({
@@ -49,7 +49,7 @@ class HRequest {
   }
 
   request<T = any>(config: HRequestConfig<T>): Promise<T> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       // 对单个实例的拦截
       if (config.interceptors?.requestInterceptor) {
         config = config.interceptors.requestInterceptor(config);
@@ -66,6 +66,7 @@ class HRequest {
         })
         .catch((err) => {
           console.log(err, 456);
+          reject(err);
         });
     });
   }

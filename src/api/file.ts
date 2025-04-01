@@ -68,6 +68,17 @@ export function updateFolderApi(data: { folder_category_id: string; name?: strin
 }
 
 /***
+ * 修改文件
+ */
+export function updateFileApi(data: { folder_category_id: string; name?: string; id: string; remark?: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getEditFile',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 正常上传文件
  */
 export function uploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; file: any }) {
@@ -93,10 +104,12 @@ export function secondUploadApi(data: { folder_category_id: string; folder_id: s
 /***
  * 下载
  */
-export function downloadApi(data: [{ id: string; type: string; folder_category_id: string }]) {
+export function downloadApi(data: { folder_category_id: string; data: [{ id: string; type: string }] }) {
   return defHttp.request({
     url: root + '/api/pan/downloadZip',
     method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    responseType: 'blob',
     data,
   });
 }
@@ -118,6 +131,17 @@ export function deleteApi(data: { folder_category_id: string; data: [{ id: strin
 export function memberListApi(data: { folder_category_id: string }) {
   return defHttp.request({
     url: root + '/api/pan/memberList',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 查询导航栏
+ */
+export function getNavigation(data: { folder_category_id: string; parent_id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getNavigation',
     method: 'POST',
     data,
   });

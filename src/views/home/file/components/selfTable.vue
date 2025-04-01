@@ -30,7 +30,7 @@
               </div>
             </template>
             <template v-else-if="item.key == 'handle'">
-              <Btns :btnType="['tablePreview', 'tableDownload', 'tableMore']" />
+              <Btns :btnType="['tablePreview', 'tableDownload', 'tableMore']" :lineRow="scope.row" @listRefresh="emits('listRefresh')" />
             </template>
             <template v-else-if="item.key == 'select'">
               <el-checkbox :model-value="isCheck(scope.row)" @change="handleNormalCheck(scope.row)"></el-checkbox>
@@ -70,7 +70,7 @@
         >
           <el-checkbox class="showCheckbox" :model-value="isCheck(item)" @change="handleNormalCheck(item)"></el-checkbox>
           <div class="morebtn">
-            <Btns :btnType="['tableMore']" tableMoreType="card" :lineRow="item" />
+            <Btns :btnType="['tableMore']" tableMoreType="card" :lineRow="item" @listRefresh="emits('listRefresh')" />
           </div>
 
           <div :class="(checkedList?.length ? isCheck(item) : true) ? 'drag-handle' : 'drag-no'">
@@ -94,7 +94,7 @@
   import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
   import Btns from './btns/index.vue';
   import { ElLoading } from 'element-plus';
-  import { fileType, fileUpload } from '@/utils/util';
+  import { fileType, fileUpload, getIsFolder } from '@/utils/util';
   const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList']);
   const props = defineProps({
     tableBorder: {
@@ -366,33 +366,32 @@
     // 返回结果
     return type === 'data' ? (index >= 0 ? props.dataList[index] : null) : row;
   };
+  /* 切换视图先清空sortable选中列表 */
   const handleClearSortList = (checkList, fileShowType) => {
     const containDom = fileShowType == 'ggst' ? document.querySelector('.grid-body') : document.querySelector('.el-table__body-wrapper tbody');
     checkList.forEach((id) => {
       const index = indexMap.value.get(id);
       // console.log(id, index);
       if (index >= 0) {
-        // const Griditem = document.querySelector('.grid-body').children[index];
-        // const Tableitem = document.querySelector('.el-table__body-wrapper tbody').children[index];
-        // // console.log(id, Griditem, Tableitem);
-        // Sortable.utils.deselect(Griditem);
-        // Sortable.utils.deselect(Tableitem);
-
         const item = containDom.children[index];
         Sortable.utils.deselect(item);
         return true;
       }
     });
   };
+  /* 切换点击文件 */
   const handleClickFile = (item) => {
     clickFile.value = item;
     emits('clickFile', item);
   };
+  /* 双击 */
   const handleChangeFolder = (item) => {
-    console.log('双击某个数据');
-    emits('dbClick', item);
+    console.log('双击某个数据', item);
+    if (getIsFolder(item.extension)) {
+      emits('dbClick', item);
+    }
   };
-
+  /* 点击全选复选框 */
   const handleCheckAllChange = () => {
     let _checkedList = [...checkedList.value];
 
@@ -403,6 +402,7 @@
     }
     emits('update:checkedList', _checkedList);
   };
+  /* 点击普通选中 */
   const handleNormalCheck = (val) => {
     let _checkedList = [...checkedList.value];
     if (_checkedList.includes(val.open)) {
