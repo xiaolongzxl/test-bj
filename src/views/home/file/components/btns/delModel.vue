@@ -4,7 +4,7 @@
       <div class="del-title">{{
         isMutli ? `你确定要将所选的${delFiles.length}个文件（夹）删除吗？'` : `你确定要将 "${delFiles[0]?.name || ''}" 删除吗？`
       }}</div>
-      <div class="del-tip">删除后文件(夹）将在回收站保留30天</div>
+      <div class="del-tip" v-if="flag == 'normal'">删除后文件(夹）将在回收站保留30天</div>
       <div class="del-btns footer-btn">
         <el-button color="#F2F3F5" @click="delShow = false">下次再说</el-button>
         <el-button type="danger" @click="handleDel">删除</el-button>
@@ -13,11 +13,18 @@
   </el-dialog>
 </template>
 <script setup>
-  import { deleteApi } from '@/api/file';
+  import { deleteApi, delHistoryVer } from '@/api/file';
   const emits = defineEmits(['listRefresh']);
   import { getIsFolder } from '@/utils/util';
   import { ElLoading } from 'element-plus';
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const props = defineProps({
+    flag: {
+      type: String,
+      default: 'normal',
+    },
+  });
+
   const delShow = ref(false);
   const folderQuery = inject('folderQuery');
   const isMutli = computed(() => {
@@ -25,7 +32,6 @@
   });
   const delFiles = ref([]);
   const open = (files) => {
-    console.log(folderQuery.value);
     delFiles.value = files;
     delShow.value = true;
   };
@@ -36,13 +42,18 @@
       background: 'rgba(0, 0, 0, 0.4)',
     });
     try {
-      const res = await deleteApi({
-        folder_category_id: folderQuery.value.folder_category_id,
-        data: delFiles.value.map((e) => ({
-          type: getIsFolder(e.extension) ? 1 : 2,
-          id: e.id,
-        })),
-      });
+      const api = props.flag == 'normal' ? deleteApi : delHistoryVer;
+      const data =
+        props.flag == 'normal'
+          ? {
+              folder_category_id: folderQuery.value.folder_category_id,
+              data: delFiles.value.map((e) => ({
+                type: getIsFolder(e.extension) ? 1 : 2,
+                id: e.id,
+              })),
+            }
+          : { folder_category_id: folderQuery.value.folder_category_id, id: delFiles.value[0].id };
+      const res = await api(data);
       loading.close();
       if (res.code != 200) {
         throw new Error(res.msg);
@@ -88,6 +99,7 @@
     &-btns {
       margin-top: 30px;
       display: flex;
+      padding: 20px 0 0;
       justify-content: flex-end;
     }
   }

@@ -17,8 +17,12 @@
       type: String,
       default: '备注信息',
     },
+    flag: {
+      type: String,
+      default: 'normal',
+    },
   });
-  import { updateFolderApi, updateFileApi } from '@/api/file';
+  import { updateFolderApi, updateFileApi, updateHistoryVer } from '@/api/file';
   import { ElLoading } from 'element-plus';
   import { getIsFolder } from '@/utils/util';
 
@@ -46,7 +50,7 @@
     });
     try {
       if (!remark.value) {
-        throw new Error(`请输入${props.title == '备注信息' ? '备注信息' : '说明信息'}`);
+        throw new Error(`请输入${props.flag == 'normal' ? '说明信息' : '备注信息'}`);
       }
 
       const data = {
@@ -54,8 +58,10 @@
         remark: remark.value,
         id: folderId.value,
       };
-
-      const api = fileType.value == 'folder' ? (props.title == '备注信息' ? '' : updateFolderApi) : props.title == '备注信息' ? '' : updateFileApi;
+      if (props.flag != 'normal') {
+        delete data.folder_category_id;
+      }
+      const api = fileType.value == 'folder' ? updateFolderApi : props.flag == 'normal' ? updateFileApi : updateHistoryVer;
       const res = await api(data);
       loading.close();
       console.log(res);

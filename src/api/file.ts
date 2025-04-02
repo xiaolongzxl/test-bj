@@ -79,29 +79,6 @@ export function updateFileApi(data: { folder_category_id: string; name?: string;
 }
 
 /***
- * 正常上传文件
- */
-export function uploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; file: any }) {
-  return defHttp.request({
-    timeout: 300000,
-    url: root + '/api/pan/uploadFiles',
-    method: 'POST',
-    data,
-  });
-}
-
-/***
- * 上传前秒传功能
- */
-export function secondUploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; hash: string }) {
-  return defHttp.request({
-    url: root + '/api/pan/transmissionUploadFiles',
-    method: 'POST',
-    data,
-  });
-}
-
-/***
  * 下载
  */
 export function downloadApi(data: { folder_category_id: string; data: [{ id: string; type: string }] }) {
@@ -137,11 +114,79 @@ export function memberListApi(data: { folder_category_id: string }) {
 }
 
 /***
+ * 上传前秒传功能
+ */
+export function secondUploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; hash: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/transmissionUploadFiles',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 正常上传文件
+ */
+export function uploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; file: any }) {
+  return defHttp.request({
+    timeout: 300000,
+    url: root + '/api/pan/uploadFiles',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 新版本上传前秒传功能
+ */
+export function versionSecondUploadApi(data: { folder_category_id: string; file_id: string; hash: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/versionTransmissionUploadFiles',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 新版本正常上传文件
+ */
+export function versionUploadApi(data: { folder_category_id: string; file_id: string; file: any }) {
+  return defHttp.request({
+    timeout: 300000,
+    url: root + '/api/pan/versionUploadFiles',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 查询历史版本
  */
 export function getHistoryVer(data: { folder_category_id: string; id: string }) {
   return defHttp.request({
     url: root + '/api/pan/getHistorical',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 修改历史版本
+ */
+export function updateHistoryVer(data: { remark: string; id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getEditHistorical',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 删除历史版本
+ */
+export function delHistoryVer(data: { folder_category_id: string; id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getDelHistorical',
     method: 'POST',
     data,
   });

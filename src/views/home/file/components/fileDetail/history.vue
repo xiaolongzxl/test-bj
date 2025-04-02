@@ -1,16 +1,16 @@
 <template>
   <div class="history-wrapper" v-loading="loading">
     <div class="history-btn">
-      <el-button
+      <el-button @click="handleUpload"
         ><el-icon color="#017FFD"><Plus /></el-icon>上传新版本</el-button
       >
     </div>
     <div class="history-list">
-      <div class="history-item">
+      <div class="history-item" v-for="item in historyList" :key="item.id">
         <div class="history-title">
-          <div class="history-title-text">证书名称2025030502.word</div>
+          <div class="history-title-text">{{ item.name }}</div>
           <div class="history-btns">
-            <div class="effect-btn" @click="remarkModelRef.handleOpen">
+            <div class="effect-btn" @click="remarkModelRef.handleOpen(item.remark, item.id, 'file')">
               <svg-icon name="edit"></svg-icon>
             </div>
             <div class="effect-btn">
@@ -19,22 +19,34 @@
             <div class="effect-btn">
               <svg-icon name="download"></svg-icon>
             </div>
-            <div class="effect-btn">
+            <div
+              class="effect-btn"
+              @click="
+                () => {
+                  historyList.length > 1 && handleDel(item);
+                }
+              "
+              :class="historyList.length <= 1 ? 'noallowed' : ''"
+            >
               <svg-icon name="del"></svg-icon>
             </div>
           </div>
         </div>
-        <div class="history-info"> 02-25 17:14 管理员 524KB </div>
-        <div class="history-tip">备注：此处为备注内容 </div>
+        <div class="history-info"> {{ item.create_time }} {{ item.size }} </div>
+        <div class="history-tip">备注：{{ item.remark || '' }} </div>
       </div>
     </div>
-    <RemarkModel ref="remarkModelRef" />
+    <RemarkModel ref="remarkModelRef" flag="history" @detailRefresh="getList" />
+    <DelModel flag="history" ref="delModelRef" @listRefresh="getList" />
   </div>
 </template>
 <script setup>
   import { getHistoryVer } from '@/api/file';
   import RemarkModel from './remarksModel.vue';
+  import DelModel from '../btns/delModel.vue';
+  import { fileUpload } from '@/utils/util';
   const remarkModelRef = ref(null);
+  const delModelRef = ref(null);
   const props = defineProps({
     file: {
       type: Object,
@@ -48,6 +60,7 @@
       getList();
     }
   );
+  const historyList = ref([]);
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const folderQuery = inject('folderQuery');
   const loading = ref(false);
@@ -59,11 +72,58 @@
         id: props.file.id,
       });
       loading.value = false;
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
+      historyList.value = res.data;
       console.log(res);
     } catch (err) {
       loading.value = false;
       $message.error(err?.msg || err?.message);
     }
+  };
+  const handleDel = (item) => {
+    delModelRef.value.open([item]);
+  };
+  const handleUpload = () => {
+    const query = {
+      folder_category_id: folderQuery.value.folder_category_id,
+      file_id: props.file.id,
+    };
+
+    // 创建隐藏的 input 元素
+    const input = document.createElement('input');
+    input.type = 'file';
+
+    // 监听文件选择完成事件
+    input.addEventListener('change', async (event) => {
+      const files = event.target.files;
+      if (files.length > 0) {
+        loading.value = true;
+        const res = await fileUpload(files, query, 'history');
+
+        let flag = 'success';
+        loading.value = false;
+        if (res.length) {
+          res.forEach((element) => {
+            if (element.status == 'error') {
+              $message.error(element.error);
+            }
+            if (element.status != 'success') {
+              flag = 'error';
+            }
+          });
+          if (flag == 'success') {
+            $message.success('上传成功');
+          }
+          getList();
+          input.remove();
+        }
+      }
+    });
+
+    // 触发文件选择窗口
+    input.click();
   };
   onMounted(() => {
     getList();
@@ -95,6 +155,10 @@
     &-btns {
       display: none;
       align-items: center;
+      .effect-btn.noallowed {
+        color: #c4c4c4;
+        cursor: not-allowed;
+      }
     }
     &-item {
       margin-bottom: 10px;

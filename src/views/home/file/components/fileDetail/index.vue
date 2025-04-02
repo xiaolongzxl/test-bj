@@ -26,7 +26,9 @@
       </div>
     </div>
     <el-tabs v-model="activeTab" class="file-tabs" @tab-click="handleClick">
-      <el-tab-pane :label="item.label" :name="item.value" v-for="item in tabs" :key="item.value"></el-tab-pane>
+      <template v-for="item in tabs" :key="item.value">
+        <el-tab-pane :label="item.label" :name="item.value" :key="item.value" v-if="!item.hidden"></el-tab-pane>
+      </template>
     </el-tabs>
     <div class="file-other">
       <template v-if="activeTab == '1'">
@@ -61,20 +63,23 @@
       default: () => ({ id: 0, extension: 1 }),
     },
   });
-  const tabs = ref([
-    {
-      label: '成员列表',
-      value: '1',
-    },
-    {
-      label: '历史版本',
-      value: '2',
-    },
-    {
-      label: '动态',
-      value: '3',
-    },
-  ]);
+  const tabs = computed(() => {
+    return [
+      {
+        label: '成员列表',
+        value: '1',
+      },
+      {
+        label: '历史版本',
+        value: '2',
+        hidden: getIsFolder(props.file.extension),
+      },
+      {
+        label: '动态',
+        value: '3',
+      },
+    ];
+  });
   const activeTab = ref('1');
   const fileDetail = ref({});
   const handleClick = () => {};
@@ -107,6 +112,11 @@
   watch(
     () => props.file,
     (val) => {
+      if (activeTab.value == '2') {
+        if (getIsFolder(props.file.extension)) {
+          activeTab.value = tabs.value.filter((e) => !e.hidden)[0].value;
+        }
+      }
       handleGetDetail();
     },
     {

@@ -1,4 +1,4 @@
-import { secondUploadApi, uploadApi, downloadApi } from '@/api/file';
+import { secondUploadApi, uploadApi, versionSecondUploadApi, versionUploadApi, downloadApi } from '@/api/file';
 export const fileType = (type, isBig = false) => {
   const fileType = [
     {
@@ -77,18 +77,20 @@ const getFileHash = async (file) => {
     throw new Error(`计算文件哈希时出错: ${error.message}`);
   }
 };
-export const fileUpload = (files = [], uploadQuery = {}) => {
+export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
   if (files.length === 0) {
     return Promise.resolve([]); // 如果没有文件，直接返回空数组
   }
+  const second = flag == 'normal' ? secondUploadApi : versionSecondUploadApi;
+  const upload = flag == 'normal' ? uploadApi : versionUploadApi;
   const UploadPromise = async (file) => {
     try {
       const hash = await getFileHash(file);
-      const res = await secondUploadApi({ ...uploadQuery, hash });
+      const res = await second({ ...uploadQuery, hash });
 
       if (res.msg !== '文件不存在') {
         // 如果文件已经存在，可能需要处理或直接返回
-        return { status: 'exist', file: file.name, data: res };
+        return { status: 'success', file: file.name, data: res };
       }
 
       const formData = new FormData();
@@ -97,7 +99,7 @@ export const fileUpload = (files = [], uploadQuery = {}) => {
       });
       formData.append('file', file);
 
-      const uploadRes = await uploadApi(formData);
+      const uploadRes = await upload(formData);
       if (uploadRes.code !== 200) {
         throw new Error(`${file.name} 上传失败: ${uploadRes.msg}`);
       }
