@@ -198,7 +198,7 @@
           <div class="add-btns ml-10" @click="changeColor('isBlackText')" :style="isBlackText ? 'opacity:1' : 'opacity:.5'">
             <img :src="$getAssetsImages('price/icon-black.png')" alt="" />
           </div>
-          <div class="add-btns ml-10" @click="appendNewItemToPrice(null)">
+          <div class="add-btns ml-10" @click="appendNewItemToPrice(null)" v-loading="isLoading">
             <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
             <span>新增数据</span>
           </div>
@@ -424,7 +424,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="备注信息">
+          <el-table-column label="备注信息" min-width="150">
             <template #default="scope">
               <div class="flex-center" v-if="scope.row.spec_remark">
                 <el-input
@@ -1258,8 +1258,14 @@
     });
     getQuotationInfo(null, false);
   }
+  const isLoading = ref<any>(false);
   // 再指定位置插入
   async function appendNewItemToPrice(id: any) {
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
     let ind: any = '';
     if (id) {
       ind = quotationTableData.value.findIndex((item: any) => {
@@ -1268,10 +1274,12 @@
     } else {
       ind = quotationTableData.value.length - 1;
     }
-
     let res = await addQuotation({
       spec_list: JSON.stringify([{ sort: ind + 1 }]),
     });
+    setTimeout(() => {
+      loadingInstance.close();
+    }, 300);
     if (res.code == 200) {
       quotationInfo.value.generation_amount = res.data.generation_amount;
       quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
@@ -1281,6 +1289,7 @@
       quotationTableData.value.map((item: any, index: any) => {
         item.index = index + 1;
       });
+      quotationTableRef.value.setCurrentRow(quotationTableData.value[ind + 1]);
     } else {
       $message.error(res.msg);
     }
@@ -1925,7 +1934,9 @@
     .list {
       padding: 16px;
       flex: 0 0 calc(42% - 10px);
-      max-width: calc(42% - 10px);
+      min-width: 500px;
+      max-width: 700px;
+
       // min-width: 680px;
       height: 100%;
       background: #ffffff;
