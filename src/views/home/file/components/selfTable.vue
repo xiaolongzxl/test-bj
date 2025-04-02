@@ -24,13 +24,22 @@
               <slot :name="`${item.key}Custom`" :row="scope.row" :index="scope.$index"></slot>
             </template>
             <template v-else-if="item.addType">
-              <div style="display: flex; align-items: center" :data-is-folder="scope.row.type == 'wjj'">
+              <div
+                class="flex cursor-pointer"
+                style="align-items:center;overflow-hidden"
+                :data-is-folder="scope.row.type == 'wjj'"
+                @click="handleChangeFolder(scope.row)"
+              >
                 <img class="tableFileImg" :src="$getAssetsImages(fileType(scope.row?.extension))" />
-                <span class="ml1">{{ scope.row.name }}</span>
+                <span class="ml1" style="flex: auto; text-overflow: ellipsis; overflow: hidden">{{ scope.row.name }}</span>
               </div>
             </template>
             <template v-else-if="item.key == 'handle'">
-              <Btns :btnType="['tablePreview', 'tableDownload', 'tableMore']" :lineRow="scope.row" @listRefresh="emits('listRefresh')" />
+              <Btns
+                :btnType="['tableDownload', 'tableMore', getIsFolder(scope.row.extension) ? '' : 'tablePreview']"
+                :lineRow="scope.row"
+                @listRefresh="emits('listRefresh')"
+              />
             </template>
             <template v-else-if="item.key == 'select'">
               <el-checkbox :model-value="isCheck(scope.row)" @change="handleNormalCheck(scope.row)"></el-checkbox>
@@ -78,7 +87,7 @@
               <div class="grid-file-icon">
                 <img :src="$getAssetsImages(fileType(item.extension, true))" />
               </div>
-              <div class="grid-file-text">{{ item.name }}</div>
+              <div class="grid-file-text cursor-pointer" @click="handleChangeFolder(scope.row)">{{ item.name }}</div>
             </div>
           </div>
         </div>
@@ -131,8 +140,8 @@
   const DROP_THRESHOLD = 0.05; // 20%边界区域
   const tableRef = ref(null);
 
-  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
+
   const folderQuery = inject('folderQuery');
 
   let sortInstance = null;
@@ -285,12 +294,11 @@
           const rect = targetRow.getBoundingClientRect();
           const mouseX = evt.originalEvent.clientX;
           const mouseY = evt.originalEvent.clientY;
-
           // 计算相对位置百分比
           const xPercent = (mouseX - rect.left) / rect.width;
           const yPercent = (mouseY - rect.top) / rect.height;
 
-          // 判断是否在中心区域 (80%)
+          // 判断是否在中心区域
           const isInCentralArea =
             xPercent > DROP_THRESHOLD && xPercent < 1 - DROP_THRESHOLD && yPercent > DROP_THRESHOLD && yPercent < 1 - DROP_THRESHOLD;
           // 添加视觉反馈

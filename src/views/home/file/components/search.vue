@@ -1,5 +1,5 @@
 <template>
-  <div class="search-box" v-click-outside="onClickOutside">
+  <div class="search-box" :style="boxStyle" v-click-outside="onClickOutside">
     <el-input
       @focus="showSearchResult"
       :style="{ width: props.width ? props.width : '' }"
@@ -17,7 +17,7 @@
         </div>
       </template>
     </el-input>
-    <div class="show-search-result" v-if="isVisible">
+    <div class="show-search-result" :style="boxStyle" v-if="isVisible">
       <el-input
         ref="inpRef"
         :style="{ width: props.width ? props.width : '' }"
@@ -50,9 +50,11 @@
   </div>
 </template>
 <script setup>
-  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   const props = defineProps({
+    boxStyle: {
+      type: Object,
+    },
     searchType: {
       type: String,
       default: 'topbar',
@@ -67,12 +69,10 @@
   import { ClickOutside as vClickOutside } from 'element-plus';
   import { fileType } from '@/utils/util';
   const searchInp = ref('');
-
   const inpRef = ref(null);
   const isVisible = ref(false);
   const emits = defineEmits(['searchTrigger']);
   const popoverRef = ref(null);
-
   const searchResult = ref([
     { name: '文件夹1', extension: 1, id: 1 },
     { name: '图片1', extension: 'jpg', id: 2 },
@@ -131,6 +131,7 @@
     background: transparent;
     padding: 10px 30px;
     position: relative;
+
     .show-search-result {
       position: absolute;
       max-height: 300px;

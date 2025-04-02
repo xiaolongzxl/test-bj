@@ -35,11 +35,12 @@ routes = [
         children: [
           {
             path: '/file/company-space/:cateId(\\d+)/:folderId(\\d+)',
-            name: 'companySpaceCategory',
+            name: 'CompanySpaceCategory',
             meta: {
               hidden: true,
               needAutoFind: false,
               activeOpen: '/file/company-space',
+              route: '/file/company-space',
               // keepAlive: false,
               topbar: 'search',
             },
@@ -47,11 +48,12 @@ routes = [
           },
           {
             path: '/file/sector-space/:cateId(\\d+)/:folderId(\\d+)',
-            name: 'sectorSpaceCategory',
+            name: 'SectorSpaceCategory',
             meta: {
               hidden: true,
               needAutoFind: false,
               activeOpen: '/file/sector-space',
+              route: '/file/sector-space',
               // keepAlive: false,
               topbar: 'search',
             },
@@ -59,121 +61,6 @@ routes = [
           },
         ],
         component: () => import('@/views/home/file/file.vue'),
-        // redirect: '/file/company-space',
-        // children: [
-        //   {
-        //     path: '/file/company-space',
-        //     name: 'companySpace',
-        //     meta: {
-        //       // keepAlive: false,
-        //       title: '公司空间',
-        //       icon: 'gskj',
-        //       topbar: 'search',
-        //       needAutoFind: true,
-        //       idx: 'gs',
-        //     },
-        //     children: [
-        //       {
-        //         path: ':cateId(\\d+)',
-        //         name: 'companySpaceCategory',
-
-        //         meta: {
-        //           hidden: true,
-        //           needAutoFind: false,
-        //           activeOpen: '/file/company-space',
-        //           // keepAlive: false,
-        //           topbar: 'search',
-        //         },
-        //         component: defineAsyncComponent(() => import('@/views/home/file/company-space/index.vue')),
-        //       },
-        //     ],
-        //     component: () => import('@/views/home/file/company-space/routerLink.vue'),
-        //   },
-
-        //   {
-        //     path: '/file/sector-space',
-        //     name: 'sectorSpace',
-        //     meta: {
-        //       // keepAlive: false,
-        //       title: '部门空间',
-        //       icon: 'bmkj',
-        //       topbar: 'search',
-        //       needDynamicRoute: true,
-        //       needAutoFind: true,
-        //       idx: 'bm',
-        //     },
-        //     children: [
-        //       {
-        //         path: ':cateId(\\d+)',
-        //         name: 'sectorSpaceCategory',
-        //         meta: {
-        //           hidden: true,
-        //           needAutoFind: false,
-        //           activeOpen: '/file/sector-space',
-        //           // keepAlive: false,
-        //           topbar: 'search',
-        //         },
-        //         component: defineAsyncComponent(() => import('@/views/home/file/sector-space/index.vue')),
-        //       },
-        //     ],
-        //     component: defineAsyncComponent(() => import('@/views/home/file/sector-space/routerLink.vue')),
-        //   },
-        //   {
-        //     path: '/file/contract-template',
-        //     name: 'contractTemplate',
-        //     meta: {
-        //       // keepAlive: false,
-        //       title: '合同模板',
-        //       icon: 'htmb',
-        //       topbar: 'search',
-        //     },
-        //     component: defineAsyncComponent(() => import('@/views/home/file/contract-template/index.vue')),
-        //   },
-        //   {
-        //     path: '/file/certificate-management',
-        //     name: 'certificateManagement',
-        //     meta: {
-        //       // keepAlive: false,
-        //       title: '证书管理',
-        //       icon: 'zsgl',
-        //       topbar: 'search',
-        //     },
-        //     component: defineAsyncComponent(() => import('@/views/home/file/certificate-management/index.vue')),
-        //   },
-        //   {
-        //     path: '/file/password-management',
-        //     name: 'passwordManagement',
-        //     meta: {
-        //       // keepAlive: false,
-        //       title: '密码管理',
-        //       icon: 'mmgl',
-        //       topbar: 'title',
-        //     },
-        //     component: defineAsyncComponent(() => import('@/views/home/file/password-management/index.vue')),
-        //   },
-        //   {
-        //     path: '/file/personal-space',
-        //     name: 'personalSpace',
-        //     meta: {
-        //       // keepAlive: false,
-        //       title: '个人空间',
-        //       icon: 'grkj',
-        //       topbar: 'search',
-        //     },
-        //     component: defineAsyncComponent(() => import('@/views/home/file/personal-space/index.vue')),
-        //   },
-        //   {
-        //     path: '/file/recycle-bin',
-        //     name: 'recycleBin',
-        //     meta: {
-        //       // keepAlive: false,
-        //       title: '回收站',
-        //       icon: 'hsz',
-        //       topbar: 'null',
-        //     },
-        //     component: defineAsyncComponent(() => import('@/views/home/file/recycle-bin/index.vue')),
-        //   },
-        // ],
       },
     ],
   },

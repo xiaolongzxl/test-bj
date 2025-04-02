@@ -14,12 +14,7 @@
   const activeMenu = computed(() => {
     const { path } = route;
     console.log(route);
-    if (route.params?.cateId) {
-      return `${route.meta?.activeOpen}/${route.params.cateId}/0`;
-    } else {
-      return path;
-    }
-    // console.log(route);
+    return `${route.meta?.route}/${route.params.cateId}/0`;
   });
 
   const activeOpen = computed(() => {

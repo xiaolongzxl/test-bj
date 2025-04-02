@@ -1,4 +1,4 @@
-<script setup>
+<script setup name="PasswordManagement">
   import Search from '../components/search.vue';
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   import SelfTable from '../components/selfTable.vue';
@@ -56,7 +56,7 @@
       key: 'index',
       label: '序号',
       type: 'index',
-      minWidth: 40,
+      minWidth: 60,
       align: 'center',
     },
     {
@@ -118,7 +118,7 @@
       key: 'handle',
       custom: true,
       label: '操作',
-      minWidth: 200,
+      minWidth: 240,
       align: 'center',
     },
   ]);
@@ -147,7 +147,7 @@
     </div>
     <SelfTable
       :isCurrentRow="true"
-      class="mt-10 contain-table-wrapper"
+      class="mt-10 mx-30 contain-table-wrapper"
       :row="row"
       v-model:checkedList="checkedList"
       @clickFile="handleClickFile"
@@ -183,9 +183,11 @@
     height: 100%;
     overflow: hidden;
     position: relative;
-    padding: 30px;
+    // padding: 30px;
+    padding-bottom: 30px;
   }
   .search {
+    padding: 20px 30px 0 0;
     display: flex;
     align-items: center;
     justify-content: space-between;

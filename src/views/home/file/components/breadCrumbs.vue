@@ -43,7 +43,7 @@
     { immediate: true, deep: true }
   );
   const handlePush = (item) => {
-    if (item.type != 'route') {
+    if (item.type != '3') {
       emits('routeChange', item);
     }
   };

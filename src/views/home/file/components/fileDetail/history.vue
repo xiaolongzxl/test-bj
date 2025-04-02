@@ -1,5 +1,5 @@
 <template>
-  <div class="history-wrapper">
+  <div class="history-wrapper" v-loading="loading">
     <div class="history-btn">
       <el-button
         ><el-icon color="#017FFD"><Plus /></el-icon>上传新版本</el-button
@@ -32,8 +32,42 @@
   </div>
 </template>
 <script setup>
+  import { getHistoryVer } from '@/api/file';
   import RemarkModel from './remarksModel.vue';
   const remarkModelRef = ref(null);
+  const props = defineProps({
+    file: {
+      type: Object,
+      default: () => ({}),
+    },
+  });
+
+  watch(
+    () => props.file,
+    (val) => {
+      getList();
+    }
+  );
+  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const folderQuery = inject('folderQuery');
+  const loading = ref(false);
+  const getList = async () => {
+    loading.value = true;
+    try {
+      const res = await getHistoryVer({
+        folder_category_id: folderQuery.value.folder_category_id,
+        id: props.file.id,
+      });
+      loading.value = false;
+      console.log(res);
+    } catch (err) {
+      loading.value = false;
+      $message.error(err?.msg || err?.message);
+    }
+  };
+  onMounted(() => {
+    getList();
+  });
 </script>
 <style lang="less" scoped>
   .history {

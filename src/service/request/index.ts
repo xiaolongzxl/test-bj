@@ -3,6 +3,7 @@ import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 import type { HRequestInterceptors, HRequestConfig } from './type';
 import router from '@/router';
+
 class HRequest {
   // 这是axios的实例：类型注解
   instance: AxiosInstance;
@@ -36,6 +37,7 @@ class HRequest {
           throw new Error('请求失败');
         }
         if (res.data?.code == 202) {
+          fileMenuStore().clear();
           router.replace({
             path: '/login',
           });

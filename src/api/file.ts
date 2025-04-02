@@ -137,6 +137,17 @@ export function memberListApi(data: { folder_category_id: string }) {
 }
 
 /***
+ * 查询历史版本
+ */
+export function getHistoryVer(data: { folder_category_id: string; id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getHistorical',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 查询导航栏
  */
 export function getNavigation(data: { folder_category_id: string; parent_id: string }) {

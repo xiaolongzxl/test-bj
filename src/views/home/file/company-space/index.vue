@@ -30,12 +30,10 @@
       />
     </div>
     <div class="contain-right"><FileDetail :file="clickFile" /> </div>
-    <UploadCeri />
   </div>
 </template>
-<script setup>
+<script setup name="CompanySpaceCategory">
   import SelfTable from '@/views/home/file/components/selfTable.vue';
-  import UploadCeri from '../components/certificateModel.vue';
   import Search from '@/views/home/file/components/search.vue';
   import BreadCrumbs from '@/views/home/file/components/breadCrumbs.vue';
   import FileShow from '@/views/home/file/components/changeFileShowType.vue';
@@ -43,8 +41,7 @@
   import { fileType } from '@/utils/util';
   import { getFileListApi } from '@/api/file';
 
-  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   const fileShowType = ref('ggst');
   const input1 = ref('');
   const loading = ref(false);
@@ -122,7 +119,6 @@
   });
   const btnCheckedList = computed({
     get: () => {
-      // ({ name, extension, id })
       return dataList.value.filter((e) => checkedList.value.includes(e.open)).map((e) => ({ name: e.name, extension: e.extension, id: e.id }));
     },
     set: (vals) => {
@@ -131,18 +127,19 @@
   });
 
   watch(
-    () => route.params.folderId,
+    () => route.params,
     (n) => {
       nextTick(() => {
         folderQuery.value.folder_category_id = route.params.cateId;
         folderQuery.value.parent_id = route.params.folderId;
         handleRefresh();
       });
+    },
+    {
+      deep: true,
     }
   );
-  const activeRouteValue = computed(() => {
-    return fileMenuStore().allRoutes.find((e) => e.meta.id == folderQuery.value.folder_category_id);
-  });
+
   const init = () => {
     fileShowType.value = 'ggst';
     input1.value = '';
@@ -154,33 +151,26 @@
   const handleRefresh = () => {
     input1.value = '';
     checkedList.value = [];
-    clickFile.value = {};
+    clickFile.value = {
+      id: folderQuery.value.parent_id,
+      extension: '1',
+    };
     dataList.value = [];
     getFileList();
   };
 
-  const dblclick = (item) => {
-    if (item) {
-      let path = route.meta.activeOpen;
-      console.log(`${path}/${folderQuery.value.folder_category_id}/${item.id}`);
-      router.push(`${path}/${folderQuery.value.folder_category_id}/${item.id}`);
-      // folderQuery.value.parent_id = item.id;
-      // handleRefresh();
-    }
-  };
   const getFileList = async () => {
     try {
       tableLoading.value = true;
       const res = await getFileListApi(folderQuery.value);
       tableLoading.value = false;
-      console.log(res);
+
       if (res.code != 200) {
         throw new Error(res.msg);
       } else {
         dataList.value = res.data.map((e) => {
           return {
             ...e,
-            open: e.open ? e.open : `wj_${e.id}`,
             extension: e.extension ? e.extension : e.name.split('.')[e.name.split('.').length - 1],
           };
         });
@@ -195,16 +185,19 @@
   const handleClickFile = (item) => {
     clickFile.value = item;
   };
+  const dblclick = (item) => {
+    if (item) {
+      routeChange({ type: 1, id: item.id });
+    }
+  };
   const routeChange = (item) => {
     if (item.type == 2) {
       folderQuery.value.parent_id = 0;
     } else {
       folderQuery.value.parent_id = item.id;
     }
-    let path = route.meta.activeOpen;
-    // console.log(`${path}/${folderQuery.value.folder_category_id}/${item.id}`);
+    let path = route.meta.route;
     router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}`);
-    // handleRefresh();
   };
   onMounted(() => {
     folderQuery.value.folder_category_id = route.params.cateId;

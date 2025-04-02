@@ -33,7 +33,7 @@
         <User />
       </template>
       <template v-else-if="activeTab == '2'">
-        <History />
+        <History :file="file" />
       </template>
       <template v-else-if="activeTab == '3'">
         <Dynamic />
@@ -43,8 +43,7 @@
   <RemarkModel title="说明" @detailRefresh="handleGetDetail" ref="remarkModelRef" />
 </template>
 <script setup>
-  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   import { getFolderDetailApi, getFileDetailApi } from '@/api/file';
 
   import History from './history.vue';
@@ -59,7 +58,7 @@
   const props = defineProps({
     file: {
       type: Object,
-      default: () => ({}),
+      default: () => ({ id: 0, extension: 1 }),
     },
   });
   const tabs = ref([

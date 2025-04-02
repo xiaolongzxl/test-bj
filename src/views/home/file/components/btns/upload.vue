@@ -18,9 +18,8 @@
 </template>
 <script setup>
   import { fileType } from '@/utils/util';
-  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
+  const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   const emits = defineEmits(['listRefresh']);
-  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   import { ElLoading } from 'element-plus';
   const uploadBtns = ref([
     {

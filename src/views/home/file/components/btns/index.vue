@@ -68,8 +68,7 @@
   const folderQuery = inject('folderQuery');
   const handleFolderRef = ref(null);
   const handleDelModelRef = ref(null);
-  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-  const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
+  const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   const props = defineProps({
     btnType: {
       type: Array,

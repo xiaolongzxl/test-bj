@@ -177,7 +177,7 @@ export const fileMenuStore = defineStore('fileMenu', {
     },
     formatMenus(menus) {
       try {
-        const formatSecond = (juniorMenus, activeOpen) => {
+        const formatSecond = (juniorMenus, activeOpen, route) => {
           return juniorMenus.map((menu) => ({
             path: `${menu.id}${menu.junior?.length > 0 ? '' : '/0'}`,
 
@@ -185,12 +185,13 @@ export const fileMenuStore = defineStore('fileMenu', {
               parentId: menu.parent_id,
               id: menu.id,
               fullpath: `${activeOpen}/${menu.id}/0`,
+              route: route,
               // activeOpen,
               activeOpen: `${activeOpen}/${menu.id}${menu.junior?.length > 0 ? '' : '/0'}`,
               title: menu.name,
               needAutoFind: false,
             },
-            children: menu.junior ? formatSecond(menu.junior, activeOpen) : [],
+            children: menu.junior ? formatSecond(menu.junior, activeOpen, route) : [],
           }));
         };
 
@@ -203,12 +204,12 @@ export const fileMenuStore = defineStore('fileMenu', {
 
             const route = {
               path: menu.junior?.length > 0 ? `/file${menu.route}` : `/file${menu.route}/:cateId(\\d+)/:folderId(\\d+)`,
-
               name: routeName,
               meta: {
                 parentId: menu.parent_id,
                 id: menu.id,
-                fullpath: `/file${menu.route}`,
+                route: `/file${menu.route}`,
+                fullpath: `/file${menu.route}${menu.junior?.length > 0 ? '' : '/' + menu.id + '/0'}`,
                 title: menu.name,
                 icon: menu.icon,
                 topbar: menu.route === '/password-management' ? 'title' : menu.route === '/recycle-bin' ? 'null' : 'search',
@@ -220,7 +221,7 @@ export const fileMenuStore = defineStore('fileMenu', {
             router.addRoute('file', route);
 
             if (menu.junior?.length) {
-              const children = formatSecond(menu.junior, `/file${menu.route}`);
+              const children = formatSecond(menu.junior, `/file${menu.route}`, `/file${menu.route}`);
               route.children = children;
               allMenus.push(...children);
             }

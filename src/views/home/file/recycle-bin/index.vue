@@ -1,4 +1,4 @@
-<script setup>
+<script setup name="RecycleBin">
   import Btns from '../components/btns/index.vue';
   import SelfTable from '../components/selfTable.vue';
   const activeTab = ref(1);
