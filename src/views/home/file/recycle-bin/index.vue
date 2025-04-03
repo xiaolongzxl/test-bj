@@ -1,7 +1,15 @@
 <script setup name="RecycleBin">
   import Btns from '../components/btns/index.vue';
   import SelfTable from '../components/selfTable.vue';
+  import { getFileListApi } from '@/api/file';
+  const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
+  const route = useRoute();
+  const folderQuery = ref({
+    folder_category_id: null,
+    parent_id: '0',
+  });
   const activeTab = ref(1);
+  const tableLoading = ref(false);
   const tab = ref([
     {
       label: '全部',
@@ -63,20 +71,54 @@
   const handleTab = (val) => {
     activeTab.value = val.id;
   };
+  const getFileList = async () => {
+    try {
+      tableLoading.value = true;
+      const res = await getFileListApi(folderQuery.value);
+      tableLoading.value = false;
+
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      } else {
+        dataList.value = res.data.map((e) => {
+          return {
+            ...e,
+            extension: e.extension ? e.extension : e.name.split('.')[e.name.split('.').length - 1],
+          };
+        });
+      }
+    } catch (err) {
+      tableLoading.value = false;
+      $message.error(err.message);
+      console.log(err);
+    }
+  };
+  const init = () => {
+    dataList.value = [];
+    checkedList.value = [];
+    getFileList();
+  };
+  onMounted(() => {
+    folderQuery.value.folder_category_id = route.params.cateId;
+    folderQuery.value.parent_id = route.params.folderId;
+    init();
+  });
+  provide('checkedList', checkedList);
+  provide('folderQuery', folderQuery);
 </script>
 <template>
-  <div class="contain">
+  <div class="contain" style="height: 100%">
     <div class="contain-tab">
       <div class="contain-tab-item" :class="activeTab == item.id ? 'activeTab' : ''" @click="handleTab(item)" v-for="item in tab" :key="item.id">{{
         item.label
       }}</div>
     </div>
-    <div class="contain-bottom">
+    <div class="contain-bottom flex-auto">
       <div class="contain-btns">
         <el-button text bg size="large">还原全部</el-button>
         <el-button text bg size="large">清空全部</el-button>
       </div>
-      <SelfTable fileShowType="dlb" :dataList="dataList" :row="row" class="contain-table-wrapper">
+      <SelfTable :loading="tableLoading" fileShowType="dlb" :dataList="dataList" :row="row">
         <template #handleCustom="{ row }">
           <Btns :btnType="['tableProperty']" :lineRow="row" />
         </template>
@@ -85,6 +127,7 @@
   </div>
 </template>
 <style lang="less" scoped>
+  @import '../components/common.less';
   .contain {
     display: flex;
     flex-direction: column;
@@ -130,6 +173,8 @@
     }
     &-bottom {
       padding: 30px;
+      display: flex;
+      flex-direction: column;
     }
     &-btns {
       flex: none;

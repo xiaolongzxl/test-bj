@@ -1,5 +1,14 @@
 <template>
-  <div class="table-wrapper" :class="fileShowType" @dragover.prevent="handleDragOver" @dragleave.prevent="handleDragLeave" @drop.prevent="handleDrop">
+  <div
+    class="table-wrapper"
+    @keydown.ctrl.exact.c.prevent="handleCtrlC"
+    @keydown.ctrl.exact.v.prevent="handleCtrlV"
+    tabindex="-1"
+    :class="fileShowType"
+    @dragover.prevent="handleDragOver"
+    @dragleave.prevent="handleDragLeave"
+    @drop.prevent="handleDrop"
+  >
     <el-table
       ref="tableRef"
       v-show="fileShowType != 'ggst'"
@@ -161,6 +170,10 @@
   const checkedSet = computed(() => new Set(checkedList.value));
   // 索引映射优化
   const indexMap = computed(() => new Map(props.dataList.map((item, index) => [item.open, index])));
+
+  const checkedDataList = computed(() => {
+    return props.dataList.filter((item) => checkedSet.value.has(item.open));
+  });
   const isCheck = (row) => checkedSet.value.has(row?.open);
 
   watch(
@@ -423,7 +436,43 @@
 
   onMounted(() => {
     initRowDrag();
+    document.addEventListener('key', handleDragOver);
   });
+  /* 监听复制事件 */
+  const handleCtrlC = () => {
+    if (checkedDataList.value.length > 0) {
+      console.log(checkedDataList.value);
+      fileMenuStore().setCopyFiles(
+        folderQuery.value.parent_id,
+        checkedDataList.value.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? 1 : 2 }))
+      );
+      $message.success('选中项已复制，请粘贴(Ctrl+V)到目标文件夹');
+    }
+  };
+  /* 监听粘贴事件 */
+  const handleCtrlV = async () => {
+    const { copyFiles, originFolder } = fileMenuStore().copyQuery;
+    if (copyFiles.length > 0) {
+      if (originFolder == folderQuery.value.parent_id) {
+        $message.error('不能复制到自己');
+      } else {
+        const loading = ElLoading.service({
+          text: '请稍等...',
+          lock: true,
+          background: 'rgba(0, 0, 0, 0.4)',
+        });
+        try {
+          const res = await fileMenuStore().handlePaste(folderQuery.value);
+          loading.close();
+          $message.success('粘贴成功');
+          emits('listRefresh');
+        } catch (err) {
+          loading.close();
+          $message.error(err?.msg || err?.message);
+        }
+      }
+    }
+  };
   const handleDragOver = () => {
     // console.log('dropover');
     if (!isDropTable.value) isDropTable.value = true;

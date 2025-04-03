@@ -3,19 +3,23 @@
     <Add @addBtnClick="handleAddBtnClick" />
   </template>
   <template v-if="btnType.includes('upload')">
-    <Upload @uploadBtnClick="handleUploadBtnClick" @listRefresh="listRefresh" />
+    <Upload @listRefresh="listRefresh" />
   </template>
   <template v-if="btnType.includes('download')">
     <el-button text bg size="large" class="ml-10" :disabled="props.checkedFiles.length == 0" @click="handleDownload('mutli')"
       >下载</el-button
     ></template
   >
-  <template v-if="btnType.includes('move')"><Move @listRefresh="listRefresh" /></template>
+  <template v-if="btnType.includes('move')"
+    ><el-button text bg size="large" @click="handleOpenMove('mutli')" :disabled="props.checkedFiles.length == 0">移动</el-button></template
+  >
   <template v-if="btnType.includes('copy')">
-    <el-button :disabled="props.checkedFiles.length == 0" text bg size="large" plain class="ml-10">复制</el-button></template
+    <el-button :disabled="props.checkedFiles.length == 0" text bg size="large" plain class="ml-10" @click="handleOpenCopy('mutli')"
+      >复制</el-button
+    ></template
   >
   <template v-if="btnType.includes('del')"
-    ><el-button text bg size="large" @click="handleOpenMutliDel" :disabled="props.checkedFiles.length == 0">删除</el-button>
+    ><el-button text bg size="large" @click="handleOpenDel('mutli')" :disabled="props.checkedFiles.length == 0">删除</el-button>
   </template>
   <template v-if="btnType.includes('tablePreview')">
     <el-button class="mr-4" plain :disabled="getIsFolder(props.lineRow.extension)"><svg-icon name="preview" class="mr-4"></svg-icon> 预览 </el-button>
@@ -49,13 +53,13 @@
   <div>
     <handleFolder ref="handleFolderRef" @listRefresh="emits('listRefresh')" />
     <handleDelModel ref="handleDelModelRef" @listRefresh="emits('listRefresh')" />
+    <CopyMoveModel ref="copyMoveModelRef" @listRefresh="emits('listRefresh')" />
   </div>
 </template>
 <script setup>
   import Add from './add.vue';
   import Upload from './upload.vue';
 
-  import Move from './move.vue';
   import TableMore from './tableMore.vue';
   import TableCopy from './tableCopy.vue';
   import TableHistory from './tableHistory.vue';
@@ -63,11 +67,13 @@
   import { fileType, getIsFolder, downLoadFile } from '@/utils/util';
   import handleFolder from './handleFolder.vue';
   import handleDelModel from './delModel.vue';
+  import CopyMoveModel from './copyMoveModel.vue';
   import { ElLoading } from 'element-plus';
 
   const folderQuery = inject('folderQuery');
   const handleFolderRef = ref(null);
   const handleDelModelRef = ref(null);
+  const copyMoveModelRef = ref(null);
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   const props = defineProps({
     btnType: {
@@ -92,14 +98,16 @@
   const handleAddBtnClick = () => {
     handleFolderRef.value.open();
   };
-  const handleUploadBtnClick = (item) => {
-    console.log('点击了上传', item);
-  };
+
   const handleTableCommand = (command) => {
     if (command == 'rename') {
       handleFolderRef.value.open(props.lineRow.name, props.lineRow.id, getIsFolder(props.lineRow.extension) ? 'folder' : 'file');
+    } else if (command == 'move') {
+      handleOpenMove('single');
+    } else if (command == 'copy') {
+      handleOpenCopy('single');
     } else if (command == 'del') {
-      handleOpenSignelDel();
+      handleOpenDel('single');
     }
     console.log('点击了表格更多操作', command);
   };
@@ -123,11 +131,15 @@
         $message.error(err?.message || err?.msg);
       });
   };
-  const handleOpenMutliDel = () => {
-    handleDelModelRef.value.open(props.checkedFiles);
+  const handleOpenDel = (flag = 'mutli') => {
+    handleDelModelRef.value.open(flag == 'mutli' ? props.checkedFiles : [props.lineRow]);
   };
-  const handleOpenSignelDel = () => {
-    handleDelModelRef.value.open([props.lineRow]);
+
+  const handleOpenMove = (flag = 'mutli') => {
+    copyMoveModelRef.value.open(flag == 'mutli' ? props.checkedFiles : [props.lineRow], 'move');
+  };
+  const handleOpenCopy = (flag = 'mutli') => {
+    copyMoveModelRef.value.open(flag == 'mutli' ? props.checkedFiles : [props.lineRow], 'copy');
   };
   const handleChangeCheckedFiles = (item = []) => {
     emits('update:checkedFiles', item);

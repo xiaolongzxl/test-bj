@@ -9,14 +9,17 @@
 </template>
 <script setup>
   import { getNavigation } from '@/api/file';
-  const route = useRoute();
-  const router = useRouter();
+
   const routeList = ref([]);
   const folderQuery = inject('folderQuery');
   const props = defineProps({
     activeBread: {
       type: [String, Number],
       default: '',
+    },
+    flag: {
+      type: String,
+      default: 'normal',
     },
   });
   const emits = defineEmits(['routeChange']);
@@ -31,6 +34,7 @@
         throw new Error(res.msg);
       }
       levelList.value = res.data;
+      fileMenuStore().setBreadCrumb(res.data);
     } catch (err) {
       $message.error(err?.msg || err?.message);
     }
@@ -38,7 +42,18 @@
   watch(
     () => folderQuery.value,
     () => {
-      getBreadcrumb();
+      if (props.flag == 'normal') {
+        getBreadcrumb();
+      }
+    },
+    { immediate: true, deep: true }
+  );
+  watch(
+    () => props.activeBread,
+    () => {
+      if (props.flag != 'normal') {
+        getBreadcrumb();
+      }
     },
     { immediate: true, deep: true }
   );
