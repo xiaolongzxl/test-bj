@@ -22,7 +22,7 @@ export const fileType = (type, isBig = false) => {
     { type: 'ppt', includes: ['ppt', 'pptx'], icon: 'file/file/icon-ppt.png', bigIcon: 'file/file/icon-ppt-big.png', name: 'ppt' },
     {
       type: 'wjj',
-      includes: [1, '1'],
+      includes: ['2', 2],
       icon: 'file/file/icon-wenjianjia.png',
       bigIcon: 'file/file/icon-wenjianjia-big.png',
       name: '文件夹',
@@ -30,7 +30,7 @@ export const fileType = (type, isBig = false) => {
     },
     {
       type: 'qyWjj',
-      includes: ['2', 2],
+      includes: [1, '1'],
       icon: 'file/file/icon-wenjianjia-blue.png',
       bigIcon: 'file/file/icon-wenjianjia-blue-big.png',
       name: '企业文件夹',

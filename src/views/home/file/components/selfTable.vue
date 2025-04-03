@@ -303,7 +303,7 @@
         const targetRow = evt.related.closest('.el-table__row, .grid-file');
         const targetItem = getItemByDOM(targetRow, 'data', 'move');
         // 如果是文件夹则显示移动样式
-        if (targetItem?.type === 'wjj') {
+        if (getIsFolder(targetItem?.extension)) {
           const rect = targetRow.getBoundingClientRect();
           const mouseX = evt.originalEvent.clientX;
           const mouseY = evt.originalEvent.clientY;
@@ -327,7 +327,9 @@
 
         const targetRow = evt.item.closest('.el-table__row, .grid-file');
         const targetItem = getItemByDOM(targetRow, 'data', 'end');
-        if (targetItem?.type === 'folder') {
+        console.log(evt, targetItem);
+        if (getIsFolder(targetItem?.extension)) {
+          handleMove();
           // handleMoveToFolder(targetItem);
           return;
         }
@@ -473,6 +475,7 @@
       }
     }
   };
+  const handleMove = async () => {};
   const handleDragOver = () => {
     // console.log('dropover');
     if (!isDropTable.value) isDropTable.value = true;

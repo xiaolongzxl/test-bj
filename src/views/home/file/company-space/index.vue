@@ -14,7 +14,7 @@
           <BreadCrumbs :activeBread="activeBread" @routeChange="routeChange" />
         </div>
         <div class="search-right">
-          <Search searchType="pageSearch" />
+          <Search searchType="pageSearch" :searchResult="searchResult" @searchTrigger="handleSearch" @changeChecked="handleChangeChecked" />
           <FileShow v-model:fileShowType="fileShowType" />
         </div>
       </div>
@@ -51,6 +51,7 @@
   const route = useRoute();
   const router = useRouter();
   const tableLoading = ref(false);
+  const searchResult = ref([]);
 
   const row = ref([
     {
@@ -200,6 +201,15 @@
     }
     let path = route.meta.route;
     router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}`);
+  };
+  const handleSearch = (e) => {
+    searchResult.value = dataList.value
+      .filter((el) => el.name.includes(e))
+      .map((el) => ({ id: el.id, name: el.name, open: el.open, extension: el.extension }));
+  };
+  const handleChangeChecked = (e) => {
+    checkedList.value = [e.open];
+    clickFile.value = e;
   };
   onMounted(() => {
     folderQuery.value.folder_category_id = route.params.cateId;
