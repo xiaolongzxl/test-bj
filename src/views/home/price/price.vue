@@ -1934,10 +1934,7 @@
     .list {
       padding: 16px;
       flex: 0 0 calc(42% - 10px);
-      min-width: 500px;
-      max-width: 700px;
-
-      // min-width: 680px;
+      max-width: calc(42% - 10px);
       height: 100%;
       background: #ffffff;
       box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
@@ -2778,5 +2775,12 @@
   }
   .blue-text .el-input__inner {
     color: #000bda !important;
+  }
+  .el-table__header,
+  .el-table__footer {
+    margin: 0 auto;
+  }
+  .el-scrollbar__view {
+    display: block !important;
   }
 </style>
