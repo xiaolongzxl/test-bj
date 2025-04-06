@@ -16,7 +16,7 @@ const gsMenu = [
     title: '二级分类3',
   },
 ];
-import { getLeftMenus } from '@/api/file';
+import { getLeftMenus, copyApi } from '@/api/file';
 import router, { routes as defaultRoute } from '../router';
 import { defineStore } from 'pinia';
 // 匹配views里面所有的.vue文件
@@ -26,6 +26,11 @@ export const fileMenuStore = defineStore('fileMenu', {
     return {
       routes: [],
       allRoutes: [],
+      activeBreadCrumb: [],
+      copyQuery: {
+        originFolder: '',
+        copyFiles: [],
+      },
     };
   },
 
@@ -251,6 +256,40 @@ export const fileMenuStore = defineStore('fileMenu', {
     clear() {
       this.allRoutes = [];
       this.routes = [];
+    },
+    setBreadCrumb(list) {
+      this.activeBreadCrumb = list;
+    },
+    setCopyFiles(originFolder, list) {
+      this.copyQuery = {
+        originFolder,
+        copyFiles: list,
+      };
+    },
+    handlePaste(targetQuery) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const { copyFiles } = this.copyQuery;
+          let isSelf = copyFiles.some((e) => e.type == 1 && this.activeBreadCrumb.map((el) => el.id).includes(e.id));
+          if (isSelf) {
+            throw new Error('不能复制到自己');
+          }
+          const data = {
+            folder_category_id: targetQuery.folder_category_id,
+            parent_id: targetQuery.parent_id,
+            data: copyFiles,
+          };
+
+          const res = await copyApi(data);
+          if (res.code != 200) {
+            throw new Error(res.msg);
+          }
+          this.setCopyFiles('', []);
+          resolve(res);
+        } catch (err) {
+          reject(err);
+        }
+      });
     },
   },
 });

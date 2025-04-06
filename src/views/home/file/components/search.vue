@@ -36,8 +36,8 @@
         </template>
       </el-input>
       <div class="search-result">
-        <template v-if="false && searchResult.length">
-          <div class="search-item" v-for="item in searchResult" :key="item.id">
+        <template v-if="props.searchResult.length">
+          <div class="search-item" v-for="item in props.searchResult" :key="item.open" @click="handleCheckItem(item)">
             <img class="search-item-img" :src="$getAssetsImages(fileType(item.extension))" />
             <div class="search-item-name" v-html="formatSearchName(item.name)"> </div>
           </div>
@@ -65,6 +65,10 @@
     placeHolder: {
       type: String,
     },
+    searchResult: {
+      type: Array,
+      default: () => [],
+    },
   });
   import { ClickOutside as vClickOutside } from 'element-plus';
   import { fileType } from '@/utils/util';
@@ -73,10 +77,7 @@
   const isVisible = ref(false);
   const emits = defineEmits(['searchTrigger']);
   const popoverRef = ref(null);
-  const searchResult = ref([
-    { name: '文件夹1', extension: 1, id: 1 },
-    { name: '图片1', extension: 'jpg', id: 2 },
-  ]);
+
   const formatSearchName = (name) => {
     let _name = '';
     if (name && searchInp.value) {
@@ -103,7 +104,13 @@
     isVisible.value = false;
   };
   const handleSearch = () => {
+    if (!searchInp.value) return;
     emits('searchTrigger', searchInp.value);
+  };
+  const handleCheckItem = (item) => {
+    emits('changeChecked', item);
+    searchInp.value = '';
+    isVisible.value = false;
   };
 </script>
 

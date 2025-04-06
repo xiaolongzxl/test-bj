@@ -202,3 +202,14 @@ export function getNavigation(data: { folder_category_id: string; parent_id: str
     data,
   });
 }
+
+/***
+ * 复制文件（夹）
+ */
+export function copyApi(data: { folder_category_id: string; parent_id: string; data: [{ id: string; type: string }] }) {
+  return defHttp.request({
+    url: root + '/api/pan/getCopy',
+    method: 'POST',
+    data,
+  });
+}
