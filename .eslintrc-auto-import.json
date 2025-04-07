@@ -15,6 +15,7 @@
     "defineAsyncComponent": true,
     "defineComponent": true,
     "effectScope": true,
+    "fileMenuStore": true,
     "getCurrentInstance": true,
     "getCurrentScope": true,
     "h": true,
@@ -64,7 +65,6 @@
     "watch": true,
     "watchEffect": true,
     "watchPostEffect": true,
-    "watchSyncEffect": true,
-    "fileMenuStore": true
+    "watchSyncEffect": true
   }
 }
