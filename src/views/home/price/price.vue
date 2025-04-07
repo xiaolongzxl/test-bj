@@ -2026,6 +2026,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    white-space: nowrap;
   }
 
   .select-box {
@@ -2588,30 +2589,6 @@
   @media screen and (min-width: 1920px) {
     .right-content {
       .list {
-        flex: 0 0 700px;
-        max-width: 700px;
-      }
-      .add-content {
-        flex: 0 0 calc(100% - 710px);
-        max-width: calc(100% - 710px);
-      }
-    }
-  }
-  @media screen and (min-width: 1280px) and (max-width: 1440px) {
-    .right-content {
-      .list {
-        flex: 0 0 600px;
-        max-width: 600px;
-      }
-      .add-content {
-        flex: 0 0 calc(100% - 610px);
-        max-width: calc(100% - 610px);
-      }
-    }
-  }
-  @media screen and (min-width: 1440px) and (max-width: 1920px) {
-    .right-content {
-      .list {
         flex: 0 0 640px;
         max-width: 640px;
       }
@@ -2621,15 +2598,27 @@
       }
     }
   }
-  @media screen and (max-width: 1280px) {
+  @media screen and (min-width: 1440px) and (max-width: 1920px) {
     .right-content {
       .list {
-        flex: 0 0 500px;
-        max-width: 500px;
+        flex: 0 0 560px;
+        max-width: 560px;
       }
       .add-content {
-        flex: 0 0 calc(100% - 510px);
-        max-width: calc(100% - 510px);
+        flex: 0 0 calc(100% - 570px);
+        max-width: calc(100% - 570px);
+      }
+    }
+  }
+  @media screen and (max-width: 1440px) {
+    .right-content {
+      .list {
+        flex: 0 0 490px;
+        max-width: 490px;
+      }
+      .add-content {
+        flex: 0 0 calc(100% - 500px);
+        max-width: calc(100% - 500px);
       }
     }
   }
