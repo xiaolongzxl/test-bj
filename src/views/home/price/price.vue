@@ -2584,6 +2584,55 @@
       display: block;
     }
   }
+
+  @media screen and (min-width: 1920px) {
+    .right-content {
+      .list {
+        flex: 0 0 700px;
+        max-width: 700px;
+      }
+      .add-content {
+        flex: 0 0 calc(100% - 710px);
+        max-width: calc(100% - 710px);
+      }
+    }
+  }
+  @media screen and (min-width: 1280px) and (max-width: 1440px) {
+    .right-content {
+      .list {
+        flex: 0 0 600px;
+        max-width: 600px;
+      }
+      .add-content {
+        flex: 0 0 calc(100% - 610px);
+        max-width: calc(100% - 610px);
+      }
+    }
+  }
+  @media screen and (min-width: 1440px) and (max-width: 1920px) {
+    .right-content {
+      .list {
+        flex: 0 0 640px;
+        max-width: 640px;
+      }
+      .add-content {
+        flex: 0 0 calc(100% - 650px);
+        max-width: calc(100% - 650px);
+      }
+    }
+  }
+  @media screen and (max-width: 1280px) {
+    .right-content {
+      .list {
+        flex: 0 0 500px;
+        max-width: 500px;
+      }
+      .add-content {
+        flex: 0 0 calc(100% - 510px);
+        max-width: calc(100% - 510px);
+      }
+    }
+  }
 </style>
 <style>
   .select-type {

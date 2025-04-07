@@ -3,6 +3,7 @@ import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 import type { HRequestInterceptors, HRequestConfig } from './type';
 import router from '@/router';
+import fileMenuStore from '@/store/fileMenu';
 
 class HRequest {
   // 这是axios的实例：类型注解
