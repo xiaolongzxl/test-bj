@@ -15,7 +15,7 @@ export function getLeftMenus() {
 /***
  * 获取文件夹文件列表
  */
-export function getFileListApi(data: { folder_category_id: string; parent_id: string }) {
+export function getFileListApi(data: { folder_category_id: string; parent_id: string; keyword?: string; type?: string }) {
   return defHttp.request({
     url: root + '/api/pan/getFolderFileList',
     method: 'POST',
@@ -29,6 +29,17 @@ export function getFileListApi(data: { folder_category_id: string; parent_id: st
 export function getFolderDetailApi(data: { folder_category_id: string; id: string }) {
   return defHttp.request({
     url: root + '/api/pan/getFolderDetails',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 获取目录详情
+ */
+export function getMenuDetailApi(data: { folder_category_id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getcategorydetails',
     method: 'POST',
     data,
   });
@@ -209,6 +220,82 @@ export function getNavigation(data: { folder_category_id: string; parent_id: str
 export function copyApi(data: { folder_category_id: string; parent_id: string; data: [{ id: string; type: string }] }) {
   return defHttp.request({
     url: root + '/api/pan/getCopy',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 移动文件（夹）
+ */
+export function moveApi(data: { parent_id: string; data: [{ id: string; type: string }] }) {
+  return defHttp.request({
+    url: root + '/api/pan/updateMove',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 密码列表
+ */
+export function pwdListApi(data: { keyword: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getPasswordManagement',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 修改密码
+ */
+export function updatePwdApi(data: { id: string; field: string; field_name: string; value: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/editPasswordManagement',
+    method: 'POST',
+    data,
+  });
+}
+/***
+ * 添加密码
+ */
+export function addPwdApi(data: { name: string; website: string; username: string; password: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/addPasswordManagement',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 删除密码
+ */
+export function delPwdApi(data: { id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/delPasswordManagement',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 密码历史记录
+ */
+export function PwdHistoryApi(data: { id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/historyPasswordManagement',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 密码修改颜色
+ */
+export function PwdSetColorApi(data: { id: string; field_name: string; color: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/colorPasswordManagement',
     method: 'POST',
     data,
   });

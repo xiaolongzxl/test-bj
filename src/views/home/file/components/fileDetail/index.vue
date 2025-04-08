@@ -1,11 +1,11 @@
 <template>
-  <div class="fileDetail" v-if="file?.id">
+  <div class="fileDetail" v-if="folderQuery?.folder_category_id">
     <div class="file-info" v-loading="loading">
       <div class="file-title">
         <img :src="$getAssetsImages(fileType(fileDetail?.extension))" />
         <span class="ml1">{{ fileDetail.name }}</span>
       </div>
-      <div class="file-line tip">
+      <div class="file-line tip" v-if="props.file.id != 0">
         <div class="file-line-label"> 说明： </div>
         <div class="file-line-value">{{ fileDetail.remark || '' }} </div>
         <div class="file-line-icon effect-btn" @click="handleOpenRemark">
@@ -46,7 +46,7 @@
 </template>
 <script setup>
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
-  import { getFolderDetailApi, getFileDetailApi } from '@/api/file';
+  import { getFolderDetailApi, getFileDetailApi, getMenuDetailApi } from '@/api/file';
 
   import History from './history.vue';
   import User from './user.vue';
@@ -60,7 +60,7 @@
   const props = defineProps({
     file: {
       type: Object,
-      default: () => ({ id: 0, extension: 1 }),
+      default: () => ({ id: '0', extension: 1 }),
     },
   });
   const tabs = computed(() => {
@@ -84,15 +84,18 @@
   const fileDetail = ref({});
   const handleClick = () => {};
   const handleGetDetail = async () => {
-    if (!props?.file?.id) return;
+    if (!folderQuery.value?.folder_category_id) return;
     const { id, extension } = props?.file;
     loading.value = true;
     try {
       const data = {
         folder_category_id: folderQuery.value.folder_category_id,
-        id: id || 0,
       };
-      const api = getIsFolder(extension) ? getFolderDetailApi : getFileDetailApi;
+      if (!['0', 0].includes(id)) {
+        data.id = id;
+      }
+
+      const api = ['0', 0].includes(id) ? getMenuDetailApi : getIsFolder(extension) ? getFolderDetailApi : getFileDetailApi;
       const res = await api(data);
       loading.value = false;
       if (res.code != 200) {

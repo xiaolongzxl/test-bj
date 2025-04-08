@@ -8,13 +8,13 @@
         ><div class="content-title-text">{{ title }}</div>
       </div>
       <div class="content-title nopy" v-if="topbar == 'search'">
-        <Search @searchTrigger="searchTrigger" />
+        <Search @changeChecked="changeChecked" />
       </div>
 
       <div class="content-body">
         <RouterView v-slot="{ Component, route }">
           <transition name="fade" mode="out-in">
-            <component :key="route.name" :is="Component" />
+            <component :key="route.name" :is="Component" :topbarSearchChecked="topbarSearchChecked" />
           </transition>
         </RouterView>
       </div>
@@ -25,6 +25,7 @@
 <script setup>
   import leftBar from './components/left-navbar/index.vue';
   import Search from './components/search.vue';
+  const topbarSearchChecked = ref({});
   const route = useRoute();
   const title = computed(() => {
     return route.meta.title;
@@ -32,13 +33,12 @@
   const topbar = computed(() => {
     return route.meta.topbar;
   });
-  const topSearch = ref('');
 
-  const searchTrigger = (value) => {
-    console.log('搜索结果:', value);
-    topSearch.value = value;
+  const changeChecked = (item) => {
+    console.log(item);
+    topbarSearchChecked.value = { ...item };
   };
-  provide('topSearch', topSearch.value);
+  // provide('topbarSearchChecked', topbarSearchChecked.value);
 </script>
 
 <style scoped lang="less">

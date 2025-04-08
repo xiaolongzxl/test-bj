@@ -5,6 +5,8 @@
       :style="{ width: props.width ? props.width : '' }"
       :class="searchType == 'topbar' ? 'topbar-search' : 'page-search'"
       v-model="searchInp"
+      @input="changeSearchInp"
+      @keydown.enter="handleSearch"
       :placeholder="props?.placeHolder ? props.placeHolder : searchType == 'topbar' ? '请输入关键词搜索相关文件...' : '搜索当前文件夹'"
     >
       <template #prefix v-if="searchType == 'topbar'">
@@ -20,6 +22,7 @@
     <div class="show-search-result" :style="boxStyle" v-if="isVisible">
       <el-input
         ref="inpRef"
+        @keydown.enter="handleSearch"
         :style="{ width: props.width ? props.width : '' }"
         :class="[searchType == 'topbar' ? 'topbar-search' : 'page-search', 'show-search-inp']"
         v-model="searchInp"
@@ -35,9 +38,9 @@
           </div>
         </template>
       </el-input>
-      <div class="search-result">
-        <template v-if="props.searchResult.length">
-          <div class="search-item" v-for="item in props.searchResult" :key="item.open" @click="handleCheckItem(item)">
+      <div class="search-result" v-loading="loading">
+        <template v-if="searchResult.length">
+          <div class="search-item" v-for="item in searchResult" :key="item.open" @click="handleCheckItem(item)">
             <img class="search-item-img" :src="$getAssetsImages(fileType(item.extension))" />
             <div class="search-item-name" v-html="formatSearchName(item.name)"> </div>
           </div>
@@ -51,7 +54,12 @@
 </template>
 <script setup>
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
+  import { getFileListApi } from '@/api/file';
   const props = defineProps({
+    searchVal: {
+      type: String,
+      default: '',
+    },
     boxStyle: {
       type: Object,
     },
@@ -65,19 +73,42 @@
     placeHolder: {
       type: String,
     },
-    searchResult: {
-      type: Array,
-      default: () => [],
-    },
   });
   import { ClickOutside as vClickOutside } from 'element-plus';
   import { fileType } from '@/utils/util';
+  const route = useRoute();
   const searchInp = ref('');
   const inpRef = ref(null);
   const isVisible = ref(false);
-  const emits = defineEmits(['searchTrigger']);
+  const emits = defineEmits(['searchTrigger', 'update:searchVal', 'changeChecked']);
   const popoverRef = ref(null);
+  const loading = ref(false);
+  const emitQuery = props.searchType == 'pageSearch' && inject('folderQuery');
+  const searchResult = ref([]);
+  // const folderQuery =props.searchType == 'topbar' ? ref({}): inject('folderQuery');
+  watch(
+    () => props.searchVal,
+    (val) => {
+      searchInp.value = val;
+    }
+  );
 
+  const folderQuery = computed(() => {
+    const data = {
+      folder_category_id: '',
+      parent_id: '0',
+    };
+    if (props.searchType == 'topbar') {
+      const { cateId, folderId } = route.params;
+      data.folder_category_id = cateId;
+      data.parent_id = folderId;
+    } else {
+      const { folder_category_id, parent_id } = emitQuery.value;
+      data.folder_category_id = folder_category_id;
+      data.parent_id = parent_id;
+    }
+    return data;
+  });
   const formatSearchName = (name) => {
     let _name = '';
     if (name && searchInp.value) {
@@ -95,6 +126,7 @@
     return _name;
   };
   const showSearchResult = () => {
+    if (props.searchType == 'onlySearch') return;
     isVisible.value = true;
     nextTick(() => {
       inpRef.value.focus();
@@ -104,12 +136,39 @@
     isVisible.value = false;
   };
   const handleSearch = () => {
-    if (!searchInp.value) return;
+    // if (!searchInp.value) return;
+    if (props.searchType != 'onlySearch') {
+      getSearchResult();
+    }
     emits('searchTrigger', searchInp.value);
+  };
+  const getSearchResult = async () => {
+    if (!searchInp.value) return;
+    console.log(folderQuery.value);
+    loading.value = true;
+    try {
+      const res = await getFileListApi({ ...folderQuery.value, type: props.searchType == 'topbar' ? '1' : '2', keyword: searchInp.value });
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
+      loading.value = false;
+      searchResult.value = res.data;
+    } catch (err) {
+      searchResult.value = [];
+      loading.value = false;
+      $message.error(err?.msg || err?.message);
+    }
+  };
+  const changeSearchInp = () => {
+    if (searchInp.value == '') {
+      searchResult.value = [];
+    }
+    emits('update:searchVal', searchInp.value);
   };
   const handleCheckItem = (item) => {
     emits('changeChecked', item);
     searchInp.value = '';
+    searchResult.value = [];
     isVisible.value = false;
   };
 </script>

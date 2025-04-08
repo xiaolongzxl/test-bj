@@ -26,7 +26,7 @@
       }
     }
     .search {
-      margin-top: 30px;
+      margin-top: 10px;
       flex: none;
       display: flex;
       align-items: center;
@@ -66,9 +66,10 @@
       }
     }
     .table-wrapper {
+      position: relative;
       // flex: auto;
-
-      margin-top: 20px;
+      overflow: hidden;
+      margin-top: 10px;
     }
   }
   &-table {
@@ -129,9 +130,6 @@
     }
   }
   .table-wrapper {
-    position: relative;
-    flex: auto;
-    overflow: hidden;
     :deep(.el-checkbox) {
       --el-checkbox-border-radius: 4px;
       --el-checkbox-checked-bg-color: #3563e9;

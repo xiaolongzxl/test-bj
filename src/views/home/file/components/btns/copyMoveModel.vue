@@ -74,7 +74,7 @@
       </div>
       <div class="footer-btn">
         <el-button color="#F2F3F5" @click="moveShow = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">{{ flag.value == 'move' ? '移动' : '复制' }}</el-button>
+        <el-button type="primary" @click="handleSubmit">{{ flag == 'move' ? '移动' : '复制' }}</el-button>
       </div>
     </div>
   </el-dialog>
@@ -212,7 +212,6 @@
     try {
       const api = flag.value == 'copy' ? copyApi : '';
       const data = {
-        folder_category_id: breadFolderQuery.value.folder_category_id,
         parent_id: breadFolderQuery.value.parent_id,
         data: originFiles.value.map((e) => {
           return {
@@ -221,10 +220,11 @@
           };
         }),
       };
-      const res = await api(data);
-      if (res.code != 200) {
-        throw new Error(res.msg);
+      if (flag.value == 'copy') {
+        data.folder_category_id = breadFolderQuery.value.folder_category_id;
       }
+      const res = fileMenuStore().handleMoveCopy(data, flag.value);
+
       loading.close();
       $message.success('操作成功');
       emits('listRefresh');

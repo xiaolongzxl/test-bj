@@ -17,9 +17,8 @@
   </el-popover>
 </template>
 <script setup>
-  import { fileType } from '@/utils/util';
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
-  const emits = defineEmits(['listRefresh']);
+  const emits = defineEmits(['listRefresh', 'triggerUpload']);
   import { ElLoading } from 'element-plus';
   const uploadBtns = ref([
     {
@@ -36,11 +35,19 @@
       ],
     },
   ]);
-  import { fileUpload } from '@/utils/util';
+  import { fileUpload, fileType } from '@/utils/util';
   const uploadRef = ref(null);
   const folderQuery = inject('folderQuery');
-
+  const props = defineProps({
+    isTrigger: {
+      type: Boolean,
+      default: false,
+    },
+  });
   const handleUploadBtnClick = (item) => {
+    if (props.isTrigger) {
+      return emits('triggerUpload');
+    }
     const query = {
       folder_category_id: folderQuery.value.folder_category_id,
       folder_id: folderQuery.value.parent_id,

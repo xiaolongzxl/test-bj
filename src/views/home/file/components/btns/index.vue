@@ -3,7 +3,7 @@
     <Add @addBtnClick="handleAddBtnClick" />
   </template>
   <template v-if="btnType.includes('upload')">
-    <Upload @listRefresh="listRefresh" />
+    <Upload @listRefresh="listRefresh" :isTrigger="props.isTriggerUpload" @triggerUpload="handleTrigger('upload', {})" />
   </template>
   <template v-if="btnType.includes('download')">
     <el-button text bg size="large" class="ml-10" :disabled="props.checkedFiles.length == 0" @click="handleDownload('mutli')"
@@ -91,6 +91,10 @@
     tableMoreType: {
       type: String,
       default: 'table',
+    },
+    isTriggerUpload: {
+      type: Boolean,
+      default: false,
     },
   });
 

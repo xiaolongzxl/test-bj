@@ -17,8 +17,8 @@
       class="contain-table"
       v-loading="loading"
       :data="dataList"
-      row-key="open"
-      current-row-key="open"
+      :row-key="props.rowKey"
+      :current-row-key="props.rowKey"
       :highlight-current-row="props.isCurrentRow"
       :border="tableBorder"
       :row-class-name="({ row }) => (isCheck(row) ? 'active' : '')"
@@ -83,8 +83,8 @@
           @click="handleClickFile(item)"
           @dblclick="handleChangeFolder(item)"
           v-for="item in dataList"
-          :key="item.open"
-          :data-index="item.open"
+          :key="item[props.rowKey]"
+          :data-index="item[props.rowKey]"
         >
           <el-checkbox class="showCheckbox" :model-value="isCheck(item)" @change="handleNormalCheck(item)"></el-checkbox>
           <div class="morebtn">
@@ -113,8 +113,13 @@
   import Btns from './btns/index.vue';
   import { ElLoading } from 'element-plus';
   import { fileType, fileUpload, getIsFolder } from '@/utils/util';
-  const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList']);
+  import { get } from 'lodash';
+  const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList', 'listRefresh']);
   const props = defineProps({
+    rowKey: {
+      type: String,
+      default: 'open',
+    },
     tableBorder: {
       type: Boolean,
       default: false,
@@ -169,12 +174,14 @@
   // 优化isCheck计算
   const checkedSet = computed(() => new Set(checkedList.value));
   // 索引映射优化
-  const indexMap = computed(() => new Map(props.dataList.map((item, index) => [item.open, index])));
+  const indexMap = computed(() => new Map(props.dataList.map((item, index) => [item[props.rowKey], index])));
 
   const checkedDataList = computed(() => {
-    return props.dataList.filter((item) => checkedSet.value.has(item.open));
+    return props.dataList.filter((item) => checkedSet.value.has(item[props.rowKey]));
   });
-  const isCheck = (row) => checkedSet.value.has(row?.open);
+
+  const targetDom = ref({});
+  const isCheck = (row) => checkedSet.value.has(row[props.rowKey]);
 
   watch(
     () => props.fileShowType,
@@ -221,11 +228,6 @@
               if (index >= 0) {
                 const item = containDom.children[index];
                 Sortable.utils.deselect(item);
-                // const Griditem = document.querySelector('.grid-body').children[index];
-                // const Tableitem = document.querySelector('.el-table__body-wrapper tbody').children[index];
-                // // console.log(id, Griditem, Tableitem);
-                // Sortable.utils.deselect(Griditem);
-                // Sortable.utils.deselect(Tableitem);
               }
             });
           }
@@ -302,7 +304,16 @@
       onMove(evt) {
         const targetRow = evt.related.closest('.el-table__row, .grid-file');
         const targetItem = getItemByDOM(targetRow, 'data', 'move');
+        const draggerItem = getItemByDOM(evt.dragged, 'data', 'move');
+        targetDom.value = targetItem;
+        console.log(evt);
         // 如果是文件夹则显示移动样式
+        if (
+          (getIsFolder(draggerItem.extension) && !getIsFolder(targetItem?.extension)) ||
+          (!getIsFolder(draggerItem.extension) && getIsFolder(targetItem?.extension))
+        ) {
+          return false;
+        }
         if (getIsFolder(targetItem?.extension)) {
           const rect = targetRow.getBoundingClientRect();
           const mouseX = evt.originalEvent.clientX;
@@ -327,15 +338,26 @@
 
         const targetRow = evt.item.closest('.el-table__row, .grid-file');
         const targetItem = getItemByDOM(targetRow, 'data', 'end');
-        console.log(evt, targetItem);
-        if (getIsFolder(targetItem?.extension)) {
-          handleMove();
+        const cloneData = evt.clone ? [getItemByDOM(evt.item, 'data', 'end')] : checkedDataList.value;
+
+        if (evt.oldIndex == evt.newIndex && getIsFolder(targetDom.value?.extension)) {
+          const data = {
+            parent_id: targetDom.value?.id,
+            data: cloneData.map((item) => {
+              return {
+                id: item.id,
+                type: getIsFolder(item.extension) ? 1 : 2,
+              };
+            }),
+          };
+          handleMove(data);
           // handleMoveToFolder(targetItem);
           return;
         }
 
         // 执行批量移动
         const newList = reorderArray(evt);
+        targetDom.value = {};
         emits('update:checkedList', []);
         emits('update:dataList', newList);
       },
@@ -421,17 +443,17 @@
     if (_checkedList.length == props.dataList.length) {
       _checkedList = [];
     } else {
-      _checkedList = props.dataList.map((e) => e.open);
+      _checkedList = props.dataList.map((e) => e[props.rowKey]);
     }
     emits('update:checkedList', _checkedList);
   };
   /* 点击普通选中 */
   const handleNormalCheck = (val) => {
     let _checkedList = [...checkedList.value];
-    if (_checkedList.includes(val.open)) {
-      _checkedList = _checkedList.filter((e) => e !== val.open);
+    if (_checkedList.includes(val[props.rowKey])) {
+      _checkedList = _checkedList.filter((e) => e !== val[props.rowKey]);
     } else {
-      _checkedList.push(val.open);
+      _checkedList.push(val[props.rowKey]);
     }
     emits('update:checkedList', _checkedList);
   };
@@ -475,7 +497,24 @@
       }
     }
   };
-  const handleMove = async () => {};
+  const handleMove = async (data) => {
+    const loading = ElLoading.service({
+      text: '请稍等...',
+      lock: true,
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
+    try {
+      const res = await fileMenuStore().handleMoveCopy(data, 'move');
+      loading.close();
+      targetDom.value = {};
+      emits('update:checkedList', []);
+      emits('listRefresh');
+      $message.success('操作成功');
+    } catch (err) {
+      loading.close();
+      $message.error(err?.msg || err?.message);
+    }
+  };
   const handleDragOver = () => {
     // console.log('dropover');
     if (!isDropTable.value) isDropTable.value = true;

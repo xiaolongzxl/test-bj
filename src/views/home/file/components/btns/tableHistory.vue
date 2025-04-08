@@ -1,30 +1,32 @@
 <template>
-  <el-popover popper-class="btn-popover" placement="bottom" key="tableHistory">
+  <el-popover @show="getHistory" popper-class="btn-popover" placement="bottom" key="tableHistory">
     <template #reference>
       <el-button class="tableBtn" @click="historyDrawerShow = true">历史版本</el-button>
     </template>
-    <div class="popover-wrapper">
+    <div class="popover-wrapper" v-loading="loading">
       <div class="history-item" v-for="item in history" :key="item.id">
         <div class="history-line">
           <div class="column">
-            <span class="column-label">{{ item.key }}：</span>
-            <span class="column-value">{{ item.last }}</span>
+            <span class="column-label">{{ item.field_name }}：</span>
+            <span class="column-value">{{ item.old_value }}</span>
           </div>
           <el-icon color="#337FFF" class="mx-10"><Right /></el-icon>
           <div class="column">
-            <span class="column-label">{{ item.key }}：</span>
-            <span class="column-value">{{ item.new }}</span>
+            <span class="column-label">{{ item.field_name }}：</span>
+            <span class="column-value">{{ item.new_value }}</span>
           </div>
         </div>
-        <div class="history-man column-label mt-10"> {{ item.time }}({{ item.creatBy }}) </div>
+        <div class="history-man column-label mt-10"> {{ item.create_time }}({{ item.creatBy }}) </div>
       </div>
     </div>
   </el-popover>
-  <HistoryDrawer v-model:show="historyDrawerShow" />
+  <HistoryDrawer :history="history" v-model:show="historyDrawerShow" />
 </template>
 <script setup>
+  import { PwdHistoryApi } from '@/api/file';
   import HistoryDrawer from '../historyModel.vue';
   const historyDrawerShow = ref(false);
+  const loading = ref(false);
   const props = defineProps({
     lineRow: {
       type: Object,
@@ -49,6 +51,21 @@
       id: 2,
     },
   ]);
+
+  const getHistory = async () => {
+    history.value = [];
+    try {
+      loading.value = true;
+      const res = await PwdHistoryApi({ id: props.lineRow.id });
+      if (res.code === 200) {
+        loading.value = false;
+        history.value = res.data;
+      }
+    } catch (err) {
+      loading.value = false;
+      console.log(err);
+    }
+  };
 </script>
 <style lang="less" scoped>
   .popover {

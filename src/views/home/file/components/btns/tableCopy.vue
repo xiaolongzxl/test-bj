@@ -1,15 +1,15 @@
 <template>
   <el-popover popper-class="btn-popover" placement="bottom" key="tableCopy">
     <template #reference>
-      <el-button class="tableBtn">一键复制</el-button>
+      <el-button class="tableBtn" @click="handleCopyAll">一键复制</el-button>
     </template>
     <div class="popover-wrapper">
-      <div class="copy-item" v-for="item in copyLines" :key="item.key">
+      <div class="copy-item" v-for="item in copyLines" :key="item.key" @click="handleCopyItem(`${item.label}${props.lineRow[item.key]?.val}`)">
         <div class="copy-label">{{ item.label }}</div>
         <div class="copy-value">
-          <template v-if="item.key != 'wz'"> {{ props.lineRow[item.key] }}</template>
-          <el-link v-else type="primary" :href="props.lineRow[item.key]">
-            {{ props.lineRow[item.key] }}
+          <template v-if="item.key != 'website'"> {{ props.lineRow[item.key]?.val }}</template>
+          <el-link v-else type="primary" :href="props.lineRow[item.key]?.val">
+            {{ props.lineRow[item.key]?.val }}
           </el-link>
         </div>
       </div>
@@ -17,19 +17,20 @@
   </el-popover>
 </template>
 <script setup>
+  import ClipboardJS from 'clipboard';
   import { fileType } from '@/utils/util';
-  const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
+  const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   //   const emits = defineEmits(['addBtnClick']);
+  const clipboard = ref(null);
   const props = defineProps({
     lineRow: {
       type: Object,
       default: () => ({
         name: '',
-        wz: '',
-        yhm: '',
-        pwd: '',
-        zj: '',
-        zjlx: '',
+        website: '',
+        username: '',
+        password: '',
+        remark: '',
       }),
     },
   });
@@ -40,18 +41,54 @@
     },
     {
       label: '网址：',
-      key: 'wz',
+      key: 'website',
     },
     {
       label: '用户名：',
-      key: 'yhm',
+      key: 'username',
     },
     {
       label: '密码：',
-      key: 'pwd',
+      key: 'password',
     },
   ]);
-  const handleAddBtnClick = (item) => {};
+  const handleCopyAll = () => {
+    let text = '';
+    copyLines.value.forEach((e) => {
+      text += `${e.label}${props.lineRow[e.key]?.val}\n`;
+    });
+    handleCopyItem(text);
+  };
+  const handleCopyItem = (text) => {
+    // 销毁旧实例
+    if (clipboard.value) {
+      clipboard.value.destroy();
+    }
+
+    // 创建临时触发元素
+    const fakeTrigger = document.createElement('button');
+    document.body.appendChild(fakeTrigger);
+
+    // 初始化新实例
+    clipboard.value = new ClipboardJS(fakeTrigger, {
+      text: () => {
+        return text;
+      },
+    });
+
+    clipboard.value.on('success', () => {
+      $message.success('复制成功');
+      fakeTrigger.remove();
+    });
+
+    clipboard.value.on('error', () => {
+      $message.error('复制失败');
+      fakeTrigger.remove();
+    });
+
+    // 触发复制
+    fakeTrigger.click();
+  };
 </script>
 <style lang="less" scoped>
   .popover {

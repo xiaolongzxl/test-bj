@@ -14,7 +14,7 @@
           <BreadCrumbs :activeBread="activeBread" @routeChange="routeChange" />
         </div>
         <div class="search-right">
-          <Search searchType="pageSearch" :searchResult="searchResult" @searchTrigger="handleSearch" @changeChecked="handleChangeChecked" />
+          <Search searchType="pageSearch" @changeChecked="handleChangeChecked" />
           <FileShow v-model:fileShowType="fileShowType" />
         </div>
       </div>
@@ -41,6 +41,12 @@
   import { fileType } from '@/utils/util';
   import { getFileListApi } from '@/api/file';
 
+  const props = defineProps({
+    topbarSearchChecked: {
+      type: Object,
+      default: () => ({}),
+    },
+  });
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   const fileShowType = ref('ggst');
   const input1 = ref('');
@@ -51,7 +57,6 @@
   const route = useRoute();
   const router = useRouter();
   const tableLoading = ref(false);
-  const searchResult = ref([]);
 
   const row = ref([
     {
@@ -132,10 +137,14 @@
   watch(
     () => route.params,
     (n) => {
-      nextTick(() => {
+      nextTick(async () => {
         folderQuery.value.folder_category_id = route.params.cateId;
         folderQuery.value.parent_id = route.params.folderId;
-        handleRefresh();
+        await handleRefresh();
+        if (fileMenuStore().temporaryChecked && fileMenuStore().temporaryChecked.parent_id == route.params.folderId) {
+          handleChangeChecked(fileMenuStore().temporaryChecked);
+          fileMenuStore().clearTemporaryChecked();
+        }
       });
     },
     {
@@ -148,7 +157,10 @@
     input1.value = '';
     dataList.value = [];
     checkedList.value = [];
-    clickFile.value = {};
+    clickFile.value = {
+      id: folderQuery.value.parent_id,
+      extension: '1',
+    };
     getFileList();
   };
   const handleRefresh = () => {
@@ -186,6 +198,7 @@
   };
 
   const handleClickFile = (item) => {
+    console.log(props.topbarSearchChecked);
     clickFile.value = item;
   };
   const dblclick = (item) => {
@@ -208,9 +221,26 @@
       .map((el) => ({ id: el.id, name: el.name, open: el.open, extension: el.extension }));
   };
   const handleChangeChecked = (e) => {
-    checkedList.value = [e.open];
-    clickFile.value = e;
+    if (!folderQuery.value.parent_id) return;
+    if (e?.parent_id != folderQuery.value.parent_id) {
+      folderQuery.value.parent_id = e?.parent_id;
+      let path = route.meta.route;
+      router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}?search`);
+      fileMenuStore().setTemporaryChecked(e);
+    } else {
+      checkedList.value = [e.open];
+      clickFile.value = e;
+    }
   };
+  watch(
+    () => props.topbarSearchChecked,
+    (val, old) => {
+      console.log(val, old);
+      if (!val?.parent_id) return;
+      handleChangeChecked(val);
+    },
+    { deep: true, immediate: true }
+  );
   onMounted(() => {
     folderQuery.value.folder_category_id = route.params.cateId;
     folderQuery.value.parent_id = route.params.folderId;
