@@ -1,5 +1,5 @@
 import { secondUploadApi, uploadApi, versionSecondUploadApi, versionUploadApi, downloadApi } from '@/api/file';
-export const fileType = (type, isBig = false) => {
+export const fileType = (type, isBig = false, retuenKey) => {
   const fileType = [
     {
       type: 'audio',
@@ -42,6 +42,9 @@ export const fileType = (type, isBig = false) => {
     let item = fileType.find((e) => e.includes.includes(type));
     if (!item) {
       item = fileType.find((e) => e.type == 'any');
+    }
+    if (retuenKey) {
+      return item[retuenKey];
     }
     if (!!item) {
       return isBig ? item.bigIcon : item.icon;

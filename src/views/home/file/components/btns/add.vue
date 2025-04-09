@@ -18,7 +18,12 @@
 </template>
 <script setup>
   import { fileType } from '@/utils/util';
-
+  const props = defineProps({
+    addFolderType: {
+      type: String,
+      default: '1',
+    },
+  });
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
   const emits = defineEmits(['addBtnClick']);
   const addBtns = ref([
@@ -26,7 +31,7 @@
       line: 1,
       data: [
         {
-          type: '1',
+          type: props.addFolderType,
           name: '文件夹',
         },
       ],

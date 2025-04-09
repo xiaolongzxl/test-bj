@@ -19,6 +19,7 @@
         </div>
       </div>
       <SelfTable
+        :isCustomCardMore="true"
         :row="row"
         :loading="tableLoading"
         v-model:checkedList="checkedList"
@@ -27,20 +28,38 @@
         v-model:dataList="dataList"
         :fileShowType="fileShowType"
         @listRefresh="handleRefresh"
-      />
+      >
+        <template #handleCustom="{ row }">
+          <Btns
+            :isExpireTime="true"
+            :btnType="['tableDownload', 'tableMore', getIsFolder(row.extension) ? '' : 'tablePreview']"
+            :lineRow="row"
+            @listRefresh="handleRefresh"
+          />
+        </template>
+        <template #cardMore="{ row }">
+          <Btns
+            :isExpireTime="true"
+            :btnType="['tableDownload', 'tableMore', getIsFolder(row.extension) ? '' : 'tablePreview']"
+            :lineRow="row"
+            @listRefresh="handleRefresh"
+          />
+        </template>
+      </SelfTable>
     </div>
     <div class="contain-right"><FileDetail :file="clickFile" /> </div>
     <UploadModel ref="uploadModelRef" @listRefresh="handleRefresh" />
   </div>
 </template>
 <script setup name="CertificateManagement">
+  import Btns from '@/views/home/file/components/btns/index.vue';
   import SelfTable from '@/views/home/file/components/selfTable.vue';
   import Search from '@/views/home/file/components/search.vue';
   import BreadCrumbs from '@/views/home/file/components/breadCrumbs.vue';
   import FileShow from '@/views/home/file/components/changeFileShowType.vue';
   import FileDetail from '@/views/home/file/components/fileDetail/index.vue';
   import UploadModel from '@/views/home/file/components/certificateModel.vue';
-  import { fileType } from '@/utils/util';
+  import { fileType, getIsFolder } from '@/utils/util';
   import { getFileListApi } from '@/api/file';
 
   const props = defineProps({
@@ -50,8 +69,8 @@
     },
   });
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
-  const fileShowType = ref('ggst');
-  const input1 = ref('');
+  const fileShowType = ref('dlb');
+
   const loading = ref(false);
   const dataList = ref([]);
   const checkedList = ref([]);
@@ -92,11 +111,19 @@
       align: 'center',
     },
     {
+      key: 'expiration_time',
+      prop: 'expiration_time',
+      label: '到期时间',
+      isSort: true,
+      minWidth: 120,
+      align: 'center',
+    },
+    {
       key: 'update_time',
       prop: 'update_time',
       isSort: true,
       label: '修改时间',
-      minWidth: 120,
+      minWidth: 160,
       align: 'center',
     },
     {
@@ -109,8 +136,9 @@
     },
     {
       key: 'handle',
+      custom: true,
       label: '操作',
-      minWidth: 200,
+      minWidth: 240,
       align: 'center',
     },
   ]);
@@ -156,8 +184,8 @@
   );
 
   const init = () => {
-    fileShowType.value = 'ggst';
-    input1.value = '';
+    fileShowType.value = 'dlb';
+
     dataList.value = [];
     checkedList.value = [];
     clickFile.value = {
@@ -167,7 +195,6 @@
     getFileList();
   };
   const handleRefresh = () => {
-    input1.value = '';
     checkedList.value = [];
     clickFile.value = {
       id: folderQuery.value.parent_id,

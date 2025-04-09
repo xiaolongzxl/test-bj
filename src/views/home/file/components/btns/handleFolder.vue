@@ -11,6 +11,9 @@
       <el-form-item :label="fileType == 'folder' ? '文件夹名称：' : '文件名称：'">
         <el-input v-model="name" style="width: 300px" placeholder="请输入文件夹名称" />
       </el-form-item>
+      <el-form-item label="到期时间：" v-if="isExpireTime">
+        <el-date-picker v-model="expiration_time" type="date" placeholder="请选择到期时间" />
+      </el-form-item>
     </div>
     <template #footer>
       <div class="footer-btn center">
@@ -27,6 +30,8 @@
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const modelShow = ref(false);
   const name = ref('');
+  const isExpireTime = ref(false);
+  const expiration_time = ref('');
   const folderQuery = inject('folderQuery');
   const folderId = ref('');
   const isAdd = ref(true);
@@ -41,11 +46,17 @@
       if (!name.value) {
         throw new Error(`请输入${fileType == 'folder' ? '文件夹名称：' : '文件名称：'}`);
       }
+      if (isExpireTime.value && !expiration_time.value) {
+        throw new Error(`请选择文件的到期时间`);
+      }
       const api = isAdd.value ? addFolderApi : fileType.value == 'folder' ? updateFolderApi : updateFileApi;
       const data = {
         ...folderQuery.value,
         name: name.value,
       };
+      if (isExpireTime.value) {
+        data.expiration_time = expiration_time.value;
+      }
       if (!isAdd.value) {
         data.id = folderId.value;
         delete data.parent_id;
@@ -65,17 +76,20 @@
       $message.error(err.message);
     }
   };
-  const open = (val, id, type = 'folder') => {
-    if (val && id) {
-      name.value = val;
-      folderId.value = id;
+  const open = (data, type = 'folder', _isExpireTime) => {
+    const { name: _name, id: _id, expiration_time: _expiration_time = '' } = data;
+    if (_name && _id) {
+      name.value = _name;
+      folderId.value = _id;
       isAdd.value = false;
       fileType.value = type;
+      expiration_time.value = _expiration_time;
     } else {
       name.value = '';
       folderId.value = '';
       isAdd.value = true;
     }
+    isExpireTime.value = type != 'folder' && _isExpireTime;
     modelShow.value = true;
   };
   defineExpose({

@@ -1,6 +1,6 @@
 <template>
   <template v-if="btnType.includes('add')">
-    <Add @addBtnClick="handleAddBtnClick" />
+    <Add :addFolderType="addFolderType" @addBtnClick="handleAddBtnClick" />
   </template>
   <template v-if="btnType.includes('upload')">
     <Upload @listRefresh="listRefresh" :isTrigger="props.isTriggerUpload" @triggerUpload="handleTrigger('upload', {})" />
@@ -22,15 +22,15 @@
     ><el-button text bg size="large" @click="handleOpenDel('mutli')" :disabled="props.checkedFiles.length == 0">删除</el-button>
   </template>
   <template v-if="btnType.includes('tablePreview')">
-    <el-button class="mr-4" plain :disabled="getIsFolder(props.lineRow.extension)"><svg-icon name="preview" class="mr-4"></svg-icon> 预览 </el-button>
-  </template>
-  <template v-if="btnType.includes('tableDownload')">
-    <el-button class="mr-4" plain :disabled="getIsFolder(props.lineRow.extension)" @click="handleDownload('single')"
-      ><svg-icon name="table-download" class="mr-4"></svg-icon> 下载
+    <el-button @click="handlePreview" class="mr-4" plain :disabled="getIsFolder(props.lineRow.extension)"
+      ><svg-icon name="preview" class="mr-4"></svg-icon> 预览
     </el-button>
   </template>
+  <template v-if="btnType.includes('tableDownload')">
+    <el-button class="mr-4" plain @click="handleDownload('single')"><svg-icon name="table-download" class="mr-4"></svg-icon> 下载 </el-button>
+  </template>
   <template v-if="btnType.includes('tableMore')">
-    <TableMore @tableCommand="handleTableCommand" :tableMoreType="props.tableMoreType" />
+    <TableMore @tableCommand="handleTableCommand" :isExpireTime="props.isExpireTime" :tableMoreType="props.tableMoreType" />
   </template>
   <template v-if="btnType.includes('tableCopy')">
     <TableCopy :lineRow="lineRow" />
@@ -54,6 +54,7 @@
     <handleFolder ref="handleFolderRef" @listRefresh="emits('listRefresh')" />
     <handleDelModel ref="handleDelModelRef" @listRefresh="emits('listRefresh')" />
     <CopyMoveModel ref="copyMoveModelRef" @listRefresh="emits('listRefresh')" />
+    <PreviewModel ref="previewModelRef" />
   </div>
 </template>
 <script setup>
@@ -69,11 +70,13 @@
   import handleDelModel from './delModel.vue';
   import CopyMoveModel from './copyMoveModel.vue';
   import { ElLoading } from 'element-plus';
+  import PreviewModel from './preview.vue';
 
   const folderQuery = inject('folderQuery');
   const handleFolderRef = ref(null);
   const handleDelModelRef = ref(null);
   const copyMoveModelRef = ref(null);
+  const previewModelRef = ref(null);
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   const props = defineProps({
     btnType: {
@@ -96,6 +99,14 @@
       type: Boolean,
       default: false,
     },
+    isExpireTime: {
+      type: Boolean,
+      default: false,
+    },
+    addFolderType: {
+      type: String,
+      default: '1',
+    },
   });
 
   const emits = defineEmits(['btnClickTrigger', 'update:checkedFiles', 'listRefresh']);
@@ -104,8 +115,14 @@
   };
 
   const handleTableCommand = (command) => {
-    if (command == 'rename') {
-      handleFolderRef.value.open(props.lineRow.name, props.lineRow.id, getIsFolder(props.lineRow.extension) ? 'folder' : 'file');
+    if (command == 'rename' || command == 'update') {
+      const { name, id, expiration_time, extension } = props.lineRow;
+      const data = {
+        name,
+        id,
+        expiration_time,
+      };
+      handleFolderRef.value.open(data, getIsFolder(extension) ? 'folder' : 'file', props.isExpireTime);
     } else if (command == 'move') {
       handleOpenMove('single');
     } else if (command == 'copy') {
@@ -147,6 +164,9 @@
   };
   const handleChangeCheckedFiles = (item = []) => {
     emits('update:checkedFiles', item);
+  };
+  const handlePreview = () => {
+    previewModelRef.value.open(props.lineRow);
   };
   const handleTrigger = (type, item) => {
     emits('btnClickTrigger', { type, item });

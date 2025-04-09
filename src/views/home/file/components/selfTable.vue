@@ -40,7 +40,7 @@
                 @click="handleChangeFolder(scope.row)"
               >
                 <img class="tableFileImg" :src="$getAssetsImages(fileType(scope.row?.extension))" />
-                <span class="ml1" style="flex: auto; text-overflow: ellipsis; overflow: hidden">{{ scope.row.name }}</span>
+                <span class="ml1" style="flex: auto; text-overflow: ellipsis; overflow: hidden; text-align: left">{{ scope.row.name }}</span>
               </div>
             </template>
             <template v-else-if="item.key == 'handle'">
@@ -82,13 +82,16 @@
           }"
           @click="handleClickFile(item)"
           @dblclick="handleChangeFolder(item)"
-          v-for="item in dataList"
+          v-for="(item, index) in dataList"
           :key="item[props.rowKey]"
           :data-index="item[props.rowKey]"
         >
           <el-checkbox class="showCheckbox" :model-value="isCheck(item)" @change="handleNormalCheck(item)"></el-checkbox>
           <div class="morebtn">
-            <Btns :btnType="['tableMore']" tableMoreType="card" :lineRow="item" @listRefresh="emits('listRefresh')" />
+            <template v-if="props.isCustomCardMore">
+              <slot name="cardMore" :row="item" :index="index"></slot>
+            </template>
+            <Btns v-else :btnType="['tableMore']" tableMoreType="card" :lineRow="item" @listRefresh="emits('listRefresh')" />
           </div>
 
           <div :class="(checkedList?.length ? isCheck(item) : true) ? 'drag-handle' : 'drag-no'">
@@ -113,7 +116,7 @@
   import Btns from './btns/index.vue';
   import { ElLoading } from 'element-plus';
   import { fileType, fileUpload, getIsFolder } from '@/utils/util';
-  import { get } from 'lodash';
+  import { fileFolderSort } from '@/api/file';
   const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList', 'listRefresh']);
   const props = defineProps({
     rowKey: {
@@ -148,6 +151,11 @@
     row: {
       type: Array,
       default: () => [],
+    },
+    /* 是否自定义宫格视图更多按钮 */
+    isCustomCardMore: {
+      type: Boolean,
+      default: false,
     },
   });
 
@@ -382,7 +390,21 @@
       tempArr.splice(oldIndex, 1);
       tempArr.splice(newIndex, 0, targetRow);
     }
+    handleSort(tempArr);
     return tempArr;
+  };
+  const handleSort = async (_data) => {
+    try {
+      const data = {
+        data: _data.map((e) => ({ type: getIsFolder(e.extension) ? '1' : '2', id: e.id, sort: e.sort })),
+      };
+      const res = await fileFolderSort(data);
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
+    } catch (err) {
+      $message.error(err?.message || err?.msg);
+    }
   };
   // 新增DOM到数据项的映射方法
   const getItemByDOM = (domElement, type = 'data', flag) => {

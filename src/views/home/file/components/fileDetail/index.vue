@@ -67,6 +67,7 @@
     return [
       {
         label: '成员列表',
+        hidden: !getIsFolder(props.file.extension),
         value: '1',
       },
       {
@@ -115,11 +116,10 @@
   watch(
     () => props.file,
     (val) => {
-      if (activeTab.value == '2') {
-        if (getIsFolder(props.file.extension)) {
-          activeTab.value = tabs.value.filter((e) => !e.hidden)[0].value;
-        }
+      if (tabs.value.find((e) => e.value == activeTab.value)?.hidden) {
+        activeTab.value = tabs.value.filter((e) => !e.hidden)[0].value;
       }
+
       handleGetDetail();
     },
     {

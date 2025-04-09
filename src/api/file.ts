@@ -300,3 +300,14 @@ export function PwdSetColorApi(data: { id: string; field_name: string; color: st
     data,
   });
 }
+
+/***
+ * 文件文件夹排序
+ */
+export function fileFolderSort(data: { data: { type: string; id: string; sort: string } }) {
+  return defHttp.request({
+    url: root + '/api/pan/sortFileFolder',
+    method: 'POST',
+    data,
+  });
+}

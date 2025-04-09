@@ -15,26 +15,7 @@
   const getColor = () => {
     return '#' + Math.floor(Math.random() * 16777215).toString(16);
   };
-  const dynamicList = ref([
-    {
-      name: '管理员',
-      avatar: '',
-      dynamic: '更新了本文件',
-      file: '20250110文件.pdf',
-      firstName: '霍',
-      id: 1,
-      time: '昨天 16:37',
-    },
-    {
-      name: '管理员',
-      avatar: '',
-      dynamic: '新建了本文件',
-      file: '20250110文件.pdf',
-      firstName: '管',
-      id: 2,
-      time: '昨天 16:37',
-    },
-  ]);
+  const dynamicList = ref([]);
 </script>
 <style lang="less" scoped>
   .dynamic {

@@ -48,8 +48,8 @@
     },
   });
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
-  const fileShowType = ref('ggst');
-  const input1 = ref('');
+  const fileShowType = ref('dlb');
+
   const loading = ref(false);
   const dataList = ref([]);
   const checkedList = ref([]);
@@ -153,8 +153,8 @@
   );
 
   const init = () => {
-    fileShowType.value = 'ggst';
-    input1.value = '';
+    fileShowType.value = 'dlb';
+
     dataList.value = [];
     checkedList.value = [];
     clickFile.value = {
@@ -164,7 +164,6 @@
     getFileList();
   };
   const handleRefresh = () => {
-    input1.value = '';
     checkedList.value = [];
     clickFile.value = {
       id: folderQuery.value.parent_id,

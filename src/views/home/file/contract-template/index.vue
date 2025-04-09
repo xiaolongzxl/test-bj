@@ -14,7 +14,7 @@
           <BreadCrumbs :activeBread="activeBread" @routeChange="routeChange" />
         </div>
         <div class="search-right">
-          <Search searchType="pageSearch" />
+          <Search searchType="pageSearch" @changeChecked="handleChangeChecked" />
           <FileShow v-model:fileShowType="fileShowType" />
         </div>
       </div>
@@ -32,7 +32,7 @@
     <div class="contain-right"><FileDetail :file="clickFile" /> </div>
   </div>
 </template>
-<script setup name="ContractTemplate">
+<script setup name="PersonalSpace">
   import SelfTable from '@/views/home/file/components/selfTable.vue';
   import Search from '@/views/home/file/components/search.vue';
   import BreadCrumbs from '@/views/home/file/components/breadCrumbs.vue';
@@ -41,9 +41,15 @@
   import { fileType } from '@/utils/util';
   import { getFileListApi } from '@/api/file';
 
+  const props = defineProps({
+    topbarSearchChecked: {
+      type: Object,
+      default: () => ({}),
+    },
+  });
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
-  const fileShowType = ref('ggst');
-  const input1 = ref('');
+  const fileShowType = ref('dlb');
+
   const loading = ref(false);
   const dataList = ref([]);
   const checkedList = ref([]);
@@ -70,7 +76,7 @@
       key: 'name',
       prop: 'name',
       addType: true,
-      label: '合同模板',
+      label: '文件名称',
       minWidth: 120,
       align: 'center',
       'show-overflow-tooltip': true,
@@ -119,7 +125,9 @@
   });
   const btnCheckedList = computed({
     get: () => {
-      return dataList.value.filter((e) => checkedList.value.includes(e.open)).map((e) => ({ name: e.name, extension: e.extension, id: e.id }));
+      return dataList.value
+        .filter((e) => checkedList.value.includes(e.open))
+        .map((e) => ({ name: e.name, extension: e.extension, id: e.id, open: e.open }));
     },
     set: (vals) => {
       checkedList.value = vals.map((e) => e.open) || [];
@@ -129,10 +137,14 @@
   watch(
     () => route.params,
     (n) => {
-      nextTick(() => {
+      nextTick(async () => {
         folderQuery.value.folder_category_id = route.params.cateId;
         folderQuery.value.parent_id = route.params.folderId;
-        handleRefresh();
+        await handleRefresh();
+        if (fileMenuStore().temporaryChecked && fileMenuStore().temporaryChecked.parent_id == route.params.folderId) {
+          handleChangeChecked(fileMenuStore().temporaryChecked);
+          fileMenuStore().clearTemporaryChecked();
+        }
       });
     },
     {
@@ -142,14 +154,16 @@
 
   const init = () => {
     fileShowType.value = 'ggst';
-    input1.value = '';
+
     dataList.value = [];
     checkedList.value = [];
-    clickFile.value = {};
+    clickFile.value = {
+      id: folderQuery.value.parent_id,
+      extension: '1',
+    };
     getFileList();
   };
   const handleRefresh = () => {
-    input1.value = '';
     checkedList.value = [];
     clickFile.value = {
       id: folderQuery.value.parent_id,
@@ -185,7 +199,6 @@
   const handleClickFile = (item) => {
     clickFile.value = item;
   };
-
   const dblclick = (item) => {
     if (item) {
       routeChange({ type: 1, id: item.id });
@@ -200,6 +213,32 @@
     let path = route.meta.route;
     router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}`);
   };
+  const handleSearch = (e) => {
+    searchResult.value = dataList.value
+      .filter((el) => el.name.includes(e))
+      .map((el) => ({ id: el.id, name: el.name, open: el.open, extension: el.extension }));
+  };
+  const handleChangeChecked = (e) => {
+    if (!folderQuery.value.parent_id) return;
+    if (e?.parent_id != folderQuery.value.parent_id) {
+      folderQuery.value.parent_id = e?.parent_id;
+      let path = route.meta.route;
+      router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}?search`);
+      fileMenuStore().setTemporaryChecked(e);
+    } else {
+      checkedList.value = [e.open];
+      clickFile.value = e;
+    }
+  };
+  watch(
+    () => props.topbarSearchChecked,
+    (val, old) => {
+      console.log(val, old);
+      if (!val?.parent_id) return;
+      handleChangeChecked(val);
+    },
+    { deep: true, immediate: true }
+  );
   onMounted(() => {
     folderQuery.value.folder_category_id = route.params.cateId;
     folderQuery.value.parent_id = route.params.folderId;

@@ -15,7 +15,8 @@
         </el-dropdown-item>
         <el-dropdown-item command="copy"> <div class="dropItem">复制</div></el-dropdown-item>
         <el-dropdown-item command="del"><div class="dropItem">删除</div></el-dropdown-item>
-        <el-dropdown-item command="rename"><div class="dropItem">重命名</div></el-dropdown-item>
+        <el-dropdown-item command="update" v-if="props.isExpireTime"><div class="dropItem">修改</div></el-dropdown-item>
+        <el-dropdown-item command="rename" v-else><div class="dropItem">重命名</div></el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
@@ -25,6 +26,10 @@
     tableMoreType: {
       type: String,
       default: 'table',
+    },
+    isExpireTime: {
+      type: Boolean,
+      default: false,
     },
   });
   const emits = defineEmits(['tableCommand']);
