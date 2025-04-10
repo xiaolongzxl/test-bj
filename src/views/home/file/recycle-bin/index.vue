@@ -1,23 +1,39 @@
 <script setup name="RecycleBin">
   import Btns from '../components/btns/index.vue';
   import SelfTable from '../components/selfTable.vue';
-  import { getFileListApi } from '@/api/file';
+  import { recycleList, recycleRestore, recycleDelete } from '@/api/file';
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
+  import { getIsFolder } from '@/utils/util';
+
+  import { ElLoading } from 'element-plus';
   const route = useRoute();
   const folderQuery = ref({
     folder_category_id: null,
     parent_id: '0',
   });
-  const activeTab = ref(1);
+  const activeTab = ref(0);
   const tableLoading = ref(false);
+  const restoreShow = ref(false);
+  const removeShow = ref(false);
+
+  const reStoreQuery = ref({
+    type: '0',
+    user_type: '0',
+    data: [],
+  });
+  const removeQuery = ref({
+    type: '0',
+    user_type: '0',
+    data: [],
+  });
   const tab = ref([
     {
       label: '全部',
-      id: 1,
+      id: 0,
     },
     {
       label: '我删除的',
-      id: 2,
+      id: 1,
     },
   ]);
   const row = ref([
@@ -33,13 +49,14 @@
       prop: 'name',
       addType: true,
       label: '文件名称',
-      minWidth: 200,
+      minWidth: 180,
       align: 'center',
+      'show-overflow-tooltip': true,
     },
 
     {
-      key: 'updateTime',
-      prop: 'updateTime',
+      key: 'update_time',
+      prop: 'update_time',
       isSort: true,
       label: '修改时间',
       minWidth: 120,
@@ -61,20 +78,29 @@
       align: 'center',
     },
   ]);
-  const dataList = ref([
-    { name: 'name1', creatby: '姓名', updateTime: '1', size: '2', id: 1, type: 'wjj' },
-    { name: 'name2', creatby: '姓名', updateTime: '2', size: '3', id: 2, type: 'word' },
-    { name: 'name3', creatby: '姓名', updateTime: '3', size: '4', id: 3, type: 'ppt' },
-    { name: 'name4', creatby: '姓名', updateTime: '3', size: '4', id: 4, type: 'excel' },
-  ]);
+  const dataList = ref([]);
   const checkedList = ref([]);
   const handleTab = (val) => {
     activeTab.value = val.id;
+    checkedList.value = [];
+    getFileList();
   };
+  const btnCheckedList = computed(() => {
+    let data = [];
+    if (checkedList.value.length) {
+      data = dataList.value
+        .filter((e) => checkedList.value.includes(e.open))
+        .map((e) => ({ name: e.name, extension: e.extension, id: e.id, open: e.open }));
+    } else {
+      data = dataList.value.map((e) => ({ name: e.name, extension: e.extension, id: e.id, open: e.open }));
+    }
+    return data;
+  });
+
   const getFileList = async () => {
     try {
       tableLoading.value = true;
-      const res = await getFileListApi(folderQuery.value);
+      const res = await recycleList({ type: activeTab.value });
       tableLoading.value = false;
 
       if (res.code != 200) {
@@ -93,9 +119,61 @@
       console.log(err);
     }
   };
+  const handleClickTrigger = ({ item, type }) => {
+    if (type == 'tableRestore') {
+      openRestore('1', [item]);
+    } else {
+      openRemove('1', [item]);
+    }
+  };
+  const openRestore = (type, list) => {
+    reStoreQuery.value = {
+      user_type: activeTab.value,
+      type,
+    };
+    if (type == '1') {
+      reStoreQuery.value.data = list.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? 1 : 2 }));
+    }
+    restoreShow.value = true;
+  };
+  const openRemove = (type, list) => {
+    removeQuery.value = {
+      user_type: activeTab.value,
+      type,
+    };
+    if (type == '1') {
+      removeQuery.value.data = list.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? 1 : 2 }));
+    }
+    removeShow.value = true;
+  };
+  const handleConfirm = async (type) => {
+    let api = type == 'reStore' ? recycleRestore : recycleDelete;
+    let query = type == 'reStore' ? { ...reStoreQuery.value } : { ...removeQuery.value };
+
+    const loading = ElLoading.service({
+      text: '请稍等...',
+      lock: true,
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
+    try {
+      const res = await api(query);
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
+      loading.close();
+      $message.success(type == 'reStore' ? '还原成功' : '删除成功');
+      const fc = type == 'reStore' ? restoreShow : removeShow;
+      fc.value = false;
+      init();
+    } catch (err) {
+      loading.close();
+      $message.error(err?.msg || err?.message);
+    }
+  };
   const init = () => {
     dataList.value = [];
     checkedList.value = [];
+
     getFileList();
   };
   onMounted(() => {
@@ -115,15 +193,41 @@
     </div>
     <div class="contain-bottom flex-auto">
       <div class="contain-btns">
-        <el-button text bg size="large">还原全部</el-button>
-        <el-button text bg size="large">清空全部</el-button>
+        <el-button text bg size="large" @click="openRestore('0', btnCheckedList)">{{ checkedList.length ? '还原' : '还原全部' }}</el-button>
+        <el-button text bg size="large" @click="openRemove('0', btnCheckedList)">{{ checkedList.length ? '清空' : '清空全部' }}</el-button>
       </div>
-      <SelfTable :loading="tableLoading" fileShowType="dlb" :dataList="dataList" :row="row">
+      <SelfTable
+        :isRecycle="true"
+        :row="row"
+        :loading="tableLoading"
+        fileShowType="dlb"
+        v-model:checkedList="checkedList"
+        v-model:dataList="dataList"
+      >
         <template #handleCustom="{ row }">
-          <Btns :btnType="['tableProperty']" :lineRow="row" />
+          <Btns :btnType="['tableRestore', 'tableAlwaysRemove', 'tableProperty']" :lineRow="row" @btnClickTrigger="handleClickTrigger" />
         </template>
       </SelfTable>
     </div>
+    <el-dialog width="500px" center title="还原" v-model="restoreShow" class="self-dialog" key="restore">
+      <div class="model-content"> 是否还原{{ reStoreQuery.type == '1' ? '选中的' : '全部' }}文件（夹）？ </div>
+      <template #footer>
+        <div class="footer-btn">
+          <el-button color="#F2F3F5" @click="modelShow = false">取消</el-button>
+          <el-button color="#197CFA" @click="handleConfirm('reStore')">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <el-dialog width="500px" center title="彻底删除" v-model="removeShow" class="self-dialog" key="remove">
+      <div class="model-content"> 是否彻底删除{{ removeQuery.type == '1' ? '选中的' : '全部' }}文件（夹）？ </div>
+      <template #footer>
+        <div class="footer-btn">
+          <el-button color="#F2F3F5" @click="modelShow = false">取消</el-button>
+          <el-button color="#197CFA" @click="handleConfirm('remove')">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <style lang="less" scoped>
@@ -205,6 +309,17 @@
       padding: 10px;
       margin: 0 8px;
       cursor: pointer;
+    }
+    .model-content {
+      padding: 30px;
+      min-height: 100px;
+      font-family:
+        Microsoft YaHei,
+        Microsoft YaHei;
+      font-weight: 400;
+      font-size: 18px;
+      color: #333333;
+      line-height: 14px;
     }
   }
 </style>

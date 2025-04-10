@@ -13,7 +13,7 @@
   import fileMenuStore from '@/store/fileMenu';
   const activeMenu = computed(() => {
     const { path } = route;
-    console.log(route);
+    // console.log(route);
     return `${route.meta?.route}/${route.params.cateId}/0`;
   });
 
@@ -28,20 +28,6 @@
   const routers = computed(() => {
     // console.log(fileMenuStore().getFileRoute());
     return fileMenuStore().routes;
-    let _routers = getFileRoute(allRoutes).children.map((e) => {
-      if (e.name == 'companySpace') {
-        e.children = gsMenu.value.map((e) => ({
-          path: `/file/company-space/${e.id}`,
-          id: '1',
-          meta: {
-            title: e.title,
-          },
-        }));
-      }
-      return e;
-    });
-
-    return _routers;
   });
 
   provide('activeMenu', activeMenu);

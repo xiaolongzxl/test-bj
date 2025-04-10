@@ -60,7 +60,6 @@ export const fileMenuStore = defineStore('fileMenu', {
         const res = await getLeftMenus();
 
         if (res.code == 200) {
-          // console.log(router, router.hasRoute('file'));
           const lastRoutes = await this.formatMenus(res.data, '/file');
 
           this.setMenu(lastRoutes);
@@ -91,6 +90,7 @@ export const fileMenuStore = defineStore('fileMenu', {
               id: menu.id,
               fullpath: `${activeOpen}/${menu.id}/0`,
               route: route,
+              roleId: menu?.role_id,
               // activeOpen,
               activeOpen: `${activeOpen}/${menu.id}${menu.junior?.length > 0 ? '' : '/0'}`,
               title: menu.name,

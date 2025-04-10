@@ -5,48 +5,60 @@
     <div class="model-wrapper">
       <div class="model-info" v-for="item in showInfo" :key="item.key">
         <div class="model-lebel">{{ item.label }}</div>
-        <div class="model-value">{{ props.lineRow[item.key] }}</div>
+        <div class="model-value">{{ rowData[item.key] }}</div>
       </div>
     </div>
   </el-dialog>
 </template>
 <script setup>
+  import { getIsFolder } from '@/utils/util';
+  import { getFolderDetailApi } from '@/api/file';
   const props = defineProps({
     lineRow: {
       type: Object,
       default: () => ({
         name: '',
         size: '',
-        createTime: '',
-        updateTime: '',
+        create_time: '',
+        update_time: '',
       }),
     },
   });
+  const rowData = ref({ ...props.lineRow });
   const modelShow = ref(false);
   const showInfo = ref([
     {
-      label: '名称',
+      label: '名称：',
       key: 'name',
     },
     {
-      label: '大小',
+      label: '大小：',
       key: 'size',
     },
     {
-      label: '创建时间（创建人）',
-      key: 'createTime',
+      label: '创建时间（创建人）：',
+      key: 'create_time',
     },
     {
-      label: '修改时间（创建人）',
-      key: 'updateTime',
+      label: '修改时间（创建人）：',
+      key: 'update_time',
     },
   ]);
-  const handleOpenModel = () => {
-    console.log(123);
-    modelShow.value = true;
+  const getFolderDetail = async () => {
+    try {
+      const res = await getFolderDetailApi({ folder_category_id: rowData.value?.folder_category_id, id: rowData.value.id });
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
+      rowData.value = { ...rowData, ...res.data };
+    } catch (err) {}
   };
-  const handleDel = () => {
-    console.log('删除');
+  const handleOpenModel = () => {
+    rowData.value = { ...props.lineRow };
+    if (getIsFolder(rowData.value.extension)) {
+      getFolderDetail();
+    }
+    modelShow.value = true;
   };
 </script>
 

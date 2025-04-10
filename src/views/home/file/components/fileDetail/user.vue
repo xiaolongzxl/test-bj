@@ -9,7 +9,7 @@
           <div class="user-item-name">{{ item.nickname }}</div>
           <div class="user-item-phone">{{ item.phone }}</div>
         </div>
-        <div class="user-item-icon effect-btn"><svg-icon name="del" /></div>
+        <div class="user-item-icon effect-btn" @click="handleDel(item)"><svg-icon name="del" /></div>
       </div>
     </div>
     <div class="user-list-fixed" @click="userModelRef.handleShow()"> <img />成员管理 </div>
@@ -18,23 +18,31 @@
 </template>
 <script setup>
   import userModel from './user-manage.vue';
-  import { memberListApi } from '@/api/file';
+  import { memberListApi, userDelApi } from '@/api/file';
   import { getColor } from '@/utils/util';
+  import { ElMessageBox } from 'element-plus';
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
-
-  const folderQuery = inject('folderQuery');
-
+  const props = defineProps({
+    file: {
+      type: Object,
+      default: () => {},
+    },
+  });
   const loading = ref(false);
-  const userModelRef = ref(null);
-
-  const userList = ref([]);
+  const folderQuery = inject('folderQuery');
+  // watch(
+  //   () => props.file,
+  //   () => {
+  //     getMemberList();
+  //   }
+  // );
   const getMemberList = async () => {
     loading.value = true;
     try {
       const res = await memberListApi({
         folder_category_id: folderQuery.value.folder_category_id,
       });
-      console.log(res);
+
       if (res.code != 200) {
         throw new Error(err?.msg);
       }
@@ -45,6 +53,39 @@
       loading.value = false;
     }
   };
+  const handleDel = async (row) => {
+    ElMessageBox.confirm('真的要移除吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '再想想',
+      type: 'warning',
+    })
+      .then(async () => {
+        loading.value = true;
+        const res = await userDelApi({ user_id: row.user_id, folder_category_id: folderQuery.value.folder_category_id });
+        if (res.code != 200) {
+          throw new Error(res.msg);
+        }
+        loading.value = false;
+        $message.success('移除成功');
+        getMemberList();
+      })
+      .catch((err) => {
+        if (err == 'cancel') return;
+
+        loading.value = false;
+        $message.error(err?.msg || err?.message);
+      });
+  };
+  watchEffect(() => {
+    if (props.file || folderQuery.value) {
+      getMemberList();
+    }
+  });
+
+  const userModelRef = ref(null);
+
+  const userList = ref([]);
+
   onMounted(() => {
     getMemberList();
   });

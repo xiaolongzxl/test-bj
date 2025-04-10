@@ -32,7 +32,7 @@
     </el-tabs>
     <div class="file-other">
       <template v-if="activeTab == '1'">
-        <User />
+        <User :file="file" />
       </template>
       <template v-else-if="activeTab == '2'">
         <History :file="file" />
@@ -53,6 +53,7 @@
   import Dynamic from './dynamic.vue';
   import { fileType, getIsFolder } from '@/utils/util';
   import RemarkModel from './remarksModel.vue';
+  const route = useRoute();
 
   const folderQuery = inject('folderQuery');
   const loading = ref(false);
@@ -63,11 +64,14 @@
       default: () => ({ id: '0', extension: 1 }),
     },
   });
+  const isZg = computed(() => {
+    return fileMenuStore().allRoutes.find((e) => e?.meta.fullpath == route.path)?.meta?.roleId == 1 || false;
+  });
   const tabs = computed(() => {
     return [
       {
         label: '成员列表',
-        hidden: !getIsFolder(props.file.extension),
+        hidden: !getIsFolder(props.file.extension) || route.name == 'PersonalSpace' || !isZg.value,
         value: '1',
       },
       {
@@ -108,19 +112,21 @@
       $message.error(err?.message || err?.msg);
     }
   };
+  isZg.value;
   const handleOpenRemark = () => {
     const { remark, id, extension } = fileDetail.value;
-    console.log(remark, id, extension);
+
     remarkModelRef.value.handleOpen(remark, id, extension);
   };
   watch(
     () => props.file,
     (val) => {
-      if (tabs.value.find((e) => e.value == activeTab.value)?.hidden) {
-        activeTab.value = tabs.value.filter((e) => !e.hidden)[0].value;
-      }
-
-      handleGetDetail();
+      nextTick(() => {
+        if (tabs.value.find((e) => e.value == activeTab.value)?.hidden) {
+          activeTab.value = tabs.value.filter((e) => !e.hidden)[0].value;
+        }
+        handleGetDetail();
+      });
     },
     {
       immediate: true,

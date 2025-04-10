@@ -36,7 +36,7 @@
       value: 'xlb',
     },
     {
-      name: '宫格试图',
+      name: '宫格视图',
       value: 'ggst',
     },
   ]);

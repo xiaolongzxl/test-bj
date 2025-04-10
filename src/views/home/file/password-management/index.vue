@@ -177,7 +177,7 @@
         });
         return e;
       });
-      console.log(res);
+
       loading.value = false;
     } catch (err) {
       $message.error(err?.msg || err?.message);
@@ -241,6 +241,7 @@
           throw new Error(res.msg);
         }
         loading.value = false;
+        handleRefresh();
         $message.success('删除成功');
       })
       .catch((err) => {
@@ -268,7 +269,6 @@
       update_time: '',
     });
     addFlag.value = true;
-    console.log(dataList.value);
   };
   const handleAddSub = async (row) => {
     try {

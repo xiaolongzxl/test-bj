@@ -171,3 +171,15 @@ export const getIsFolder = (extension) => {
     return [1, 2, '1', '2'].includes(extension);
   }
 };
+
+export const getAllPath = (_path) => {
+  _path = decodeURIComponent(_path);
+  let domain = 'http://dlwz.souxianlan.com';
+  let path = '';
+  if (_path.indexOf(domain) === -1) {
+    path = domain + _path;
+  } else {
+    path = _path;
+  }
+  return path;
+};

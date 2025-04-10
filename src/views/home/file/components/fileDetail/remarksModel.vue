@@ -36,7 +36,6 @@
 
   const modelShow = ref(false);
   const handleOpen = (content, id, extension) => {
-    console.log(extension);
     fileType.value = getIsFolder(extension) ? 'folder' : 'file';
     remark.value = content || '';
     folderId.value = id;
@@ -64,7 +63,7 @@
       const api = fileType.value == 'folder' ? updateFolderApi : props.flag == 'normal' ? updateFileApi : updateHistoryVer;
       const res = await api(data);
       loading.close();
-      console.log(res);
+
       modelShow.value = false;
       emits('detailRefresh');
     } catch (err) {

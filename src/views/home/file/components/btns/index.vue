@@ -42,13 +42,13 @@
     <el-button class="tableBtn" @click="handleTrigger('tableDel', props.lineRow)">删除</el-button>
   </template>
   <template v-if="btnType.includes('tableRestore')">
-    <el-button class="tableBtn">还原</el-button>
+    <el-button class="tableBtn" @click="handleTrigger('tableRestore', props.lineRow)">还原</el-button>
   </template>
   <template v-if="btnType.includes('tableAlwaysRemove')">
-    <el-button class="tableBtn">彻底删除</el-button>
+    <el-button class="tableBtn" @click="handleTrigger('tableAlwaysRemove', props.lineRow)">彻底删除</el-button>
   </template>
   <template v-if="btnType.includes('tableProperty')">
-    <TableProperty :linerow="lineRow" />
+    <TableProperty :lineRow="lineRow" />
   </template>
   <div>
     <handleFolder ref="handleFolderRef" @listRefresh="emits('listRefresh')" />

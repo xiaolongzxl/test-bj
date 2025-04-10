@@ -125,6 +125,17 @@ export function memberListApi(data: { folder_category_id: string }) {
 }
 
 /***
+ * 一出成员
+ */
+export function userDelApi(data: { user_id: string; folder_category_id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/userDelRole',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 上传前秒传功能
  */
 export function secondUploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; hash: string }) {
@@ -307,6 +318,39 @@ export function PwdSetColorApi(data: { id: string; field_name: string; color: st
 export function fileFolderSort(data: { data: { type: string; id: string; sort: string } }) {
   return defHttp.request({
     url: root + '/api/pan/sortFileFolder',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 回收站列表
+ */
+export function recycleList(data: { type: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/recycleList',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 还原
+ */
+export function recycleRestore(data: { type: string; user_type: string; data?: { type: string; id: string } }) {
+  return defHttp.request({
+    url: root + '/api/pan/getRestore',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 清空
+ */
+export function recycleDelete(data: { type: string; user_type: string; data?: { type: string; id: string } }) {
+  return defHttp.request({
+    url: root + '/api/pan/completelyDelete',
     method: 'POST',
     data,
   });

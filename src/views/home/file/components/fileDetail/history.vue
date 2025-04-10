@@ -16,7 +16,7 @@
             <div class="effect-btn">
               <svg-icon name="reupload"></svg-icon>
             </div>
-            <div class="effect-btn">
+            <div class="effect-btn" @click="handleDownload">
               <svg-icon name="download"></svg-icon>
             </div>
             <div
@@ -44,7 +44,7 @@
   import { getHistoryVer } from '@/api/file';
   import RemarkModel from './remarksModel.vue';
   import DelModel from '../btns/delModel.vue';
-  import { fileUpload } from '@/utils/util';
+  import { fileUpload, getAllPath } from '@/utils/util';
   const remarkModelRef = ref(null);
   const delModelRef = ref(null);
   const props = defineProps({
@@ -76,7 +76,6 @@
         throw new Error(res.msg);
       }
       historyList.value = res.data;
-      console.log(res);
     } catch (err) {
       loading.value = false;
       $message.error(err?.msg || err?.message);
@@ -124,6 +123,20 @@
 
     // 触发文件选择窗口
     input.click();
+  };
+  const handleDownload = () => {
+    const url = getAllPath(props.file.path);
+
+    // 创建隐藏的 <a> 标签并模拟点击
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', props.file.name); // 设置下载文件名
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+
+    // 清理资源
+    document.body.removeChild(link);
   };
   onMounted(() => {
     getList();

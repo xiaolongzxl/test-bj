@@ -146,7 +146,7 @@
   });
   const open = (_originFiles, _flag) => {
     flag.value = _flag;
-    console.log(_originFiles);
+
     originFiles.value = _originFiles;
     breadFolderQuery.value = {
       ...folderQuery.value,

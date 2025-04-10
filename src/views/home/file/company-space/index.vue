@@ -14,7 +14,7 @@
           <BreadCrumbs :activeBread="activeBread" @routeChange="routeChange" />
         </div>
         <div class="search-right">
-          <Search searchType="pageSearch" @changeChecked="handleChangeChecked" />
+          <Search searchType="pageSearch" :boxStyle="{ padding: '10px' }" @changeChecked="handleChangeChecked" />
           <FileShow v-model:fileShowType="fileShowType" />
         </div>
       </div>
@@ -224,7 +224,7 @@
     if (e?.parent_id != folderQuery.value.parent_id) {
       folderQuery.value.parent_id = e?.parent_id;
       let path = route.meta.route;
-      router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}?search`);
+      router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}`);
       fileMenuStore().setTemporaryChecked(e);
     } else {
       checkedList.value = [e.open];

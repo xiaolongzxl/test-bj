@@ -34,13 +34,15 @@
             </template>
             <template v-else-if="item.addType">
               <div
-                class="flex cursor-pointer"
-                style="align-items:center;overflow-hidden"
+                class="flex-center cursor-pointer"
+                style="overflow-hidden"
                 :data-is-folder="scope.row.type == 'wjj'"
                 @click="handleChangeFolder(scope.row)"
               >
                 <img class="tableFileImg" :src="$getAssetsImages(fileType(scope.row?.extension))" />
-                <span class="ml1" style="flex: auto; text-overflow: ellipsis; overflow: hidden; text-align: left">{{ scope.row.name }}</span>
+                <span class="ml1" style="white-space: nowrap; max-width: calc(100% - 26px); text-overflow: ellipsis; overflow: hidden">{{
+                  scope.row.name
+                }}</span>
               </div>
             </template>
             <template v-else-if="item.key == 'handle'">
@@ -71,7 +73,7 @@
             <span>全选</span>
           </el-checkbox>
         </div>
-        <div class="grid-head-item"> 排序 </div>
+        <!-- <div class="grid-head-item"> 排序 </div> -->
       </div>
 
       <div class="grid-body">
@@ -99,7 +101,7 @@
               <div class="grid-file-icon">
                 <img :src="$getAssetsImages(fileType(item.extension, true))" />
               </div>
-              <div class="grid-file-text cursor-pointer" @click="handleChangeFolder(scope.row)">{{ item.name }}</div>
+              <div class="grid-file-text cursor-pointer" @click.stop="handleChangeFolder(item)">{{ item.name }}</div>
             </div>
           </div>
         </div>
@@ -109,6 +111,7 @@
       <img :src="$getAssetsImages('file/dropUpload.png')" />
       <el-button class="mt-10" color="#017FFD">拖动到这里进行上传</el-button>
     </div>
+    <PreviewModel ref="PreviewModelRef" />
   </div>
 </template>
 <script setup>
@@ -117,6 +120,7 @@
   import { ElLoading } from 'element-plus';
   import { fileType, fileUpload, getIsFolder } from '@/utils/util';
   import { fileFolderSort } from '@/api/file';
+  import PreviewModel from '@/views/home/file/components/btns/preview.vue';
   const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList', 'listRefresh']);
   const props = defineProps({
     rowKey: {
@@ -157,10 +161,15 @@
       type: Boolean,
       default: false,
     },
+    isRecycle: {
+      type: Boolean,
+      default: false,
+    },
   });
 
-  const DROP_THRESHOLD = 0.05; // 20%边界区域
+  const DROP_THRESHOLD = 0.05; // 边界区域
   const tableRef = ref(null);
+  const PreviewModelRef = ref(null);
 
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
 
@@ -224,15 +233,15 @@
     () => checkedList.value,
     (newVal, oldVal) => {
       nextTick(() => {
+        if (!props.row.find((e) => e.key == 'drag')) return emits('update:checkedList', newVal);
         const containDom =
           props.fileShowType == 'ggst' ? document.querySelector('.grid-body') : document.querySelector('.el-table__body-wrapper tbody');
         if (sortInstance) {
           if (!oldVal?.length) {
           } else {
-            // console.log(oldVal, newVal);
             oldVal.forEach((id) => {
               const index = indexMap.value.get(id);
-              // console.log(id, index);
+
               if (index >= 0) {
                 const item = containDom.children[index];
                 Sortable.utils.deselect(item);
@@ -258,6 +267,7 @@
 
   // 初始化拖拽
   const initRowDrag = () => {
+    if (!props.row && !props.row?.find((e) => e.key == 'drag')) return;
     const isGrid = props.fileShowType === 'ggst';
     if (sortInstance) {
       sortInstance.destroy();
@@ -291,19 +301,10 @@
       fallbackTolerance: 3,
       // 核心事件处理
       onSelect: function ({ item }) {
-        // const { id } = getItemByDOM(item);
-        // console.log(item, 219);
-        // if (!checkedList.value.includes(id)) {
-        //   checkedList.value = [...checkedList.value, id];
-        // }
         Sortable.utils.deselect(item);
       },
 
       onDeselect: ({ item }) => {
-        // console.log(item, 222);
-        console.log(item);
-        // const { id } = getItemByDOM(item);
-        // checkedList.value = checkedList.value.filter((v) => v !== id);
         Sortable.utils.select(item);
       },
       onStart: (evt) => {
@@ -314,14 +315,14 @@
         const targetItem = getItemByDOM(targetRow, 'data', 'move');
         const draggerItem = getItemByDOM(evt.dragged, 'data', 'move');
         targetDom.value = targetItem;
-        console.log(evt);
+
         // 如果是文件夹则显示移动样式
-        if (
-          (getIsFolder(draggerItem.extension) && !getIsFolder(targetItem?.extension)) ||
-          (!getIsFolder(draggerItem.extension) && getIsFolder(targetItem?.extension))
-        ) {
-          return false;
-        }
+        // if (
+        //   (getIsFolder(draggerItem.extension) && !getIsFolder(targetItem?.extension)) ||
+        //   (!getIsFolder(draggerItem.extension) && getIsFolder(targetItem?.extension))
+        // ) {
+        //   return false;
+        // }
         if (getIsFolder(targetItem?.extension)) {
           const rect = targetRow.getBoundingClientRect();
           const mouseX = evt.originalEvent.clientX;
@@ -348,6 +349,7 @@
         const targetItem = getItemByDOM(targetRow, 'data', 'end');
         const cloneData = evt.clone ? [getItemByDOM(evt.item, 'data', 'end')] : checkedDataList.value;
 
+        // return console.log(evt);
         if (evt.oldIndex == evt.newIndex && getIsFolder(targetDom.value?.extension)) {
           const data = {
             parent_id: targetDom.value?.id,
@@ -370,7 +372,6 @@
         emits('update:dataList', newList);
       },
     });
-    // console.log(sortInstance);
   };
   // 数组重排序工具
   const reorderArray = ({ oldIndicies, newIndicies, newIndex, oldIndex }) => {
@@ -408,7 +409,6 @@
   };
   // 新增DOM到数据项的映射方法
   const getItemByDOM = (domElement, type = 'data', flag) => {
-    // console.log(flag)
     if (!domElement) return null;
 
     // 统一处理两种视图
@@ -426,7 +426,6 @@
       const validChildren = Array.from(container.children).filter((el) => el.classList.contains('grid-file'));
       index = validChildren.indexOf(row);
     } else {
-      // console.log(row, row.rowIndex, 297, flag);
       index = row.rowIndex; // 表格视图使用原生rowIndex
     }
 
@@ -438,7 +437,7 @@
     const containDom = fileShowType == 'ggst' ? document.querySelector('.grid-body') : document.querySelector('.el-table__body-wrapper tbody');
     checkList.forEach((id) => {
       const index = indexMap.value.get(id);
-      // console.log(id, index);
+
       if (index >= 0) {
         const item = containDom.children[index];
         Sortable.utils.deselect(item);
@@ -453,9 +452,11 @@
   };
   /* 双击 */
   const handleChangeFolder = (item) => {
-    console.log('双击某个数据', item);
+    if (props.isRecycle) return;
     if (getIsFolder(item.extension)) {
       emits('dbClick', item);
+    } else {
+      PreviewModelRef.value.open(item);
     }
   };
   /* 点击全选复选框 */
@@ -477,6 +478,7 @@
     } else {
       _checkedList.push(val[props.rowKey]);
     }
+
     emits('update:checkedList', _checkedList);
   };
 
@@ -487,7 +489,6 @@
   /* 监听复制事件 */
   const handleCtrlC = () => {
     if (checkedDataList.value.length > 0) {
-      console.log(checkedDataList.value);
       fileMenuStore().setCopyFiles(
         folderQuery.value.parent_id,
         checkedDataList.value.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? 1 : 2 }))
@@ -538,11 +539,9 @@
     }
   };
   const handleDragOver = () => {
-    // console.log('dropover');
     if (!isDropTable.value) isDropTable.value = true;
   };
   const handleDragLeave = (e) => {
-    // console.log('dropLevel', e);
     if (e.relatedTarget === null || !e.currentTarget.contains(e.relatedTarget)) {
       if (isDropTable.value) isDropTable.value = false;
     }
@@ -550,7 +549,6 @@
   const handleDrop = (e) => {
     isDropTable.value = false;
     if (e.dataTransfer.files.length > 0) {
-      console.log('handleDrop', e.dataTransfer.files);
       uploadFiles(e.dataTransfer.files);
     }
   };
@@ -586,7 +584,17 @@
 </script>
 <style lang="less" scoped>
   @import '../components/common.less';
+  .table-wrapper {
+    /* 鼠标点击时不显示轮廓 */
+    &:focus:not(:focus-visible) {
+      outline: none;
+    }
 
+    /* 键盘导航时显示自定义轮廓 */
+    &:focus-visible {
+      outline: 1px dashed #ff6b6b;
+    }
+  }
   .drag-handle {
     cursor: move;
     user-select: none;

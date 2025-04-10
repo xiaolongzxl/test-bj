@@ -65,7 +65,6 @@
       loading.close();
       $message.error(err.message);
     }
-    console.log('删除');
   };
   defineExpose({
     open,

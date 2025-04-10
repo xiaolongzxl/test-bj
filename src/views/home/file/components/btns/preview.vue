@@ -24,8 +24,8 @@
           <img class="img-preview" :src="previewUrl" />
         </div>
         <!-- 媒体文件预览 -->
-        <video v-else-if="rowType === 'video'" controls class="media-preview" />
-        <audio v-else-if="rowType === 'audio'" controls class="media-preview" />
+        <video v-else-if="rowType === 'video'" :src="previewUrl" controls class="video-preview" />
+        <audio v-else-if="rowType === 'audio'" :src="previewUrl" controls class="media-preview" />
 
         <!-- 不支持预览的格式 -->
         <div v-else class="unsupported">
@@ -37,7 +37,7 @@
   </el-dialog>
 </template>
 <script setup>
-  import { fileType, getIsFolder, downLoadFile } from '@/utils/util';
+  import { fileType, getIsFolder, downLoadFile, getAllPath } from '@/utils/util';
   const loading = ref(false);
   const error = ref(false);
   const row = ref();
@@ -54,10 +54,11 @@
   });
   const open = (data) => {
     row.value = data;
+
     showModel.value = true;
   };
   const init = () => {
-    let path = `http://dlwz.souxianlan.com${props.lineRow.path}`;
+    let path = getAllPath(props.lineRow.path);
   };
 
   defineExpose({
@@ -67,11 +68,23 @@
 <style lang="less" scoped>
   .preview-wrapper {
     padding: 10px 30px;
+    .file-preview-container {
+      text-align: center;
+    }
     .office-preview {
       min-height: 650px;
     }
     .img-preview {
       min-height: 140px;
+    }
+    .media-preview {
+      width: 100%;
+    }
+    .video-preview {
+      max-width: 50%;
+    }
+    .unsupported {
+      text-align: center;
     }
   }
 </style>
