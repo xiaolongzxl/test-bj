@@ -203,11 +203,12 @@
       if (res.code != 200) {
         throw new Error(res.msg);
       }
-      $message.success('修改成功');
+      // $message.success('修改成功');
       loading.value = false;
     } catch (err) {
+      console.log(err);
       loading.value = false;
-      $message.error(err?.message || err?.msg);
+      // $message.error(err?.message || err?.msg);
     }
   };
   const setColor = async (row, data) => {

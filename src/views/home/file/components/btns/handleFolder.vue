@@ -76,7 +76,7 @@
       $message.error(err.message);
     }
   };
-  const open = (data, type = 'folder', _isExpireTime) => {
+  const open = (data = {}, type = 'folder', _isExpireTime) => {
     const { name: _name, id: _id, expiration_time: _expiration_time = '' } = data;
     if (_name && _id) {
       name.value = _name;

@@ -1,4 +1,5 @@
 import { secondUploadApi, uploadApi, versionSecondUploadApi, versionUploadApi, downloadApi } from '@/api/file';
+import { createSHA256 } from 'hash-wasm';
 export const fileType = (type, isBig = false, retuenKey) => {
   const fileType = [
     {
@@ -70,12 +71,28 @@ export const getColor = (excludes) => {
 };
 
 const getFileHash = async (file) => {
-  // 读取文件内容
   try {
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    // 分块大小，例如 2MB
+    const chunkSize = 2 * 1024 * 1024;
+    let offset = 0;
+
+    // 初始化 SHA-256 哈希器
+    const hasher = await createSHA256();
+
+    while (offset < file.size) {
+      // 读取当前块的内容
+      const chunk = file.slice(offset, offset + chunkSize);
+      const buffer = await chunk.arrayBuffer();
+
+      // 更新哈希内容
+      hasher.update(new Uint8Array(buffer));
+
+      // 移动到下一个块
+      offset += chunkSize;
+    }
+
+    // 计算最终哈希值
+    return hasher.digest('hex');
   } catch (error) {
     throw new Error(`计算文件哈希时出错: ${error.message}`);
   }

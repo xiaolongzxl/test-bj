@@ -118,7 +118,7 @@ router.beforeEach(async (to: any, _from, next) => {
       return;
     }
     if (to?.meta?.needAutoFind) {
-      getFirst(to, next);
+      getFirst(to.path === '/file' ? null : to, next);
       return;
     }
     next(); // 如果已经是登录页，直接放行
