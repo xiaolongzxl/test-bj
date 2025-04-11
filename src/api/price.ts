@@ -183,7 +183,7 @@ export function quotationSpecSort(data: any) {
 /***
  * 获取公司列表
  */
-export function getShopList(data: any) {
+export function getTemplateList(data: any) {
   return defHttp.request({
     url: root + '/api/quotation_pc/getTemplateList',
     method: 'post',

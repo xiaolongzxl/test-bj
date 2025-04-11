@@ -528,8 +528,8 @@
       <div class="tip" style="font-size: 16px">是否更新报价</div>
     </div>
     <div class="flex-center">
-      <div class="dialog-btn mr-20" @click="updateDialog = false">取消</div>
-      <div class="dialog-btn confirm-btn" @click="updatePrice">确定</div>
+      <div class="dialog-btn mr-20" @click="updatePrice(0)">取消</div>
+      <div class="dialog-btn confirm-btn" @click="updatePrice(1)">确定</div>
     </div>
   </el-dialog>
   <el-dialog v-model="clearDialog" width="375" class="dialog-self dialog-self4" :show-close="false" align-center>
@@ -831,7 +831,7 @@
     clearSpec,
     priceAdjustment,
     colorAdjustment,
-    getShopList,
+    getTemplateList,
     editRemark,
     specPriceEdit,
     generateQuotation,
@@ -1200,10 +1200,16 @@
   onMounted(() => {
     getQuotationInfo(null, false);
   });
-  async function getQuotationInfo(reset_quotation_id: any, showDialog: any) {
-    let res = await myInfo({
+  async function getQuotationInfo(reset_quotation_id: any, showDialog: any, flag = null) {
+    let data = {
       reset_quotation_id,
-    });
+    };
+    if (flag === 0) {
+      data.is_update_price = 0;
+    } else if (flag === 1) {
+      data.is_update_price = 1;
+    }
+    let res = await myInfo(data);
     if (res.code == 200) {
       quotationInfo.value = res.data;
       quotationTableData.value = res.data.spec_list.map((item: any, index: any) => {
@@ -1212,7 +1218,7 @@
       });
       shopType.value = res.data.template_id;
       // if (shopList.value.length == 0) {
-      getShop();
+      getTemplate();
       // }
       if (res.data.is_unit_price == 1) {
         quotationType.value = 0;
@@ -1321,6 +1327,9 @@
     data[key] = quotationInfo.value[key];
     let res = await editQuotation(data);
     if (res.code == 200) {
+      if (key == 'shipping_cost') {
+        getTemplate();
+      }
     } else {
       quotationInfo.value[key] = null;
     }
@@ -1504,8 +1513,8 @@
   }
   // 获取企业列表
   const shopList = ref<any>([]);
-  async function getShop() {
-    let res = await getShopList({
+  async function getTemplate() {
+    let res = await getTemplateList({
       quotation_id: quotationInfo.value.id,
     });
     if (res.code == 200) {
@@ -1641,8 +1650,8 @@
   const updateDialog = ref<boolean>(false);
   const updateResetId = ref<any>(null);
   // 更新报价
-  function updatePrice() {
-    getQuotationInfo(updateResetId.value, false);
+  function updatePrice(flag) {
+    getQuotationInfo(updateResetId.value, false, flag);
     updateDialog.value = false;
   }
   // 产品详情
