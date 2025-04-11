@@ -1201,7 +1201,7 @@
     getQuotationInfo(null, false);
   });
   async function getQuotationInfo(reset_quotation_id: any, showDialog: any, flag = null) {
-    let data = {
+    let data: any = {
       reset_quotation_id,
     };
     if (flag === 0) {
@@ -1650,7 +1650,7 @@
   const updateDialog = ref<boolean>(false);
   const updateResetId = ref<any>(null);
   // 更新报价
-  function updatePrice(flag) {
+  function updatePrice(flag: any) {
     getQuotationInfo(updateResetId.value, false, flag);
     updateDialog.value = false;
   }
