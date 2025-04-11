@@ -152,7 +152,12 @@
         throw new Error(res.msg);
       }
       loading.value = false;
-      searchResult.value = res.data;
+      searchResult.value = res.data.map((e) => {
+        return {
+          ...e,
+          extension: e.extension ? e.extension : e.name.split('.')[e.name.split('.').length - 1],
+        };
+      });
     } catch (err) {
       searchResult.value = [];
       loading.value = false;
