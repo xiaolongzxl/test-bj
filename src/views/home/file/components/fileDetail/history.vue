@@ -54,12 +54,6 @@
     },
   });
 
-  watch(
-    () => props.file,
-    (val) => {
-      getList();
-    }
-  );
   const historyList = ref([]);
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const folderQuery = inject('folderQuery');
@@ -138,6 +132,15 @@
     // 清理资源
     document.body.removeChild(link);
   };
+  watch(
+    () => props.file,
+    (val) => {
+      getList();
+    },
+    {
+      immediate: true,
+    }
+  );
   onMounted(() => {
     getList();
   });

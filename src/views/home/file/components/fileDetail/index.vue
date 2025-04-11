@@ -2,8 +2,8 @@
   <div class="fileDetail" v-if="folderQuery?.folder_category_id">
     <div class="file-info" v-loading="loading">
       <div class="file-title">
-        <img :src="$getAssetsImages(fileType(fileDetail?.extension))" />
-        <span class="ml1">{{ fileDetail.name }}</span>
+        <img class="flex-none" :src="$getAssetsImages(fileType(fileDetail?.extension))" />
+        <span class="ml1 file-title-name">{{ fileDetail.name }}</span>
       </div>
       <div class="file-line tip" v-if="props.file.id != 0">
         <div class="file-line-label"> 说明： </div>
@@ -25,22 +25,24 @@
         <div class="file-line-value">{{ fileDetail.update_time }} </div>
       </div>
     </div>
-    <el-tabs v-model="activeTab" class="file-tabs" @tab-click="handleClick">
-      <template v-for="item in tabs" :key="item.value">
-        <el-tab-pane :label="item.label" :name="item.value" :key="item.value" v-if="!item.hidden"></el-tab-pane>
-      </template>
-    </el-tabs>
-    <div class="file-other">
-      <template v-if="activeTab == '1'">
-        <User :file="file" />
-      </template>
-      <template v-else-if="activeTab == '2'">
-        <History :file="file" />
-      </template>
-      <template v-else-if="activeTab == '3'">
-        <Dynamic />
-      </template>
-    </div>
+    <template v-if="isShowTab">
+      <el-tabs v-model="activeTab" class="file-tabs" @tab-click="handleClick">
+        <template v-for="item in tabs" :key="item.value">
+          <el-tab-pane :label="item.label" :name="item.value" :key="item.value" v-if="!item.hidden"></el-tab-pane>
+        </template>
+      </el-tabs>
+      <div class="file-other">
+        <template v-if="activeTab == '1'">
+          <User :file="file" />
+        </template>
+        <template v-else-if="activeTab == '2'">
+          <History :file="file" />
+        </template>
+        <template v-else-if="activeTab == '3'">
+          <Dynamic :file="file" />
+        </template>
+      </div>
+    </template>
   </div>
   <RemarkModel title="说明" @detailRefresh="handleGetDetail" ref="remarkModelRef" />
 </template>
@@ -82,10 +84,14 @@
       {
         label: '动态',
         value: '3',
+        hidden: getIsFolder(props.file.extension),
       },
     ];
   });
   const activeTab = ref('1');
+  const isShowTab = computed(() => {
+    return tabs.value.filter((e) => !e.hidden).length >= 1;
+  });
   const fileDetail = ref({});
   const handleClick = () => {};
   const handleGetDetail = async () => {
@@ -123,7 +129,7 @@
     (val) => {
       nextTick(() => {
         if (tabs.value.find((e) => e.value == activeTab.value)?.hidden) {
-          activeTab.value = tabs.value.filter((e) => !e.hidden)[0].value;
+          activeTab.value = tabs.value.filter((e) => !e.hidden)[0]?.value || 1;
         }
         handleGetDetail();
       });
@@ -160,6 +166,15 @@
         font-size: 20px;
         color: #495060;
         line-height: 20px;
+        display: flex;
+        align-items: flex-start;
+        overflow: hidden;
+        &-name {
+          overflow-wrap: break-word;
+          word-break: break-all;
+
+          flex: auto;
+        }
       }
       &-line {
         display: flex;

@@ -114,6 +114,17 @@ export function deleteApi(data: { folder_category_id: string; data: [{ id: strin
 }
 
 /***
+ * 查询动态列表
+ */
+export function dynamicListApi(data: { page: string; file_id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/dynamicslist',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 查询成员列表
  */
 export function memberListApi(data: { folder_category_id: string }) {
