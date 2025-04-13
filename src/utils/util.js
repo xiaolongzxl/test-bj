@@ -1,4 +1,4 @@
-import { secondUploadApi, uploadApi, versionSecondUploadApi, versionUploadApi, downloadApi } from '@/api/file';
+import { secondUploadApi, uploadApi, versionSecondUploadApi, versionUploadApi, downloadApi, singleDownloadApi } from '@/api/file';
 import { createSHA256 } from 'hash-wasm';
 export const fileType = (type, isBig = false, retuenKey) => {
   const fileType = [
@@ -16,7 +16,13 @@ export const fileType = (type, isBig = false, retuenKey) => {
       bigIcon: 'file/file/icon-video-big.png',
       name: '视频',
     },
-    { type: 'image', includes: ['jpg', 'jpeg', 'png', 'gif'], icon: 'file/file/icon-pic.png', bigIcon: 'file/file/icon-pic-big.png', name: '图片' },
+    {
+      type: 'image',
+      includes: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+      icon: 'file/file/icon-pic.png',
+      bigIcon: 'file/file/icon-pic-big.png',
+      name: '图片',
+    },
     { type: 'cad', includes: ['dwg', 'dxf'], icon: 'file/file/icon-cad.png', bigIcon: 'file/file/icon-cad-big.png', name: 'cad' },
     { type: 'excel', includes: ['xls', 'xlsx'], icon: 'file/file/icon-excel.png', bigIcon: 'file/file/icon-excel-big.png', name: 'excel' },
     { type: 'pdf', includes: ['pdf'], icon: 'file/file/icon-pdf.png', bigIcon: 'file/file/icon-pdf-big.png', name: 'pdf' },
@@ -150,11 +156,13 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
     });
 };
 
-export const downLoadSingle = (files) => {
+export const downLoadSingle = (files, folder_category_id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const file = files[0];
-      const url = getAllPath(file.path);
+
+      const res = await singleDownloadApi({ file_id: file.id, folder_category_id });
+      const url = getAllPath(res.data.path);
 
       // const blob = new Blob([res]);
       // const url = window.URL.createObjectURL(data);

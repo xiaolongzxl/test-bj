@@ -103,6 +103,18 @@ export function downloadApi(data: { folder_category_id: string; data: [{ id: str
 }
 
 /***
+ * 下载
+ */
+export function singleDownloadApi(data: { folder_category_id: string; file_id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/singleDownloadZip',
+    method: 'POST',
+
+    data,
+  });
+}
+
+/***
  * 删除
  */
 export function deleteApi(data: { folder_category_id: string; data: [{ id: string; type: string }] }) {
