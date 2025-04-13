@@ -6,14 +6,14 @@
       >
     </div>
     <div class="history-list">
-      <div class="history-item" v-for="item in historyList" :key="item.id">
+      <div class="history-item" v-for="(item, index) in historyList" :key="item.id">
         <div class="history-title">
           <div class="history-title-text">{{ item.name }}</div>
           <div class="history-btns">
             <div class="effect-btn" @click="remarkModelRef.handleOpen(item.remark, item.id, 'file')">
               <svg-icon name="edit"></svg-icon>
             </div>
-            <div class="effect-btn">
+            <div class="effect-btn" :class="index == 0 ? 'noallowed blueColor' : ''" @click="index != 0 && handleTop(item)">
               <svg-icon name="reupload"></svg-icon>
             </div>
             <div class="effect-btn" @click="handleDownload">
@@ -41,12 +41,13 @@
   </div>
 </template>
 <script setup>
-  import { getHistoryVer } from '@/api/file';
+  import { getHistoryVer, topHistoryVer } from '@/api/file';
   import RemarkModel from './remarksModel.vue';
   import DelModel from '../btns/delModel.vue';
   import { fileUpload, getAllPath } from '@/utils/util';
   const remarkModelRef = ref(null);
   const delModelRef = ref(null);
+  const emits = defineEmits(['listRefresh']);
   const props = defineProps({
     file: {
       type: Object,
@@ -70,6 +71,21 @@
         throw new Error(res.msg);
       }
       historyList.value = res.data;
+    } catch (err) {
+      loading.value = false;
+      // $message.error(err?.msg || err?.message);
+    }
+  };
+  const handleTop = async (item) => {
+    loading.value = true;
+    try {
+      const res = await topHistoryVer({ file_id: props.file.id, id: item.id });
+      loading.value = false;
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
+      getList();
+      emits('listRefresh', item);
     } catch (err) {
       loading.value = false;
       $message.error(err?.msg || err?.message);
@@ -110,6 +126,7 @@
             $message.success('上传成功');
           }
           getList();
+          emits('listRefresh', props.file);
           input.remove();
         }
       }
@@ -124,9 +141,11 @@
     // 创建隐藏的 <a> 标签并模拟点击
     const link = document.createElement('a');
     link.href = url;
+    console.log(props.file.name);
     link.setAttribute('download', props.file.name); // 设置下载文件名
     link.style.display = 'none';
     document.body.appendChild(link);
+    console.log(link);
     link.click();
 
     // 清理资源
@@ -174,6 +193,9 @@
       .effect-btn.noallowed {
         color: #c4c4c4;
         cursor: not-allowed;
+        &.blueColor {
+          color: #409eff;
+        }
       }
     }
     &-item {

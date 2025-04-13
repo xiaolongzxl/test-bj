@@ -65,7 +65,7 @@
   import TableCopy from './tableCopy.vue';
   import TableHistory from './tableHistory.vue';
   import TableProperty from './tableProperty.vue';
-  import { fileType, getIsFolder, downLoadFile } from '@/utils/util';
+  import { fileType, getIsFolder, downLoadFile, downLoadSingle } from '@/utils/util';
   import handleFolder from './handleFolder.vue';
   import handleDelModel from './delModel.vue';
   import CopyMoveModel from './copyMoveModel.vue';
@@ -133,15 +133,18 @@
     console.log('点击了表格更多操作', command);
   };
   const handleDownload = (flag) => {
-    let files = flag == 'mutli' ? [...props.checkedFiles] : [props.lineRow];
-    let name = files[0].name;
-    files = files.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? '1' : '2' }));
+    const originFiles = flag == 'mutli' ? [...props.checkedFiles] : [props.lineRow];
+    const files = originFiles.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? '1' : '2' }));
+    const folderObj = originFiles.find((e) => getIsFolder(e.extension)) || [];
+    const name = folderObj?.name ? folderObj?.name : originFiles[0].name;
+    console.log(name);
     const loading = ElLoading.service({
       text: '请稍等...',
       lock: true,
       background: 'rgba(0, 0, 0, 0.4)',
     });
-    const res = downLoadFile(files, folderQuery.value.folder_category_id, name)
+    const api = flag == 'mutli' || getIsFolder(originFiles[0].extension) ? downLoadFile : downLoadSingle;
+    const res = api(files, folderQuery.value.folder_category_id, name)
       .then((res) => {
         console.log(res);
         loading.close();

@@ -36,7 +36,7 @@
           <User :file="file" />
         </template>
         <template v-else-if="activeTab == '2'">
-          <History :file="file" />
+          <History :file="file" @listRefresh="emits('listRefresh', props.file)" />
         </template>
         <template v-else-if="activeTab == '3'">
           <Dynamic :file="file" />
@@ -49,6 +49,7 @@
 <script setup>
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   import { getFolderDetailApi, getFileDetailApi, getMenuDetailApi } from '@/api/file';
+  const emits = defineEmits(['listRefresh']);
 
   import History from './history.vue';
   import User from './user.vue';

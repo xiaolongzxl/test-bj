@@ -1,7 +1,7 @@
 <template>
   <el-button class="tableBtn" size="large" @click="handleOpenModel">属性</el-button>
 
-  <el-dialog append-to-body class="self-dialog" title="属性" v-model="modelShow" width="500" center>
+  <el-dialog key="property" append-to-body class="self-dialog" title="属性" v-model="modelShow" width="500" center>
     <div class="model-wrapper">
       <div class="model-info" v-for="item in showInfo" :key="item.key">
         <div class="model-lebel">{{ item.label }}</div>

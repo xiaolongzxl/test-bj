@@ -1,5 +1,5 @@
 <template>
-  <el-dialog class="self-dialog" append-to-body title="提示" v-model="delShow" width="500" center>
+  <el-dialog key="delmodel" class="self-dialog" append-to-body title="提示" v-model="delShow" width="500" center>
     <div class="del-wrapper">
       <div class="del-title">{{
         isMutli ? `你确定要将所选的${delFiles.length}个文件（夹）删除吗？'` : `你确定要将 "${delFiles[0]?.name || ''}" 删除吗？`
@@ -84,6 +84,8 @@
       font-size: 18px;
       color: #333333;
       line-height: 14px;
+      overflow-wrap: break-word;
+      word-break: break-all;
     }
     &-tip {
       font-family:

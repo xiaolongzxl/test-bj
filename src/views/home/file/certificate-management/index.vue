@@ -47,7 +47,7 @@
         </template>
       </SelfTable>
     </div>
-    <div class="contain-right"><FileDetail :file="clickFile" /> </div>
+    <div class="contain-right"><FileDetail @listRefresh="handleRefresh" :file="clickFile" /> </div>
     <UploadModel ref="uploadModelRef" @listRefresh="handleRefresh" />
   </div>
 </template>
@@ -194,12 +194,14 @@
     };
     getFileList();
   };
-  const handleRefresh = () => {
+  const handleRefresh = (item = null) => {
     checkedList.value = [];
-    clickFile.value = {
-      id: folderQuery.value.parent_id,
-      extension: '1',
-    };
+    clickFile.value = item
+      ? item
+      : {
+          id: folderQuery.value.parent_id,
+          extension: '1',
+        };
     dataList.value = [];
     getFileList();
   };

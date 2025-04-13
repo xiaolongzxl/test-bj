@@ -133,6 +133,7 @@ export const fileMenuStore = defineStore('fileMenu', {
             route.path = `/file${menu.route}${menu.junior?.length > 0 ? '' : '/' + menu.id + '/0'}`;
             lastRoutes.push(route);
             allMenus.push(route);
+            console.log(lastRoutes);
           }
         });
 

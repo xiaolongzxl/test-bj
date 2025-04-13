@@ -29,7 +29,7 @@
         @listRefresh="handleRefresh"
       />
     </div>
-    <div class="contain-right"><FileDetail :file="clickFile" /> </div>
+    <div class="contain-right"><FileDetail @listRefresh="handleRefresh" :file="clickFile" /> </div>
   </div>
 </template>
 <script setup name="SectorSpaceCategory">
@@ -163,13 +163,14 @@
     };
     getFileList();
   };
-  const handleRefresh = () => {
-    input1.value = '';
+  const handleRefresh = (item = null) => {
     checkedList.value = [];
-    clickFile.value = {
-      id: folderQuery.value.parent_id,
-      extension: '1',
-    };
+    clickFile.value = item
+      ? item
+      : {
+          id: folderQuery.value.parent_id,
+          extension: '1',
+        };
     dataList.value = [];
     getFileList();
   };

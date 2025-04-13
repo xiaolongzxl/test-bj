@@ -149,7 +149,14 @@ export function userDelApi(data: { user_id: string; folder_category_id: string }
 /***
  * 上传前秒传功能
  */
-export function secondUploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; hash: string }) {
+export function secondUploadApi(data: {
+  folder_category_id: string;
+  folder_id: string;
+  name: string;
+  type: string;
+  expiration_time?: string;
+  hash: string;
+}) {
   return defHttp.request({
     url: root + '/api/pan/transmissionUploadFiles',
     method: 'POST',
@@ -172,7 +179,7 @@ export function uploadApi(data: { folder_category_id: string; folder_id: string;
 /***
  * 新版本上传前秒传功能
  */
-export function versionSecondUploadApi(data: { folder_category_id: string; file_id: string; hash: string }) {
+export function versionSecondUploadApi(data: { folder_category_id: string; name: string; file_id: string; hash: string }) {
   return defHttp.request({
     url: root + '/api/pan/versionTransmissionUploadFiles',
     method: 'POST',
@@ -220,6 +227,17 @@ export function updateHistoryVer(data: { remark: string; id: string }) {
 export function delHistoryVer(data: { folder_category_id: string; id: string }) {
   return defHttp.request({
     url: root + '/api/pan/getDelHistorical',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 置顶历史版本
+ */
+export function topHistoryVer(data: { file_id: string; id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getTopHistorical',
     method: 'POST',
     data,
   });

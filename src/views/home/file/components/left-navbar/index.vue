@@ -27,6 +27,7 @@
 
   const routers = computed(() => {
     // console.log(fileMenuStore().getFileRoute());
+
     return fileMenuStore().routes;
   });
 

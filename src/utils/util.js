@@ -106,7 +106,7 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
   const UploadPromise = async (file) => {
     try {
       const hash = await getFileHash(file);
-      const res = await second({ ...uploadQuery, hash });
+      const res = await second({ ...uploadQuery, name: file.name, hash });
 
       if (res.msg !== '文件不存在') {
         // 如果文件已经存在，可能需要处理或直接返回
@@ -150,11 +150,44 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
     });
 };
 
-export const downLoadFile = async (files, folder_category_id, name) => {
-  let _name = name.split('.');
-  _name = _name.slice(0, _name.length - 1).join('.');
+export const downLoadSingle = (files) => {
   return new Promise(async (resolve, reject) => {
     try {
+      const file = files[0];
+      const url = getAllPath(file.path);
+
+      // const blob = new Blob([res]);
+      // const url = window.URL.createObjectURL(data);
+
+      // 创建隐藏的 <a> 标签并模拟点击
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', file.name); // 设置下载文件名
+      document.body.appendChild(link);
+      link.click();
+
+      // 清理资源
+      document.body.removeChild(link);
+
+      resolve({ type: 'success' });
+    } catch (err) {
+      console.log(err);
+      resolve({ type: 'error', msg: err.message });
+    }
+  });
+};
+export const downLoadFile = async (files, folder_category_id, name) => {
+  let _name = name.split('.');
+  if (_name.length > 1) {
+    _name = _name.slice(0, _name.length - 1).join('.');
+  } else {
+    _name = _name[0];
+  }
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (files.length == 1) {
+      }
       const data = await downloadApi({
         folder_category_id,
         data: files,
@@ -191,7 +224,7 @@ export const getIsFolder = (extension) => {
 
 export const getAllPath = (_path) => {
   _path = decodeURIComponent(_path);
-  let domain = 'http://dlwz.souxianlan.com';
+  let domain = 'https://dlwz.souxianlan.com';
   let path = '';
   if (_path.indexOf(domain) === -1) {
     path = domain + _path;

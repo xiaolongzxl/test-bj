@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="modelShow" append-to-body class="self-dialog" :title="props.title" width="500" center>
+  <el-dialog key="remark" v-model="modelShow" append-to-body class="self-dialog" :title="props.title" width="500" center>
     <div class="box-wrapper">
       <el-input v-model="remark" style="width: 400px" :autosize="{ minRows: 4, maxRows: 6 }" type="textarea" :placeholder="`请输入${props.title}`" />
     </div>

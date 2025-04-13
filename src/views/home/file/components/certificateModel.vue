@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="modelShow" class="self-dialog" title="上传证书" width="500" center>
+  <el-dialog key="certificate" v-model="modelShow" append-to-body class="self-dialog" title="上传证书" width="500" center>
     <div class="box-wrapper">
       <el-form :model="form" label-width="auto">
         <el-form-item label="到期时间："> <el-date-picker v-model="form.expiration_time" type="date" placeholder="请选择到期时间" /> </el-form-item>

@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    key="folderModel"
     v-model="modelShow"
     class="self-dialog"
     append-to-body

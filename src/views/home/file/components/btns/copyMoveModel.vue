@@ -1,5 +1,5 @@
 <template>
-  <el-dialog class="self-dialog" append-to-body :title="title" v-model="moveShow" width="830" center>
+  <el-dialog key="copyMove" class="self-dialog" append-to-body :title="title" v-model="moveShow" width="830" center>
     <div class="move-wrapper">
       <div class="move-top">
         <div class="move-top-left">

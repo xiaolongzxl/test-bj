@@ -127,6 +127,9 @@
     }
   };
   const openRestore = (type, list) => {
+    if (type == '0' && list.length > 0) {
+      type = '1';
+    }
     reStoreQuery.value = {
       user_type: activeTab.value,
       type,
@@ -137,10 +140,14 @@
     restoreShow.value = true;
   };
   const openRemove = (type, list) => {
+    if (type == '0' && list.length > 0) {
+      type = '1';
+    }
     removeQuery.value = {
       user_type: activeTab.value,
       type,
     };
+
     if (type == '1') {
       removeQuery.value.data = list.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? 1 : 2 }));
     }
@@ -209,7 +216,7 @@
         </template>
       </SelfTable>
     </div>
-    <el-dialog width="500px" center title="还原" v-model="restoreShow" class="self-dialog" key="restore">
+    <el-dialog width="500px" append-to-body center title="还原" v-model="restoreShow" class="self-dialog" key="restore">
       <div class="model-content"> 是否还原{{ reStoreQuery.type == '1' ? '选中的' : '全部' }}文件（夹）？ </div>
       <template #footer>
         <div class="footer-btn">
@@ -219,7 +226,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog width="500px" center title="彻底删除" v-model="removeShow" class="self-dialog" key="remove">
+    <el-dialog width="500px" append-to-body center title="彻底删除" v-model="removeShow" class="self-dialog" key="remove">
       <div class="model-content"> 是否彻底删除{{ removeQuery.type == '1' ? '选中的' : '全部' }}文件（夹）？ </div>
       <template #footer>
         <div class="footer-btn">
@@ -310,16 +317,16 @@
       margin: 0 8px;
       cursor: pointer;
     }
-    .model-content {
-      padding: 30px;
-      min-height: 100px;
-      font-family:
-        Microsoft YaHei,
-        Microsoft YaHei;
-      font-weight: 400;
-      font-size: 18px;
-      color: #333333;
-      line-height: 14px;
-    }
+  }
+  .model-content {
+    padding: 30px;
+    min-height: 100px;
+    font-family:
+      Microsoft YaHei,
+      Microsoft YaHei;
+    font-weight: 400;
+    font-size: 18px;
+    color: #333333;
+    line-height: 14px;
   }
 </style>

@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    key="preview"
     class="self-dialog"
     append-to-body
     title="预览"
@@ -48,7 +49,7 @@
   const previewUrl = computed(() => {
     let path = `http://dlwz.souxianlan.com${row.value.path}`;
     if (['word', 'excel', 'ppt'].includes(rowType.value)) {
-      return `https://view.officeapps.live.com/op/view.aspx?src=${decodeURIComponent(path)}`;
+      return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(path)}`;
     }
     return path;
   });
@@ -76,6 +77,7 @@
     }
     .img-preview {
       min-height: 140px;
+      max-width: 100%;
     }
     .media-preview {
       width: 100%;

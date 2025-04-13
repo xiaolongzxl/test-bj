@@ -1,5 +1,5 @@
 <template>
-  <el-dialog append-to-body v-model="userModelShow" class="self-dialog" title="成员管理" width="800" center>
+  <el-dialog key="user" append-to-body v-model="userModelShow" class="self-dialog" title="成员管理" width="800" center>
     <div class="box-wrapper">
       <div class="title">
         <div class="title-item"
