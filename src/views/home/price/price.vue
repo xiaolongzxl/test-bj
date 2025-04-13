@@ -459,6 +459,13 @@
               </div>
             </template>
           </el-table-column>
+          <el-table-column label="总重量">
+            <template #default="scope">
+              <div class="flex-center">
+                {{ scope.row.reference_weight_total.content }}
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <div class="foot flex-between">
@@ -658,6 +665,13 @@
             <el-table-column label="重量" prop="number">
               <template #default="scope">
                 <div class="flex-center" :class="scope.row.reference_weight.color">{{ scope.row.reference_weight.content }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="总重量">
+              <template #default="scope">
+                <div class="flex-center">
+                  {{ scope.row.reference_weight_total.content }}
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -1327,7 +1341,7 @@
     data[key] = quotationInfo.value[key];
     let res = await editQuotation(data);
     if (res.code == 200) {
-      if (key == 'shipping_cost') {
+      if (key == 'shipping_cost' || key == 'address') {
         getTemplate();
       }
     } else {
