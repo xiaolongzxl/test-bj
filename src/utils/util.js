@@ -162,7 +162,8 @@ export const downLoadSingle = (files, folder_category_id) => {
       const file = files[0];
 
       const res = await singleDownloadApi({ file_id: file.id, folder_category_id });
-      const url = getAllPath(res.data.path);
+      // const url = getAllPath(res.data.path);
+      const url = res.data.path;
 
       // const blob = new Blob([res]);
       // const url = window.URL.createObjectURL(data);

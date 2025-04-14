@@ -136,7 +136,8 @@
     input.click();
   };
   const handleDownload = () => {
-    const url = getAllPath(props.file.path);
+    // const url = getAllPath(props.file.path);
+    const url = props.file.path;
 
     // 创建隐藏的 <a> 标签并模拟点击
     const link = document.createElement('a');

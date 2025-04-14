@@ -261,11 +261,11 @@
     dataList.value.unshift({
       isAdd: true,
       id: uniqueId(),
-      name: { color: '#000', val: '1' },
-      password: { color: '#000', val: '2' },
-      remark: { color: '#000', val: '3' },
-      website: { color: '#000', val: '4' },
-      username: { color: '#000', val: '4' },
+      name: { color: '#000', val: '' },
+      password: { color: '#000', val: '' },
+      remark: { color: '#000', val: '' },
+      website: { color: '#000', val: '' },
+      username: { color: '#000', val: '' },
       nickname: '',
       update_time: '',
     });

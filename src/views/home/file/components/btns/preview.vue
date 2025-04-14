@@ -47,7 +47,8 @@
     return fileType(row.value?.extension, null, 'type');
   });
   const previewUrl = computed(() => {
-    let path = `http://dlwz.souxianlan.com${row.value.path}`;
+    // let path = `http://dlwz.souxianlan.com${row.value.path}`;
+    let path = row.value.path;
     if (['word', 'excel', 'ppt'].includes(rowType.value)) {
       return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(path)}`;
     }
@@ -59,7 +60,8 @@
     showModel.value = true;
   };
   const init = () => {
-    let path = getAllPath(props.lineRow.path);
+    // let path = getAllPath(props.lineRow.path);
+    let path = props.lineRow.path;
   };
 
   defineExpose({
