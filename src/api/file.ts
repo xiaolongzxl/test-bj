@@ -109,8 +109,22 @@ export function singleDownloadApi(data: { folder_category_id: string; file_id: s
   return defHttp.request({
     url: root + '/api/pan/singleDownloadZip',
     method: 'POST',
-
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    responseType: 'blob',
     data,
+  });
+}
+
+/***
+ * 历史版本下载
+ */
+export function historyDownloadApi(id: string) {
+  return defHttp.request({
+    url: root + '/api/pan/versionDownload',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    responseType: 'blob',
+    data: { id },
   });
 }
 

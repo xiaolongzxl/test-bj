@@ -1,4 +1,4 @@
-import { secondUploadApi, uploadApi, versionSecondUploadApi, versionUploadApi, downloadApi, singleDownloadApi } from '@/api/file';
+import { secondUploadApi, uploadApi, versionSecondUploadApi, versionUploadApi, downloadApi, singleDownloadApi, historyDownloadApi } from '@/api/file';
 import { createSHA256 } from 'hash-wasm';
 export const fileType = (type, isBig = false, retuenKey) => {
   const fileType = [
@@ -23,7 +23,7 @@ export const fileType = (type, isBig = false, retuenKey) => {
       bigIcon: 'file/file/icon-pic-big.png',
       name: '图片',
     },
-    { type: 'cad', includes: ['dwg', 'dxf'], icon: 'file/file/icon-cad.png', bigIcon: 'file/file/icon-cad-big.png', name: 'cad' },
+    { type: 'cad', includes: ['dwg', 'dxf', 'cad'], icon: 'file/file/icon-cad.png', bigIcon: 'file/file/icon-cad-big.png', name: 'cad' },
     { type: 'excel', includes: ['xls', 'xlsx'], icon: 'file/file/icon-excel.png', bigIcon: 'file/file/icon-excel-big.png', name: 'excel' },
     { type: 'pdf', includes: ['pdf'], icon: 'file/file/icon-pdf.png', bigIcon: 'file/file/icon-pdf-big.png', name: 'pdf' },
     { type: 'ppt', includes: ['ppt', 'pptx'], icon: 'file/file/icon-ppt.png', bigIcon: 'file/file/icon-ppt-big.png', name: 'ppt' },
@@ -156,28 +156,27 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
     });
 };
 
-export const downLoadSingle = (files, folder_category_id) => {
+export const downLoadSingle = (files, folder_category_id, name, flag = 'normal') => {
+  console.log(files, folder_category_id, flag);
   return new Promise(async (resolve, reject) => {
     try {
       const file = files[0];
+      const api = flag == 'normal' ? singleDownloadApi : historyDownloadApi;
+      const data = flag == 'normal' ? { folder_category_id, file_id: file.id } : file.id;
+      const res = await api(data);
 
-      const res = await singleDownloadApi({ file_id: file.id, folder_category_id });
-      // const url = getAllPath(res.data.path);
-      const url = res.data.path;
-
-      // const blob = new Blob([res]);
-      // const url = window.URL.createObjectURL(data);
+      const url = window.URL.createObjectURL(res);
 
       // 创建隐藏的 <a> 标签并模拟点击
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', file.name); // 设置下载文件名
+      link.setAttribute('download', name || files[0].name); // 设置下载文件名
       document.body.appendChild(link);
       link.click();
 
       // 清理资源
       document.body.removeChild(link);
-
+      window.URL.revokeObjectURL(url);
       resolve({ type: 'success' });
     } catch (err) {
       console.log(err);

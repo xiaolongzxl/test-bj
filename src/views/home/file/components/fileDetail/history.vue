@@ -16,7 +16,7 @@
             <div class="effect-btn" :class="index == 0 ? 'noallowed blueColor' : ''" @click="index != 0 && handleTop(item)">
               <svg-icon name="reupload"></svg-icon>
             </div>
-            <div class="effect-btn" @click="handleDownload">
+            <div class="effect-btn" @click="handleDownload(item)">
               <svg-icon name="download"></svg-icon>
             </div>
             <div
@@ -44,7 +44,7 @@
   import { getHistoryVer, topHistoryVer } from '@/api/file';
   import RemarkModel from './remarksModel.vue';
   import DelModel from '../btns/delModel.vue';
-  import { fileUpload, getAllPath } from '@/utils/util';
+  import { fileUpload, getAllPath, downLoadSingle } from '@/utils/util';
   const remarkModelRef = ref(null);
   const delModelRef = ref(null);
   const emits = defineEmits(['listRefresh']);
@@ -135,22 +135,14 @@
     // 触发文件选择窗口
     input.click();
   };
-  const handleDownload = () => {
+  const handleDownload = async (item) => {
     // const url = getAllPath(props.file.path);
-    const url = props.file.path;
 
-    // 创建隐藏的 <a> 标签并模拟点击
-    const link = document.createElement('a');
-    link.href = url;
-    console.log(props.file.name);
-    link.setAttribute('download', props.file.name); // 设置下载文件名
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    console.log(link);
-    link.click();
-
-    // 清理资源
-    document.body.removeChild(link);
+    try {
+      const res = await downLoadSingle([item], null, null, 'history');
+    } catch (err) {
+      $message.error(err?.message || err?.msg);
+    }
   };
   watch(
     () => props.file,

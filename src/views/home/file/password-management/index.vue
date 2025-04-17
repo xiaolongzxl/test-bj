@@ -325,6 +325,7 @@
       </div>
     </div>
     <SelfTable
+      :isRecycle="true"
       :loading="loading"
       rowKey="id"
       :isCurrentRow="true"

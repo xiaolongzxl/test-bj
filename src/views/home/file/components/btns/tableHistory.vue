@@ -16,7 +16,7 @@
             <span class="column-value">{{ item.new_value }}</span>
           </div>
         </div>
-        <div class="history-man column-label mt-10"> {{ item.create_time }}({{ item.creatBy }}) </div>
+        <div class="history-man column-label mt-10"> {{ item.create_time }}({{ item.nickname }}) </div>
       </div>
     </div>
   </el-popover>

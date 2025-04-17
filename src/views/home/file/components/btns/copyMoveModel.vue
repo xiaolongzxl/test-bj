@@ -223,7 +223,7 @@
       if (flag.value == 'copy') {
         data.folder_category_id = breadFolderQuery.value.folder_category_id;
       }
-      const res = fileMenuStore().handleMoveCopy(data, flag.value);
+      const res = await fileMenuStore().handleMoveCopy(data, flag.value);
 
       loading.close();
       $message.success('操作成功');
