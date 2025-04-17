@@ -439,16 +439,11 @@
           </el-table-column>
           <el-table-column label="重量">
             <template #default="scope">
-              <div class="flex-center" v-if="scope.row.reference_weight && scope.row.searchable">
-                {{ scope.row.reference_weight.content }}
-                <!-- <el-input
-                  class="table-input"
-                  v-model="scope.row.reference_weight.content"
-                  placeholder="1"
-                  :style="{ color: scope.row.reference_weight.color }"
-                /> -->
+              <!--  v-if="scope.row.reference_weight && scope.row.searchable" -->
+              <div class="flex-center">
+                {{ scope.row.reference_weight_total.content }}
               </div>
-              <div class="flex-center" v-else-if="scope.row.reference_weight">
+              <!-- <div class="flex-center" v-else-if="scope.row.reference_weight">
                 <el-input
                   class="table-input"
                   v-model="scope.row.reference_weight.content"
@@ -456,14 +451,7 @@
                   @change="(e) => changeTableValue(e, scope.row, 'reference_weight')"
                   :class="scope.row.reference_weight.color"
                 />
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="总重量">
-            <template #default="scope">
-              <div class="flex-center">
-                {{ scope.row.reference_weight_total.content }}
-              </div>
+              </div> -->
             </template>
           </el-table-column>
         </el-table>
@@ -662,16 +650,9 @@
                 <div class="flex-center" :class="scope.row.spec_remark.color">{{ scope.row.spec_remark.content }}</div>
               </template>
             </el-table-column>
-            <el-table-column label="重量" prop="number">
+            <el-table-column label="总重量" prop="number">
               <template #default="scope">
-                <div class="flex-center" :class="scope.row.reference_weight.color">{{ scope.row.reference_weight.content }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column label="总重量">
-              <template #default="scope">
-                <div class="flex-center">
-                  {{ scope.row.reference_weight_total.content }}
-                </div>
+                <div class="flex-center" :class="scope.row.reference_weight_total.color">{{ scope.row.reference_weight_total.content }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -861,7 +842,16 @@
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   // 一级分类
   onMounted(() => {
-    getCategory();
+    getCategory(); // 查找所有带有波浪线样式的元素
+    document.querySelectorAll('span[style*="text-decoration: wavy"]').forEach((element: any) => {
+      // 移除波浪线样式
+      element.style.textDecoration = 'none';
+    });
+    // 或者直接针对所有元素禁用拼写检查
+    document.body.spellcheck = false;
+    document.querySelectorAll('*').forEach((element: any) => {
+      element.spellcheck = false;
+    });
   });
   const category = ref<any>([]);
   const activeCateName = ref<any>('');
@@ -981,6 +971,7 @@
   const timer2 = ref<any>(null);
   const searchKeyword = ref<any>(null);
   function changeTableSearch(e: any) {
+    console.log(12312312);
     clearTimeout(timer2.value);
     timer2.value = setTimeout(() => {
       searchByTableKeyword(e);
@@ -2647,6 +2638,9 @@
   }
 </style>
 <style>
+  .el-table__cell {
+    text-align: center !important;
+  }
   .select-type {
     width: 210px;
     height: 32px;
