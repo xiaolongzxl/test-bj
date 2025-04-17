@@ -23,7 +23,7 @@
         <div class="ml-24 info">
           <div class="info-title mb-16"
             >{{ detailInfo.name }}
-            <span class="cursor-pointer" @click="handleCopy(detailInfo.name)"
+            <span class="cursor-pointer" @click="handleCopy(detailInfo.copy_name)"
               ><img :src="$getAssetsImages('price/icon-copy.png')" alt="" class="w-17px h-16px" /> 一键复制</span
             >
           </div>
