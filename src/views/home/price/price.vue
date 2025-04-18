@@ -878,17 +878,27 @@
   const activeSeriesName = ref<any>(null);
   const activeTypeName = ref<any>(null);
   const activeTypeId = ref<any>(null);
-  async function getSeriesSonListCate(series_id: any, flag: any) {
+  async function getSeriesSonListCate(series_id: any, flag: any, top_series_son_id = null, top_id = null) {
     let res = await getSeriesSonList({ series_id });
     if (res.code == 200) {
       seriesData.value = res.data.map((item: any) => {
         item.id = item.series_son_id;
         item.name = item.series_son_name;
-        item.series_type_list = item.series_type_list.map((ite: any) => {
+        let ind = null;
+        let obj = null;
+        item.series_type_list = item.series_type_list.map((ite: any, index: any) => {
           ite.id = ite.type_id;
           ite.name = ite.type_name;
+          if (top_id == ite.type_id) {
+            ind = index;
+            obj = ite;
+          }
           return ite;
         });
+        if (top_series_son_id == item.id) {
+          item.series_type_list.splice(ind, 1);
+          item.series_type_list.unshift(obj);
+        }
         return item;
       });
       if (flag) {
@@ -950,6 +960,7 @@
     }
   }
   async function changeSelect(item: any) {
+    console.log(item);
     activeSeriesName.value = item.series_son_name;
     activeTypeName.value = item.type_name;
     activeTypeId.value = item.type_id;
@@ -959,7 +970,7 @@
     searchList.value = [];
     currentRowId.value = item.spec_id;
     getLabels(activeTypeId.value);
-    getSeriesSonListCate(item.series_id, false);
+    getSeriesSonListCate(item.series_id, false, item.series_son_id, item.type_id);
   }
 
   // tableSearch
