@@ -8,7 +8,7 @@
       <div class="file-line tip" v-if="props.file.id != 0">
         <div class="file-line-label"> 说明： </div>
         <div class="file-line-value">{{ fileDetail.remark || '' }} </div>
-        <div class="file-line-icon effect-btn" @click="handleOpenRemark">
+        <div class="file-line-icon effect-btn" v-if="hasPremission(4)" @click="handleOpenRemark">
           <svg-icon name="edit"></svg-icon>
         </div>
       </div>
@@ -61,6 +61,7 @@
   const folderQuery = inject('folderQuery');
   const loading = ref(false);
   const remarkModelRef = ref(null);
+  const hasPremission = fileMenuStore().hasPremission;
   const props = defineProps({
     file: {
       type: Object,

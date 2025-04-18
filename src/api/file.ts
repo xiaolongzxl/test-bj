@@ -410,3 +410,25 @@ export function recycleDelete(data: { type: string; user_type: string; data?: { 
     data,
   });
 }
+
+/***
+ * 权限接口
+ */
+export function permissionKey(folder_category_id: string) {
+  return defHttp.request({
+    url: root + '/api/pan/getUserRole',
+    method: 'POST',
+    data: { folder_category_id },
+  });
+}
+
+/***
+ * 密码管理排序
+ */
+export function pwdSort(data: { data: { id: string; sort: string } }) {
+  return defHttp.request({
+    url: root + '/api/pan/sortPassword',
+    method: 'POST',
+    data,
+  });
+}

@@ -230,6 +230,7 @@
   };
   const handleDel = (id) => {
     const text = id == 'mutli' ? '真的要删除所选记录吗？' : '真的要删除该条记录吗？';
+
     ElMessageBox.confirm(text, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '再想想',
@@ -237,7 +238,8 @@
     })
       .then(async () => {
         loading.value = true;
-        const res = await delPwdApi({ id: id == 'mutli' ? checkedList.value.map((item) => item.id).join(',') : id });
+
+        const res = await delPwdApi({ id: id == 'mutli' ? checkedList.value.join(',') : id });
         if (res.code != 200) {
           throw new Error(res.msg);
         }

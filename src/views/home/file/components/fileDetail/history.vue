@@ -1,6 +1,6 @@
 <template>
   <div class="history-wrapper" v-loading="loading">
-    <div class="history-btn">
+    <div class="history-btn" v-if="hasPremission(9)">
       <el-button @click="handleUpload"
         ><el-icon color="#017FFD"><Plus /></el-icon>上传新版本</el-button
       >
@@ -10,16 +10,17 @@
         <div class="history-title">
           <div class="history-title-text">{{ item.name }}</div>
           <div class="history-btns">
-            <div class="effect-btn" @click="remarkModelRef.handleOpen(item.remark, item.id, 'file')">
+            <div class="effect-btn" v-if="hasPremission(4)" @click="remarkModelRef.handleOpen(item.remark, item.id, 'file')">
               <svg-icon name="edit"></svg-icon>
             </div>
             <div class="effect-btn" :class="index == 0 ? 'noallowed blueColor' : ''" @click="index != 0 && handleTop(item)">
               <svg-icon name="reupload"></svg-icon>
             </div>
-            <div class="effect-btn" @click="handleDownload(item)">
+            <div class="effect-btn" v-if="hasPremission(5)" @click="handleDownload(item)">
               <svg-icon name="download"></svg-icon>
             </div>
             <div
+              v-if="hasPremission(11)"
               class="effect-btn"
               @click="
                 () => {
@@ -54,7 +55,7 @@
       default: () => ({}),
     },
   });
-
+  const hasPremission = fileMenuStore().hasPremission;
   const historyList = ref([]);
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const folderQuery = inject('folderQuery');

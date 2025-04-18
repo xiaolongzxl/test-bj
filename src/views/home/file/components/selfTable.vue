@@ -119,7 +119,7 @@
   import Btns from './btns/index.vue';
   import { ElLoading } from 'element-plus';
   import { fileType, fileUpload, getIsFolder } from '@/utils/util';
-  import { fileFolderSort } from '@/api/file';
+  import { fileFolderSort, pwdSort } from '@/api/file';
   import PreviewModel from '@/views/home/file/components/btns/preview.vue';
   const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList', 'listRefresh']);
   const props = defineProps({
@@ -397,9 +397,12 @@
   const handleSort = async (_data) => {
     try {
       const data = {
-        data: _data.map((e) => ({ type: getIsFolder(e.extension) ? '1' : '2', id: e.id, sort: e.sort })),
+        data: props.isRecycle
+          ? _data.map((e) => ({ id: e.id, sort: e.sort }))
+          : _data.map((e) => ({ type: getIsFolder(e.extension) ? '1' : '2', id: e.id, sort: e.sort })),
       };
-      const res = await fileFolderSort(data);
+      const api = props.isRecycle ? pwdSort : fileFolderSort;
+      const res = await api(data);
       if (res.code != 200) {
         throw new Error(res.msg);
       }
@@ -456,6 +459,8 @@
     if (getIsFolder(item.extension)) {
       emits('dbClick', item);
     } else {
+      if (!['word', 'excel', 'ppt', 'pdf', 'video', 'audio', 'image'].includes(fileType(item.extension, false, 'type'))) return;
+
       PreviewModelRef.value.open(item);
     }
   };
@@ -539,7 +544,7 @@
     }
   };
   const handleDragOver = () => {
-    if (!isDropTable.value) isDropTable.value = true;
+    if (!isDropTable.value && fileMenuStore().hasPremission(2)) isDropTable.value = true;
   };
   const handleDragLeave = (e) => {
     if (e.relatedTarget === null || !e.currentTarget.contains(e.relatedTarget)) {
@@ -548,7 +553,7 @@
   };
   const handleDrop = (e) => {
     isDropTable.value = false;
-    if (e.dataTransfer.files.length > 0) {
+    if (e.dataTransfer.files.length > 0 && fileMenuStore().hasPremission(2)) {
       uploadFiles(e.dataTransfer.files);
     }
   };

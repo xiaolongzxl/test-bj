@@ -16,7 +16,7 @@ const gsMenu = [
     title: '二级分类3',
   },
 ];
-import { getLeftMenus, copyApi, moveApi } from '@/api/file';
+import { getLeftMenus, copyApi, moveApi, permissionKey } from '@/api/file';
 import router, { routes as defaultRoute } from '../router';
 import { defineStore } from 'pinia';
 // 匹配views里面所有的.vue文件
@@ -33,6 +33,7 @@ export const fileMenuStore = defineStore('fileMenu', {
       },
       /* 顶级搜索框临时存储选中值 */
       temporaryChecked: {},
+      permissionKeys: [],
     };
   },
 
@@ -209,6 +210,22 @@ export const fileMenuStore = defineStore('fileMenu', {
     },
     clearTemporaryChecked() {
       this.temporaryChecked = {};
+    },
+    async getPremission(folder_category_id) {
+      if (!folder_category_id) return;
+      try {
+        const res = await permissionKey(folder_category_id);
+        console.log(res);
+        if (res.code != 200) {
+          throw new Error(res.msg);
+        }
+        this.permissionKeys = res.data;
+      } catch (err) {
+        this.permissionKeys = [];
+      }
+    },
+    hasPremission(key) {
+      return this.permissionKeys.map((e) => e.rule_id).includes(key);
     },
   },
 });

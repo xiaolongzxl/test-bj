@@ -70,6 +70,7 @@
       }
       $message.success(isAdd.value ? '创建成功' : '修改成功');
       emits('listRefresh');
+
       modelShow.value = false;
     } catch (err) {
       loading.close();

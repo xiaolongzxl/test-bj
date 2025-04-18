@@ -235,7 +235,7 @@
   watch(
     () => props.topbarSearchChecked,
     (val, old) => {
-      if (!val?.parent_id) return;
+      if (!val?.parent_id && !val.open) return;
       handleChangeChecked(val);
     },
     { deep: true, immediate: true }

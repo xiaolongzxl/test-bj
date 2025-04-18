@@ -1,44 +1,44 @@
 <template>
-  <template v-if="btnType.includes('add')">
+  <template v-if="btnType.includes('add') && hasPremission(10)">
     <Add :addFolderType="addFolderType" @addBtnClick="handleAddBtnClick" />
   </template>
-  <template v-if="btnType.includes('upload')">
+  <template v-if="btnType.includes('upload') && hasPremission(2)">
     <Upload @listRefresh="listRefresh" :isTrigger="props.isTriggerUpload" @triggerUpload="handleTrigger('upload', {})" />
   </template>
-  <template v-if="btnType.includes('download')">
+  <template v-if="btnType.includes('download') && hasPremission(5) && props.checkedFiles.length > 0">
     <el-button text bg size="large" class="ml-10" :disabled="props.checkedFiles.length == 0" @click="handleDownload('mutli')"
       >下载</el-button
     ></template
   >
-  <template v-if="btnType.includes('move')"
+  <template v-if="btnType.includes('move') && hasPremission(7) && props.checkedFiles.length > 0"
     ><el-button text bg size="large" @click="handleOpenMove('mutli')" :disabled="props.checkedFiles.length == 0">移动</el-button></template
   >
-  <template v-if="btnType.includes('copy')">
+  <template v-if="btnType.includes('copy') && hasPremission(8) && props.checkedFiles.length > 0">
     <el-button :disabled="props.checkedFiles.length == 0" text bg size="large" plain class="ml-10" @click="handleOpenCopy('mutli')"
       >复制</el-button
     ></template
   >
-  <template v-if="btnType.includes('del')"
+  <template v-if="btnType.includes('del') && props.checkedFiles.length > 0 && hasPremission(1)"
     ><el-button text bg size="large" @click="handleOpenDel('mutli')" :disabled="props.checkedFiles.length == 0">删除</el-button>
   </template>
   <template v-if="btnType.includes('tablePreview')">
-    <el-button @click="handlePreview" class="mr-4" plain :disabled="getIsFolder(props.lineRow.extension)"
+    <el-button @click="handlePreview" class="mr-4" plain :disabled="getIsFolder(props.lineRow.extension) || notPreview"
       ><svg-icon name="preview" class="mr-4"></svg-icon> 预览
     </el-button>
   </template>
-  <template v-if="btnType.includes('tableDownload')">
+  <template v-if="btnType.includes('tableDownload') && hasPremission(5)">
     <el-button class="mr-4" plain @click="handleDownload('single')"><svg-icon name="table-download" class="mr-4"></svg-icon> 下载 </el-button>
   </template>
-  <template v-if="btnType.includes('tableMore')">
+  <template v-if="btnType.includes('tableMore') && hasPremission(7)">
     <TableMore @tableCommand="handleTableCommand" :isExpireTime="props.isExpireTime" :tableMoreType="props.tableMoreType" />
   </template>
-  <template v-if="btnType.includes('tableCopy')">
+  <template v-if="btnType.includes('tableCopy') && hasPremission(8)">
     <TableCopy :lineRow="lineRow" />
   </template>
   <template v-if="btnType.includes('tableHistory')">
     <TableHistory :lineRow="lineRow" />
   </template>
-  <template v-if="btnType.includes('tableDel')">
+  <template v-if="btnType.includes('tableDel') && hasPremission(1)">
     <el-button class="tableBtn" @click="handleTrigger('tableDel', props.lineRow)">删除</el-button>
   </template>
   <template v-if="btnType.includes('tableRestore')">
@@ -47,7 +47,7 @@
   <template v-if="btnType.includes('tableAlwaysRemove')">
     <el-button class="tableBtn" @click="handleTrigger('tableAlwaysRemove', props.lineRow)">彻底删除</el-button>
   </template>
-  <template v-if="btnType.includes('tableProperty')">
+  <template v-if="btnType.includes('tableProperty') && hasPremission(3)">
     <TableProperty :lineRow="lineRow" />
   </template>
   <div>
@@ -72,6 +72,7 @@
   import { ElLoading } from 'element-plus';
   import PreviewModel from './preview.vue';
 
+  const hasPremission = fileMenuStore().hasPremission;
   const folderQuery = inject('folderQuery');
   const handleFolderRef = ref(null);
   const handleDelModelRef = ref(null);
@@ -113,7 +114,9 @@
   const handleAddBtnClick = () => {
     handleFolderRef.value.open();
   };
-
+  const notPreview = computed(() => {
+    return !['word', 'excel', 'ppt', 'pdf', 'video', 'audio', 'image'].includes(fileType(props.lineRow.extension, false, 'type'));
+  });
   const handleTableCommand = (command) => {
     if (command == 'rename' || command == 'update') {
       const { name, id, expiration_time, extension } = props.lineRow;

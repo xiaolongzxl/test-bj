@@ -220,7 +220,7 @@
       <div class="model-content"> 是否还原{{ reStoreQuery.type == '1' ? '选中的' : '全部' }}文件（夹）？ </div>
       <template #footer>
         <div class="footer-btn">
-          <el-button color="#F2F3F5" @click="modelShow = false">取消</el-button>
+          <el-button color="#F2F3F5" @click="restoreShow = false">取消</el-button>
           <el-button color="#197CFA" @click="handleConfirm('reStore')">确定</el-button>
         </div>
       </template>
@@ -230,7 +230,7 @@
       <div class="model-content"> 是否彻底删除{{ removeQuery.type == '1' ? '选中的' : '全部' }}文件（夹）？ </div>
       <template #footer>
         <div class="footer-btn">
-          <el-button color="#F2F3F5" @click="modelShow = false">取消</el-button>
+          <el-button color="#F2F3F5" @click="removeShow = false">取消</el-button>
           <el-button color="#197CFA" @click="handleConfirm('remove')">确定</el-button>
         </div>
       </template>
@@ -286,6 +286,7 @@
       padding: 30px;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
     &-btns {
       flex: none;

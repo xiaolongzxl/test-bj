@@ -12,7 +12,7 @@
         <div class="user-item-icon effect-btn" @click="handleDel(item)"><svg-icon name="del" /></div>
       </div>
     </div>
-    <div class="user-list-fixed" @click="userModelRef.handleShow()"> <img />成员管理 </div>
+    <div class="user-list-fixed" v-if="hasPremission(12)" @click="userModelRef.handleShow()"> <img />成员管理 </div>
   </div>
   <userModel ref="userModelRef" :users="userList" />
 </template>
@@ -21,6 +21,7 @@
   import { memberListApi, userDelApi } from '@/api/file';
   import { getColor } from '@/utils/util';
   import { ElMessageBox } from 'element-plus';
+  const hasPremission = fileMenuStore().hasPremission;
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const props = defineProps({
     file: {

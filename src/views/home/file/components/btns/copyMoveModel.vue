@@ -3,7 +3,7 @@
     <div class="move-wrapper">
       <div class="move-top">
         <div class="move-top-left">
-          <div class="move-back"
+          <div class="move-back" :class="routeHistory.length == 0 ? 'disabled' : ''" @click="handleBack"
             ><el-icon><Back /></el-icon
           ></div>
           <div class="move-breadCrumbs">
@@ -11,7 +11,7 @@
           </div>
         </div>
         <div class="move-top-right">
-          <Search searchType="move" />
+          <Search searchType="pageSearch" />
         </div>
       </div>
       <div class="move-bottom">
@@ -67,7 +67,7 @@
               </div>
             </div>
           </div>
-          <div class="addBtn cursor-pointer" :class="isAdd ? 'disabled' : ''" @click="handleAddFolder"
+          <div class="addBtn cursor-pointer" v-if="hasPremission(10)" :class="isAdd ? 'disabled' : ''" @click="handleAddFolder"
             ><el-icon class="mr-10"><Plus /></el-icon>新建文件夹</div
           >
         </div>
@@ -87,6 +87,7 @@
   import { ElLoading } from 'element-plus';
   import Search from '../search.vue';
   import Breadcrumbs from '../breadCrumbs.vue';
+  const hasPremission = fileMenuStore().hasPremission;
   const route = useRoute();
   const emits = defineEmits(['listRefresh']);
   const folderQuery = inject('folderQuery');
@@ -120,6 +121,7 @@
   const isAdd = ref(false);
   const flag = ref('move');
   const originFiles = ref([]);
+  const routeHistory = ref([]);
   const leftMenus = computed(() => {
     let allRou = fileMenuStore().routes;
     if (flag.value == 'move') {
@@ -146,7 +148,7 @@
   });
   const open = (_originFiles, _flag) => {
     flag.value = _flag;
-
+    routeHistory.value = [];
     originFiles.value = _originFiles;
     breadFolderQuery.value = {
       ...folderQuery.value,
@@ -156,25 +158,62 @@
     moveShow.value = true;
   };
   /* 点击面包屑和左侧菜单 */
-  const changeFolder = (item) => {
+  const changeFolder = (item, flag = 'normal') => {
     if (item?.type) {
       if (item.type == 1) {
+        if (item.id != breadFolderQuery.value.parent_id && flag == 'normal') {
+          addRouteHistory();
+        }
         breadFolderQuery.value.parent_id = item.id.toString();
       } else {
+        if (breadFolderQuery.value.folder_category_id != '0' && flag == 'normal') {
+          addRouteHistory();
+        }
         breadFolderQuery.value.parent_id = '0';
       }
     } else {
       breadFolderQuery.value.folder_category_id = item.toString();
       breadFolderQuery.value.parent_id = '0';
+      routeHistory.value = [];
     }
     getFileList();
+  };
+  const addRouteHistory = () => {
+    const lastRoute = routeHistory.value[routeHistory.value.length - 1];
+    if (!lastRoute) {
+      routeHistory.value.push({
+        id: breadFolderQuery.value.parent_id == '0' ? breadFolderQuery.value.folder_category_id : breadFolderQuery.value.parent_id,
+        type: breadFolderQuery.value.parent_id == '0' ? 2 : 1,
+      });
+    } else {
+      if (lastRoute?.type == 1 && lastRoute?.id != breadFolderQuery.value.parent_id) {
+        routeHistory.value.push({
+          id: breadFolderQuery.value.parent_id == '0' ? breadFolderQuery.value.folder_category_id : breadFolderQuery.value.parent_id,
+          type: breadFolderQuery.value.parent_id == '0' ? 2 : 1,
+        });
+      }
+      if (lastRoute?.type == 2 && breadFolderQuery.value.parent_id != '0') {
+        routeHistory.value.push({
+          id: breadFolderQuery.value.parent_id == '0' ? breadFolderQuery.value.folder_category_id : breadFolderQuery.value.parent_id,
+          type: breadFolderQuery.value.parent_id == '0' ? 2 : 1,
+        });
+      }
+    }
   };
 
   /* 双击右边文件夹 */
   const handledblClick = (item) => {
     if (getIsFolder(item.extension)) {
+      addRouteHistory();
       changeFolder({ type: 1, id: item.id });
     }
+  };
+  const handleBack = () => {
+    if (routeHistory.value.length > 0) {
+      const lastRoute = routeHistory.value.pop();
+      changeFolder(lastRoute, 'back');
+    }
+    console.log(routeHistory.value);
   };
   /* 查询文件列表 */
   const getFileList = async () => {
@@ -300,6 +339,7 @@
       margin-right: 20px;
       &.disabled {
         color: #7991ad;
+        cursor: not-allowed;
       }
       border-right: 1px solid #ececec;
     }

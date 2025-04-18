@@ -10,13 +10,13 @@
     </template>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item command="move">
+        <el-dropdown-item command="move" v-if="hasPremission(7)">
           <div class="dropItem">移动</div>
         </el-dropdown-item>
-        <el-dropdown-item command="copy"> <div class="dropItem">复制</div></el-dropdown-item>
-        <el-dropdown-item command="del"><div class="dropItem">删除</div></el-dropdown-item>
-        <el-dropdown-item command="update" v-if="props.isExpireTime"><div class="dropItem">修改</div></el-dropdown-item>
-        <el-dropdown-item command="rename" v-else><div class="dropItem">重命名</div></el-dropdown-item>
+        <el-dropdown-item command="copy"> <div class="dropItem" v-if="hasPremission(8)">复制</div></el-dropdown-item>
+        <el-dropdown-item command="del" v-if="hasPremission(1)"><div class="dropItem">删除</div></el-dropdown-item>
+        <el-dropdown-item command="update" v-if="props.isExpireTime && hasPremission(4)"><div class="dropItem">修改</div></el-dropdown-item>
+        <el-dropdown-item command="rename" v-if="!props.isExpireTime && hasPremission(4)"><div class="dropItem">重命名</div></el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
@@ -33,6 +33,7 @@
     },
   });
   const emits = defineEmits(['tableCommand']);
+  const hasPremission = fileMenuStore().hasPremission;
   const handleCommand = (command) => {
     emits('tableCommand', command);
   };

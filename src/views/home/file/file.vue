@@ -25,6 +25,7 @@
 <script setup>
   import leftBar from './components/left-navbar/index.vue';
   import Search from './components/search.vue';
+
   const topbarSearchChecked = ref({});
   const route = useRoute();
   const title = computed(() => {
@@ -33,6 +34,15 @@
   const topbar = computed(() => {
     return route.meta.topbar;
   });
+  watch(
+    () => route,
+    (n) => {
+      if (n?.params.cateId) {
+        fileMenuStore().getPremission(n?.params.cateId);
+      }
+    },
+    { immediate: true }
+  );
 
   const changeChecked = (item) => {
     console.log(item);

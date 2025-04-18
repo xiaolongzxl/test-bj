@@ -103,10 +103,12 @@
       data.folder_category_id = cateId;
       data.parent_id = folderId;
     } else {
+      console.log(emitQuery);
       const { folder_category_id, parent_id } = emitQuery.value;
       data.folder_category_id = folder_category_id;
       data.parent_id = parent_id;
     }
+    console.log(data);
     return data;
   });
   const formatSearchName = (name) => {
