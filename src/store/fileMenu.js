@@ -213,6 +213,11 @@ export const fileMenuStore = defineStore('fileMenu', {
     },
     async getPremission(folder_category_id) {
       if (!folder_category_id) return;
+      if (folder_category_id == '10') {
+        return (this.permissionKeys = Array.from({ length: 12 }, (_, i) => {
+          return { rule_id: i + 1 };
+        }));
+      }
       try {
         const res = await permissionKey(folder_category_id);
         console.log(res);

@@ -544,7 +544,7 @@
     }
   };
   const handleDragOver = () => {
-    if (!isDropTable.value && fileMenuStore().hasPremission(2)) isDropTable.value = true;
+    if (!isDropTable.value && !props.isRecycle && fileMenuStore().hasPremission(2)) isDropTable.value = true;
   };
   const handleDragLeave = (e) => {
     if (e.relatedTarget === null || !e.currentTarget.contains(e.relatedTarget)) {
@@ -553,7 +553,7 @@
   };
   const handleDrop = (e) => {
     isDropTable.value = false;
-    if (e.dataTransfer.files.length > 0 && fileMenuStore().hasPremission(2)) {
+    if (e.dataTransfer.files.length > 0 && !props.isRecycle && fileMenuStore().hasPremission(2)) {
       uploadFiles(e.dataTransfer.files);
     }
   };

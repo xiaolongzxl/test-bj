@@ -3,7 +3,7 @@
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   import SelfTable from '../components/selfTable.vue';
   import Btns from '../components/btns/index.vue';
-
+  const hasPremission = fileMenuStore().hasPremission;
   import { pwdListApi, updatePwdApi, addPwdApi, delPwdApi, PwdSetColorApi } from '@/api/file';
   import { ElMessageBox } from 'element-plus';
   import { uniqueId } from '@/utils/util';
@@ -320,10 +320,10 @@
             <img :src="$getAssetsImages(item.img)" />
           </div>
         </div>
-        <el-button size="large" class="btnBorder" :class="{ disabled: !checkedList.length }" @click="handleDelAll">
+        <el-button v-if="hasPremission(1)" size="large" class="btnBorder" :class="{ disabled: !checkedList.length }" @click="handleDelAll">
           <svg-icon class="mr2 svgicon" name="del" />批量删除
         </el-button>
-        <el-button size="large" class="btnBorder"> <svg-icon class="mr2 svgicon" name="people" />成员管理 </el-button>
+        <el-button v-if="hasPremission(12)" size="large" class="btnBorder"> <svg-icon class="mr2 svgicon" name="people" />成员管理 </el-button>
       </div>
     </div>
     <SelfTable
@@ -354,7 +354,12 @@
           <el-button @click="handleCancelAdd(index)">取消</el-button>
           <el-button @click="handleAddSub(row)">确认</el-button>
         </template>
-        <Btns v-else :lineRow="row" :btnType="['tableCopy', 'tableHistory', 'tableDel']" @btnClickTrigger="handleBtnTrigger" />
+        <Btns
+          v-else
+          :lineRow="row"
+          :btnType="['tableCopy', 'tableHistory', hasPremission(1) ? 'tableDel' : '']"
+          @btnClickTrigger="handleBtnTrigger"
+        />
       </template>
     </SelfTable>
     <div class="ml-30 mt-20">
