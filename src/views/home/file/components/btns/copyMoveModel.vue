@@ -103,21 +103,7 @@
   const activeMenu = ref('');
   const tableLoading = ref(false);
 
-  const rightMenus = ref([
-    {
-      label: '20250108新建文件夹',
-      id: 1,
-      type: 'folder',
-      icon: 'wjj',
-      isAdd: true,
-    },
-    {
-      label: '20250108新建文件夹',
-      id: 2,
-      type: 'document',
-      icon: 'any',
-    },
-  ]);
+  const rightMenus = ref([]);
   const isAdd = ref(false);
   const flag = ref('move');
   const originFiles = ref([]);
@@ -251,6 +237,7 @@
     try {
       const api = flag.value == 'copy' ? copyApi : '';
       const data = {
+        folder_category_id: breadFolderQuery.value.folder_category_id,
         parent_id: breadFolderQuery.value.parent_id,
         data: originFiles.value.map((e) => {
           return {
@@ -259,9 +246,7 @@
           };
         }),
       };
-      if (flag.value == 'copy') {
-        data.folder_category_id = breadFolderQuery.value.folder_category_id;
-      }
+
       const res = await fileMenuStore().handleMoveCopy(data, flag.value);
 
       loading.close();

@@ -114,7 +114,13 @@
   const formatSearchName = (name) => {
     let _name = '';
     if (name && searchInp.value) {
+      if (name == searchInp.value) {
+        return `<span style="background-color:#fff9a9;">${searchInp.value}</span>`;
+      }
       let names = name.split(searchInp.value);
+      if (names.length == 1 && names[0] == searchInp.value) {
+        return `<span style="background-color:#fff9a9;">${searchInp.value}</span>`;
+      }
       names.forEach((e) => {
         if (names.indexOf(e) == names.length - 1) {
           _name += `<span>${e}</span>`;

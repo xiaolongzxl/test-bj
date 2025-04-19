@@ -294,7 +294,7 @@ export function copyApi(data: { folder_category_id: string; parent_id: string; d
 /***
  * 移动文件（夹）
  */
-export function moveApi(data: { parent_id: string; data: [{ id: string; type: string }] }) {
+export function moveApi(data: { folder_category_id: string; parent_id: string; data: [{ id: string; type: string }] }) {
   return defHttp.request({
     url: root + '/api/pan/updateMove',
     method: 'POST',
