@@ -59,8 +59,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://dlwz.souxianlan.com',
+        // target: 'http://dlwz.souxianlan.com',
         // target: 'https://dlwz.souxianlan.com/',
+        target: 'https://wddl.souxianlan.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
