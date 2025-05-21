@@ -43,6 +43,10 @@ class HRequest {
             path: '/login',
           });
         }
+        if (res.config?.headers?.isDownload) {
+          return res;
+        }
+
         return res.data;
       },
       (err) => {

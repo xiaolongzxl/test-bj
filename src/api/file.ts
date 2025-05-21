@@ -96,8 +96,8 @@ export function downloadApi(data: { folder_category_id: string; data: [{ id: str
   return defHttp.request({
     url: root + '/api/pan/downloadZip',
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    responseType: 'blob',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', isDownload: true },
+    responseType: 'arraybuffer',
     data,
   });
 }
@@ -109,8 +109,9 @@ export function singleDownloadApi(data: { folder_category_id: string; file_id: s
   return defHttp.request({
     url: root + '/api/pan/singleDownloadZip',
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    responseType: 'blob',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', isDownload: true },
+    responseType: 'arraybuffer',
+
     data,
   });
 }

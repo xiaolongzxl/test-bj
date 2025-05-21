@@ -113,10 +113,11 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
     try {
       const hash = await getFileHash(file);
       const res = await second({ ...uploadQuery, name: file.name, hash });
-
-      if (res.msg !== '文件不存在') {
-        // 如果文件已经存在，可能需要处理或直接返回
-        return { status: 'success', file: file.name, data: res };
+      console.log(res);
+      if (res.code != 200) {
+        if (res.msg !== '文件不存在') {
+          throw new Error(`${file.name} 上传失败: ${res.msg}`);
+        }
       }
 
       const formData = new FormData();
@@ -163,9 +164,21 @@ export const downLoadSingle = (files, folder_category_id, name, flag = 'normal')
       const file = files[0];
       const api = flag == 'normal' ? singleDownloadApi : historyDownloadApi;
       const data = flag == 'normal' ? { folder_category_id, file_id: file.id } : file.id;
-      const res = await api(data);
+      const response = await api(data);
+      const res = response.data;
 
-      const url = window.URL.createObjectURL(res);
+      const contentType = response.headers['content-type'];
+      if (contentType && contentType.indexOf('application/json') !== -1) {
+        // 是一个 JSON 响应，尝试将其转换成文本并解析
+        const decoder = new TextDecoder('utf-8');
+        const jsonString = decoder.decode(new Uint8Array(response.data));
+        const errorData = JSON.parse(jsonString);
+        if (errorData?.code != 200) {
+          throw new Error(errorData?.msg || '下载失败');
+        }
+      }
+
+      const url = window.URL.createObjectURL(new Blob([res], { type: contentType }));
 
       // 创建隐藏的 <a> 标签并模拟点击
       const link = document.createElement('a');
@@ -180,7 +193,7 @@ export const downLoadSingle = (files, folder_category_id, name, flag = 'normal')
       resolve({ type: 'success' });
     } catch (err) {
       console.log(err);
-      resolve({ type: 'error', msg: err.message });
+      reject({ type: 'error', msg: err.message });
     }
   });
 };
@@ -196,16 +209,23 @@ export const downLoadFile = async (files, folder_category_id, name) => {
     try {
       if (files.length == 1) {
       }
-      const data = await downloadApi({
+      const response = await downloadApi({
         folder_category_id,
         data: files,
       });
-
-      if (data.type !== 'application/zip') {
-        throw new Error('下载失败');
+      const res = response.data;
+      const contentType = response.headers['content-type'];
+      if (contentType && contentType.indexOf('application/json') !== -1) {
+        // 是一个 JSON 响应，尝试将其转换成文本并解析
+        const decoder = new TextDecoder('utf-8');
+        const jsonString = decoder.decode(new Uint8Array(response.data));
+        const errorData = JSON.parse(jsonString);
+        if (errorData?.code != 200) {
+          throw new Error(errorData?.msg || '下载失败');
+        }
       }
-      // const blob = new Blob([res]);
-      const url = window.URL.createObjectURL(data);
+
+      const url = window.URL.createObjectURL(new Blob([res], { type: contentType }));
 
       // 创建隐藏的 <a> 标签并模拟点击
       const link = document.createElement('a');
@@ -220,7 +240,7 @@ export const downLoadFile = async (files, folder_category_id, name) => {
       resolve({ type: 'success' });
     } catch (err) {
       console.log(err);
-      resolve({ type: 'error', msg: err.message });
+      reject({ type: 'error', msg: err.message });
     }
   });
 };

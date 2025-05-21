@@ -29,7 +29,7 @@
   <template v-if="btnType.includes('tableDownload') && hasPremission(5)">
     <el-button class="mr-4" plain @click="handleDownload('single')"><svg-icon name="table-download" class="mr-4"></svg-icon> 下载 </el-button>
   </template>
-  <template v-if="btnType.includes('tableMore') && hasPremission(7)">
+  <template v-if="btnType.includes('tableMore')">
     <TableMore @tableCommand="handleTableCommand" :isExpireTime="props.isExpireTime" :tableMoreType="props.tableMoreType" />
   </template>
   <template v-if="btnType.includes('tableCopy') && hasPremission(8)">
