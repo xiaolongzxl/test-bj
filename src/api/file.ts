@@ -90,6 +90,28 @@ export function updateFileApi(data: { folder_category_id: string; name?: string;
 }
 
 /***
+ * 重命名文件夹
+ */
+export function renameFolderApi(data: { folder_category_id: string; name?: string; id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getRenameFolder',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
+ * 重命名文件
+ */
+export function renameFileApi(data: { folder_category_id: string; name?: string; id: string }) {
+  return defHttp.request({
+    url: root + '/api/pan/getRenameFile',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 下载
  */
 export function downloadApi(data: { folder_category_id: string; data: [{ id: string; type: string }] }) {

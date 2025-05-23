@@ -62,8 +62,11 @@
       }
       const api = fileType.value == 'folder' ? updateFolderApi : props.flag == 'normal' ? updateFileApi : updateHistoryVer;
       const res = await api(data);
-      loading.close();
 
+      loading.close();
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
       modelShow.value = false;
       emits('detailRefresh');
     } catch (err) {

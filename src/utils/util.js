@@ -118,6 +118,8 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
         if (res.msg !== '文件不存在') {
           throw new Error(`${file.name} 上传失败: ${res.msg}`);
         }
+      } else {
+        return { status: 'success', file: file.name, data: res };
       }
 
       const formData = new FormData();

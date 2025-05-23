@@ -4,7 +4,7 @@
     v-model="modelShow"
     class="self-dialog"
     append-to-body
-    :title="`${isAdd ? '新增' : '修改'}${fileType == 'folder' ? '文件夹' : '文件'}`"
+    :title="`${isAdd ? '新增' : isExpireTime ? '修改' : '重命名'}${fileType == 'folder' ? '文件夹' : '文件'}`"
     width="500"
     center
   >
@@ -25,7 +25,7 @@
   </el-dialog>
 </template>
 <script setup>
-  import { addFolderApi, updateFolderApi, updateFileApi } from '@/api/file';
+  import { addFolderApi, updateFolderApi, updateFileApi, renameFileApi, renameFolderApi } from '@/api/file';
   import { ElLoading } from 'element-plus';
   const emits = defineEmits(['listRefresh']);
   const $message = getCurrentInstance()?.appContext.config.globalProperties.$message;
@@ -50,7 +50,15 @@
       if (isExpireTime.value && !expiration_time.value) {
         throw new Error(`请选择文件的到期时间`);
       }
-      const api = isAdd.value ? addFolderApi : fileType.value == 'folder' ? updateFolderApi : updateFileApi;
+      const api = isAdd.value
+        ? addFolderApi
+        : fileType.value == 'folder'
+        ? isExpireTime.value
+          ? updateFolderApi
+          : renameFolderApi
+        : isExpireTime.value
+        ? updateFileApi
+        : renameFileApi;
       const data = {
         ...folderQuery.value,
         name: name.value,
