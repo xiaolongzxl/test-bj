@@ -58,7 +58,11 @@
           @input="changeSearch"
         >
           <template #prefix>
-            <img :src="$getAssetsImages('price/icon5.png')" alt="" class="w-14px h-14px" />
+            <img
+              :src="showSearchTable ? $getAssetsImages('price/icon-search-active.png') : $getAssetsImages('price/icon-search3.png')"
+              alt=""
+              class="w-26px h-26px"
+            />
           </template>
         </el-input>
         <div class="search-table" v-if="showSearchTable && keyword" style="top: 40px; left: 0">
@@ -593,7 +597,9 @@
             </el-radio-group>
 
             <div class="card-tips mb-20 cursor-default">
-              <el-icon><Rank /></el-icon>
+              <el-icon>
+                <Rank />
+              </el-icon>
               <span> 表格可进行拖拽排序</span>
             </div>
           </div>
@@ -1714,6 +1720,7 @@
     background: #ffffff;
     box-shadow: 0px 0px 6px 0px rgba(128, 128, 128, 0.2);
     border-radius: 0px 0px 0px 0px;
+
     .top-navbar-self {
       position: relative;
       margin: 11px;
@@ -1725,6 +1732,7 @@
       font-weight: 400;
       font-size: 16px;
       color: #333333;
+
       .level-box {
         max-height: 668px;
         padding: 6px;
@@ -1742,6 +1750,7 @@
         border-radius: 6px 6px 6px 6px;
         border: 1px solid #dcdcdc;
         z-index: 999;
+
         .level-one {
           height: 45px;
           line-height: 45px;
@@ -1751,12 +1760,14 @@
           color: #333333;
           border-radius: 3px 3px 3px 3px;
           cursor: pointer;
+
           &.active {
             background: #f2f5ff;
           }
         }
       }
     }
+
     .text {
       font-family: Microsoft YaHei;
       font-weight: 400;
@@ -1764,6 +1775,7 @@
       color: #333333;
     }
   }
+
   .popup-box-bg {
     position: fixed;
     width: 100%;
@@ -1772,9 +1784,11 @@
     top: 0;
     left: 0;
   }
+
   .search {
     position: relative;
     margin: 8px 0 22px;
+
     :deep(.el-icon) {
       font-size: 18px;
     }
@@ -1792,6 +1806,7 @@
       0px 1px 10px 0px rgba(0, 0, 0, 0.05);
     border-radius: 6px 6px 6px 6px;
     z-index: 991;
+
     .table-head {
       width: 100%;
       height: 37px;
@@ -1802,8 +1817,10 @@
       font-size: 12px;
       color: #333333;
       cursor: default;
+
       .xian {
         position: relative;
+
         &::after {
           content: '';
           position: absolute;
@@ -1816,9 +1833,11 @@
         }
       }
     }
+
     .table-body {
       max-height: 426px;
       overflow: hidden;
+
       .table-tr {
         padding: 2px 0;
         min-height: 28px;
@@ -1829,33 +1848,40 @@
         font-size: 12px;
         cursor: pointer;
         color: #333333;
+
         &:hover {
           color: #0066ff;
           background: #f2f5ff;
         }
       }
     }
+
     .f-48 {
       flex: 0 0 48%;
     }
+
     .f-26 {
       flex: 0 0 26%;
     }
   }
+
   .search-input {
     position: fixed;
     display: none;
     width: 500px;
     z-index: 66;
+
     .search-table {
       max-height: 206px;
     }
   }
+
   .custom-tree-node {
     flex: 0 0 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     .label {
       flex: 0 0 200px;
       text-wrap: wrap;
@@ -1865,37 +1891,46 @@
       color: #333333;
       line-height: 20px;
     }
+
     .level1 {
       font-size: 16px;
     }
   }
+
   :deep(.el-tree-node__content) {
     padding-left: 26px !important;
     height: 45px;
     background: #ffffff;
     border-radius: 0px 0px 0px 0px;
   }
+
   :deep(.el-tree-node__children .el-tree-node__content) {
     padding-left: 46px !important;
   }
+
   :deep(.el-tree-node__expand-icon),
   :deep(.el-tree-node__leaf-icon) {
     display: none !important;
   }
+
   .huishou {
     display: none;
   }
+
   .xiala {
     display: block;
   }
+
   :deep(.is-expanded) {
     .huishou {
       display: block;
     }
+
     .xiala {
       display: none;
     }
   }
+
   :deep(.el-tree-node:focus > .el-tree-node__content) {
     background: rgba(0, 0, 0, 0);
   }
@@ -1905,11 +1940,13 @@
     border-radius: 0px 0px 0px 0px;
     font-family: Microsoft YaHei;
     font-weight: 400;
+
     .el-tree-node__label {
       font-size: 16px;
       color: #333333;
     }
   }
+
   :deep(.el-tree-node .el-tree-node__content:not(.el-tree-node__children .el-tree-node__content)) {
     background: #fff;
     position: sticky;
@@ -1917,39 +1954,47 @@
     left: 0;
     z-index: 999;
   }
+
   :deep(.el-tree .el-tree-node__content:not(.el-tree-node__children .el-tree-node__content):hover) {
     background: #f4f9ff;
     border-radius: 0px 0px 0px 0px;
     font-family: Microsoft YaHei;
     font-weight: 400;
+
     .label {
       color: #0066ff;
     }
   }
+
   :deep(.el-tree-node__children .el-tree-node:hover) {
     background: #f4f9ff;
     border-radius: 0px 0px 0px 0px;
     font-family: Microsoft YaHei;
     font-weight: 400;
+
     .label {
       color: #0066ff;
     }
   }
+
   :deep(.el-tree-node__children .el-tree-node:hover) {
     background: #f4f9ff;
     border-radius: 0px 0px 0px 0px;
     font-family: Microsoft YaHei;
     font-weight: 400;
+
     .label {
       color: #0066ff;
     }
   }
+
   :deep(.el-tree--highlight-current .el-tree-node__children .el-tree-node.is-current > .el-tree-node__content) {
     background: #f4f9ff;
     border-radius: 0px 0px 0px 0px;
     font-family: Microsoft YaHei;
     font-weight: 400;
     border-right: 2px solid #0066ff;
+
     .label {
       font-size: 14px;
       color: #0066ff;
@@ -1961,10 +2006,12 @@
     padding: 20px;
     flex: 0 0 calc(100% - 260px);
     max-width: calc(100% - 260px);
+
     &.show {
       flex: 0 0 100%;
       max-width: 100%;
     }
+
     .zhe-die {
       position: relative;
       width: 12px;
@@ -1978,14 +2025,17 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+
       img {
         width: 8px;
         height: 13px;
+
         &.show {
           transform: rotate(180deg);
         }
       }
     }
+
     .list {
       padding: 16px;
       flex: 0 0 calc(42% - 10px);
@@ -1995,6 +2045,7 @@
       box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
       border-radius: 8px 8px 8px 8px;
     }
+
     .add-content {
       flex: 0 0 58%;
       max-width: 58%;
@@ -2002,17 +2053,20 @@
       background: #ffffff;
       box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
       border-radius: 8px 8px 8px 8px;
+
       .head-title {
         height: 60px;
         background: #ffffff;
         box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
         border-radius: 8px 8px 0px 0px;
+
         .left-title {
           position: relative;
           font-family: Microsoft YaHei;
           font-weight: bold;
           font-size: 18px;
           color: #333333;
+
           &::after {
             content: '';
             position: absolute;
@@ -2033,21 +2087,25 @@
     background: rgba(233, 239, 255, 0.5);
     border-radius: 0px 0px 8px 8px;
     border: 1px solid #dfe7ff;
+
     .foot-text {
       font-family: Microsoft YaHei;
       font-weight: 400;
       font-size: 14px;
       color: #183eac;
     }
+
     .foot-price {
       font-family: Microsoft YaHei;
       font-weight: 400;
       font-size: 16px;
       color: #ff0003;
+
       span {
         font-size: 14px;
       }
     }
+
     .foot-btn {
       width: 155px;
       height: 60px;
@@ -2060,6 +2118,7 @@
       color: #ffffff;
       text-align: center;
     }
+
     .foot-btn2 {
       border-radius: 0px 0px 0px 0px;
       // height: 40px;
@@ -2073,6 +2132,7 @@
       // text-align: center;
     }
   }
+
   .add-btns {
     padding: 0 10px;
     height: 30px;
@@ -2098,10 +2158,12 @@
       font-size: 14px;
       color: #666666;
       line-height: 16px;
+
       span {
         max-width: 160px;
       }
     }
+
     .select-btn {
       padding: 0 14px;
       height: 32px;
@@ -2113,10 +2175,12 @@
       font-size: 14px;
       color: #000000;
       line-height: 12px;
+
       span,
       img {
         vertical-align: middle;
       }
+
       .num {
         color: #2d6cff;
       }
@@ -2130,6 +2194,7 @@
     box-shadow: none !important;
     border-radius: 0;
   }
+
   .table-input {
     :deep(.el-input__wrapper) {
       width: 80px;
@@ -2139,6 +2204,7 @@
       border: 1px solid #dcdcdc;
       box-shadow: none;
     }
+
     :deep(.el-input__inner) {
       font-family: Microsoft YaHei;
       font-weight: 400;
@@ -2147,13 +2213,16 @@
       text-align: center;
     }
   }
+
   .table-name {
     line-height: 22px;
     cursor: default;
   }
+
   :deep(.el-table-column--selection) {
     text-align: center;
   }
+
   :deep(.el-checkbox__input .el-checkbox__inner) {
     width: 18px;
     height: 18px;
@@ -2164,9 +2233,11 @@
     background: url('@/assets/images/price/Vector.png');
     background-size: 18px 18px;
   }
+
   :deep(.el-checkbox__input.is-checked .el-checkbox__inner:after) {
     display: none;
   }
+
   :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
     background: url('@/assets/images/price/Vector1.png');
     background-size: 18px 18px;
@@ -2179,6 +2250,7 @@
     background: #ffffff;
     box-shadow: 0px 6px 58px 0px rgba(121, 145, 173, 0.2);
     background: linear-gradient(180deg, #e7f0fc 0%, #fff 56px, #fff 56px);
+
     .dialog-title {
       line-height: 44px;
       font-family: Microsoft YaHei;
@@ -2206,6 +2278,7 @@
       line-height: 30px;
       cursor: default;
     }
+
     .tip {
       height: 30px;
       font-family: Microsoft YaHei;
@@ -2215,6 +2288,7 @@
       line-height: 30px;
       cursor: default;
     }
+
     .operator-box {
       padding: 2px;
       width: 54px;
@@ -2223,6 +2297,7 @@
       border-radius: 6px 6px 6px 6px;
       cursor: pointer;
     }
+
     .num-box {
       color: #197cfa;
       flex: 0 0 23px;
@@ -2231,11 +2306,13 @@
       line-height: 23px;
       text-align: center;
       border-radius: 4px;
+
       &.active {
         background: #197cfa;
         color: #ffffff;
       }
     }
+
     .adjust-input {
       width: 160px;
       height: 32px;
@@ -2244,6 +2321,7 @@
       border: 1px solid #e9e9e9;
       box-shadow: none;
     }
+
     .dialog-btn {
       width: 120px;
       height: 42px;
@@ -2257,14 +2335,17 @@
       text-align: center;
       cursor: pointer;
     }
+
     .confirm-btn {
       color: #ffffff;
       background: #197cfa;
     }
   }
+
   .no-radius .drawer-content {
     border-radius: 0;
   }
+
   .drawer-content {
     position: relative;
     border-radius: 12px 12px 12px 12px;
@@ -2273,12 +2354,14 @@
     background: #ffffff;
     box-shadow: 0px 6px 58px 0px rgba(121, 145, 173, 0.2);
     background: linear-gradient(180deg, #e7f0fc 0%, #fff 56px, #fff 56px);
+
     .close {
       position: absolute;
       top: 24px;
       right: 20px;
       cursor: pointer;
     }
+
     .drawer-title {
       font-family: Microsoft YaHei;
       font-weight: bold;
@@ -2287,6 +2370,7 @@
       line-height: 21px;
       text-align: center;
     }
+
     .card-label {
       font-family: Microsoft YaHei;
       font-weight: bold;
@@ -2294,17 +2378,20 @@
       color: #1a202c;
       line-height: 20px;
     }
+
     .card-tips {
       font-family: Microsoft YaHei;
       font-weight: 400;
       font-size: 12px;
       color: #0052d9;
       line-height: 20px;
+
       span,
       i {
         vertical-align: middle;
       }
     }
+
     .label {
       font-family: Microsoft YaHei;
       font-weight: 400;
@@ -2312,6 +2399,7 @@
       color: #666666;
       line-height: 32px;
     }
+
     .value {
       font-family: Microsoft YaHei;
       font-weight: 400;
@@ -2319,6 +2407,7 @@
       color: #000000;
       line-height: 32px;
     }
+
     :deep(.search-box .el-input) {
       width: 500px;
       height: 32px;
@@ -2326,22 +2415,26 @@
       border-radius: 0px 0px 0px 0px;
       border: 1px solid #e9e9e9 !important;
     }
+
     .table-bottom {
       height: 50px;
       background: #f4f5f7;
       border-radius: 0px 0px 0px 0px;
+
       .label1 {
         font-family: Microsoft YaHei;
         font-weight: 400;
         font-size: 14px;
         color: #333333;
       }
+
       .label2 {
         font-family: Microsoft YaHei;
         font-weight: bold;
         font-size: 14px;
         color: #333333;
       }
+
       .value2 {
         font-family: Microsoft YaHei;
         font-weight: bold;
@@ -2349,6 +2442,7 @@
         color: #ff0003;
       }
     }
+
     .export-btn {
       min-width: 120px;
       height: 40px;
@@ -2363,6 +2457,7 @@
       cursor: pointer;
     }
   }
+
   .dialog-self2 {
     .dialog-title2 {
       line-height: 30px;
@@ -2373,12 +2468,14 @@
       text-align: center;
       cursor: default;
     }
+
     .close2 {
       position: absolute;
       top: 14px;
       right: 26px;
       cursor: pointer;
     }
+
     .right-btn,
     .left-btn {
       width: 19px;
@@ -2386,23 +2483,29 @@
       background: #eaeaea;
       border-radius: 0px 6px 6px 0px;
     }
+
     .left-btn {
       border-radius: 6px 0px 0px 6px;
     }
+
     .big-img {
       width: 486px;
       height: 258px;
+
       img {
         width: 100%;
         height: 100%;
       }
     }
+
     .img-item {
       width: 81px;
       height: 43px;
     }
+
     .info {
       width: 530px;
+
       .info-title {
         font-family: Microsoft YaHei;
         font-weight: 400;
@@ -2410,6 +2513,7 @@
         color: #000000;
         line-height: 30px;
         cursor: default;
+
         span {
           font-family: Microsoft YaHei;
           font-weight: 400;
@@ -2418,9 +2522,11 @@
           vertical-align: middle;
         }
       }
+
       .cate {
         height: 22px;
         line-height: 22px;
+
         .cate-item {
           margin-right: 45px;
           font-family: Microsoft YaHei;
@@ -2430,9 +2536,11 @@
           text-align: center;
           font-style: normal;
           text-transform: none;
+
           &.active {
             position: relative;
             color: #2d6cff;
+
             &::after {
               content: '';
               position: absolute;
@@ -2446,6 +2554,7 @@
           }
         }
       }
+
       .price-box {
         width: 100%;
         height: 56px;
@@ -2453,6 +2562,7 @@
         border-radius: 0px 0px 0px 0px;
         border-top: 1px solid #ececec;
         border-bottom: 1px solid #ececec;
+
         div {
           flex: 0 0 33%;
           font-family: Microsoft YaHei;
@@ -2460,16 +2570,19 @@
           font-size: 16px;
           color: #666666;
           line-height: 14px;
+
           span:last-of-type {
             color: #121212;
           }
         }
       }
+
       .info-unit {
         div {
           line-height: 40px;
           position: relative;
           flex: 0 0 50%;
+
           &:nth-child(2n - 1):after {
             content: '';
             position: absolute;
@@ -2480,37 +2593,44 @@
             background: #ececec;
           }
         }
+
         span {
           font-family: Microsoft YaHei;
           font-weight: 400;
           font-size: 14px;
           color: #666666;
         }
+
         .label {
           padding-left: 20px;
         }
+
         .value {
           padding-left: 6px;
           color: #121212;
         }
       }
+
       .dialog-num {
         font-family: Microsoft YaHei;
         font-weight: 400;
         font-size: 14px;
         color: #666666;
+
         .el-input {
           width: 65px;
           height: 30px;
           background: #ffffff;
           border-radius: 4px 4px 4px 4px;
           border: 1px solid #d4d6d9;
+
           .el-input__wrapper {
             padding: 0 8px;
             box-shadow: none;
           }
         }
       }
+
       .add-btn {
         width: 100px;
         height: 32px;
@@ -2524,6 +2644,7 @@
         text-align: center;
       }
     }
+
     .tab-card {
       font-family: Microsoft YaHei;
       font-weight: 400;
@@ -2531,10 +2652,12 @@
       color: #666666;
       line-height: 28px;
       cursor: pointer;
+
       .active {
         font-weight: bold;
         color: #121212;
         position: relative;
+
         &::after {
           content: '';
           position: absolute;
@@ -2547,8 +2670,10 @@
         }
       }
     }
+
     .card-list {
       cursor: default;
+
       .label {
         flex: 0 0 100px;
         font-family: Microsoft YaHei;
@@ -2557,6 +2682,7 @@
         color: #666666;
         line-height: 20px;
       }
+
       .value {
         flex: 0 0 calc(100% - 100px);
         font-family: Microsoft YaHei;
@@ -2565,6 +2691,7 @@
         color: #333333;
         line-height: 20px;
       }
+
       .files {
         font-family: Microsoft YaHei;
         font-weight: 400;
@@ -2575,27 +2702,34 @@
       }
     }
   }
+
   :deep(.table-center.el-table .cell) {
     text-align: center;
   }
+
   :deep(.el-table .cell) {
     padding: 0 8px;
   }
+
   :deep(.el-table .center-cell .cell) {
     padding: 0 8px;
   }
+
   :deep(.adjust-input .el-input__wrapper) {
     border: 0;
     box-shadow: none;
   }
+
   :deep(.el-radio) {
     margin-right: 16px;
   }
+
   :deep(.el-radio__inner) {
     width: 16px;
     height: 16px;
     border-color: #dcdcdc;
   }
+
   :deep(.el-radio__label),
   :deep(.el-radio__input.is-checked + .el-radio__label) {
     font-family: PingFang SC;
@@ -2604,15 +2738,18 @@
     color: rgba(0, 0, 0, 0.9);
     line-height: 22px;
   }
+
   :deep(.el-radio__input.is-checked .el-radio__inner) {
     background: #fff;
     border-color: #0052d9;
   }
+
   :deep(.el-radio__inner:after) {
     width: 8px;
     height: 8px;
     background: #0052d9;
   }
+
   :deep(.el-radio__inner:hover) {
     border-color: #dcdcdc;
   }
@@ -2621,22 +2758,27 @@
     .table-index {
       display: block;
     }
+
     .table-btns {
       display: none;
     }
   }
+
   :deep(.el-table__row:hover) {
     .table-index {
       display: none;
     }
+
     .table-btns {
       display: block;
     }
   }
+
   :deep(.el-table__row.current-row) {
     .table-index {
       display: none;
     }
+
     .table-btns {
       display: block;
     }
@@ -2648,60 +2790,71 @@
         flex: 0 0 640px;
         max-width: 640px;
       }
+
       .add-content {
         flex: 0 0 calc(100% - 650px);
         max-width: calc(100% - 650px);
       }
     }
+
     .right-content.show {
       .list {
         flex: 0 0 840px;
         max-width: 840px;
       }
+
       .add-content {
         flex: 0 0 calc(100% - 850px);
         max-width: calc(100% - 850px);
       }
     }
   }
+
   @media screen and (min-width: 1440px) and (max-width: 1920px) {
     .right-content {
       .list {
         flex: 0 0 560px;
         max-width: 560px;
       }
+
       .add-content {
         flex: 0 0 calc(100% - 570px);
         max-width: calc(100% - 570px);
       }
     }
+
     .right-content.show {
       .list {
         flex: 0 0 760px;
         max-width: 760px;
       }
+
       .add-content {
         flex: 0 0 calc(100% - 770px);
         max-width: calc(100% - 770px);
       }
     }
   }
+
   @media screen and (max-width: 1440px) {
     .right-content {
       .list {
         flex: 0 0 490px;
         max-width: 490px;
       }
+
       .add-content {
         flex: 0 0 calc(100% - 500px);
         max-width: calc(100% - 500px);
       }
     }
+
     .right-content.show {
       .list {
         flex: 0 0 690px;
         max-width: 690px;
       }
+
       .add-content {
         flex: 0 0 calc(100% - 700px);
         max-width: calc(100% - 700px);
@@ -2713,6 +2866,7 @@
   .el-table__cell {
     text-align: center !important;
   }
+
   .select-type {
     width: 210px;
     height: 32px;
@@ -2722,10 +2876,12 @@
     font-size: 12px;
     color: #333333;
     line-height: 22px;
+
     &.active {
       background: #f2f5ff !important;
     }
   }
+
   .el-dialog {
     height: 80%;
     padding: 0;
@@ -2734,41 +2890,52 @@
     box-shadow: 0px 6px 58px 0px rgba(121, 145, 173, 0.2);
     background: linear-gradient(180deg, #e7f0fc 0%, #fff 56px, #fff 56px);
   }
+
   .el-dialog.dialog-self {
     height: 380px;
   }
+
   .el-dialog.dialog-self2 {
     height: 80%;
   }
+
   .el-dialog.dialog-self3 {
     height: 100%;
   }
+
   .el-dialog.dialog-self4 {
     height: 240px;
   }
+
   .el-dialog__body {
     height: 100%;
     overflow: hidden;
   }
+
   .el-dialog__header {
     padding: 0;
     height: 0;
   }
+
   .el-dropdown:focus-visible,
   img:focus-visible {
     outline: none;
   }
+
   .el-dropdown-menu__item:not(.is-disabled):focus {
     background: #f2f5ff;
     color: #333;
   }
+
   .el-dropdown-menu__item:not(.is-disabled):hover {
     background: #fff;
     color: #333;
   }
+
   .el-breadcrumb {
     margin: 15px 0 14px;
     height: 22px;
+
     .el-breadcrumb__inner,
     .el-breadcrumb__item:last-child .el-breadcrumb__inner,
     .el-breadcrumb__item:last-child .el-breadcrumb__inner a,
@@ -2782,9 +2949,11 @@
       cursor: default;
     }
   }
+
   .el-table {
     border-radius: 8px;
     border: 1px solid #ececec;
+
     thead {
       tr .el-table__cell {
         height: 52px;
@@ -2796,10 +2965,12 @@
         text-align: center;
       }
     }
+
     tbody tr {
       width: 644px;
       height: 50px;
       border: 1px solid #ececec;
+
       .el-table__cell {
         background: #ffffff;
         font-family: Microsoft YaHei;
@@ -2810,10 +2981,12 @@
       }
     }
   }
+
   .no-radius {
     border-radius: 0px;
     border-bottom: 0;
   }
+
   .table-btn {
     font-family: Microsoft YaHei;
     font-weight: 400;
@@ -2821,27 +2994,34 @@
     color: #2d6cff;
     cursor: pointer;
   }
+
   .active-row {
     background: rgba(233, 239, 255, 0.6);
     border: 1px solid #ececec;
   }
+
   input {
     font-size: 14px !important;
   }
+
   .table-input input::placeholder {
     font-size: 14px !important;
     color: #333333 !important;
   }
+
   .quantity-input input::placeholder {
     font-size: 14px !important;
     color: #666 !important;
-  } /* 针对 Chrome、Safari、Edge、Opera */
+  }
+
+  /* 针对 Chrome、Safari、Edge、Opera */
   .quantity-input .el-input__inner::-webkit-outer-spin-button,
   .quantity-input .el-input__inner::-webkit-inner-spin-button {
     -webkit-appearance: none;
     appearance: none;
     margin: 0;
   }
+
   /* 针对 Firefox */
   .quantity-input .el-input__inner {
     appearance: none;
@@ -2851,20 +3031,24 @@
   .el-drawer__body {
     padding: 0 !important;
   }
+
   .el-input__wrapper,
   .el-input__wrapper:hover,
   .el-input__wrapper.is-focus {
     box-shadow: none;
   }
+
   .el-pagination.is-background .btn-next.is-active,
   .el-pagination.is-background .btn-prev.is-active,
   .el-pagination.is-background .el-pager li.is-active {
     background-color: #3563e9;
   }
+
   .el-pager li.is-active,
   .el-pager li:hover {
     color: #3563e9;
   }
+
   .el-pagination.is-background .btn-next,
   .el-pagination.is-background .btn-prev,
   .el-pagination.is-background .el-pager li {
@@ -2875,38 +3059,49 @@
     font-size: 14px;
     color: #bbbdbf;
   }
+
   .no-icon .el-input__prefix-inner {
     display: none;
   }
+
   .self-hover-table .el-input__wrapper {
     border: none !important;
   }
+
   .self-hover-table .el-table__row:hover .el-input__wrapper,
   .self-hover-table .current-row .el-input__wrapper {
     border: 1px solid #dcdcdc !important;
   }
+
   .red-text {
     color: #f00000 !important;
   }
+
   .red-text .el-input__inner {
     color: #f00000 !important;
   }
+
   .black-text {
     color: #333 !important;
   }
+
   .black-text .el-input__inner {
     color: #333 !important;
   }
+
   .blue-text {
     color: #000bda !important;
   }
+
   .blue-text .el-input__inner {
     color: #000bda !important;
   }
+
   .el-table__header,
   .el-table__footer {
     margin: 0 auto;
   }
+
   .el-scrollbar__view {
     display: block !important;
   }
