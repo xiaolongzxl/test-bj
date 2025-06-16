@@ -70,7 +70,7 @@
     // 创建隐藏的 input 元素
     const input = document.createElement('input');
     input.type = 'file';
-    item.type == '2' ? (input.webkitdirectory = true) : '';
+    item.type != 'any' ? (input.webkitdirectory = true) : '';
     input.multiple = true;
     // 监听文件选择完成事件
     input.addEventListener('change', async (event) => {
@@ -81,7 +81,7 @@
           lock: true,
           background: 'rgba(0, 0, 0, 0.4)',
         });
-        const api = item.type == '2' ? folderUpload : fileUpload;
+        const api = item.type != 'any' ? folderUpload : fileUpload;
         const res = await api(files, query);
 
         let flag = 'success';
