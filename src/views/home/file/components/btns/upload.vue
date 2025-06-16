@@ -70,6 +70,7 @@
     // 创建隐藏的 input 元素
     const input = document.createElement('input');
     input.type = 'file';
+    item.type != 'any' ? delete query.type : '';
     item.type != 'any' ? (input.webkitdirectory = true) : '';
     input.multiple = true;
     // 监听文件选择完成事件
