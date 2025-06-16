@@ -8,10 +8,12 @@
     <div class="popover-wrapper uploadPopover">
       <div class="popover-top">上传</div>
       <div class="popover-line" v-for="item in uploadBtns" :key="item.line">
-        <div class="popover-line-item" v-for="iitem in item.data" :key="iitem.type" @click="handleUploadBtnClick(iitem)">
-          <img :src="$getAssetsImages(fileType(iitem.type))" />
-          <div class="popover-line-item-text">{{ iitem.name }}</div>
-        </div>
+        <template v-for="iitem in item.data" :key="iitem.type">
+          <div v-if="!iitem.hidden" class="popover-line-item" @click="handleUploadBtnClick(iitem)">
+            <img :src="$getAssetsImages(fileType(iitem.type))" />
+            <div class="popover-line-item-text">{{ iitem.name }}</div>
+          </div>
+        </template>
       </div>
     </div>
   </el-popover>
@@ -20,14 +22,30 @@
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
   const emits = defineEmits(['listRefresh', 'triggerUpload']);
   import { ElLoading } from 'element-plus';
+  const props = defineProps({
+    isTrigger: {
+      type: Boolean,
+      default: false,
+    },
+    addFolderType: {
+      type: String,
+      default: '2',
+    },
+    noFolder: {
+      type: Boolean,
+      default: false,
+    },
+  });
+
   const uploadBtns = ref([
     {
       line: 1,
       data: [
-        // {
-        //   type: 'wjj',
-        //   name: '文件夹',
-        // },
+        {
+          hidden: props.noFolder,
+          type: props.addFolderType,
+          name: '文件夹',
+        },
         {
           type: 'any',
           name: '文件',
@@ -35,18 +53,12 @@
       ],
     },
   ]);
-  import { fileUpload, fileType } from '@/utils/util';
+  import { fileUpload, fileType, folderUpload } from '@/utils/util';
   const uploadRef = ref(null);
   const folderQuery = inject('folderQuery');
-  const props = defineProps({
-    isTrigger: {
-      type: Boolean,
-      default: false,
-    },
-  });
   const handleUploadBtnClick = (item) => {
     if (props.isTrigger) {
-      return emits('triggerUpload');
+      return emits('triggerUpload', item);
     }
     const query = {
       folder_category_id: folderQuery.value.folder_category_id,
@@ -58,6 +70,7 @@
     // 创建隐藏的 input 元素
     const input = document.createElement('input');
     input.type = 'file';
+    item.type == '2' ? (input.webkitdirectory = true) : '';
     input.multiple = true;
     // 监听文件选择完成事件
     input.addEventListener('change', async (event) => {
@@ -68,11 +81,12 @@
           lock: true,
           background: 'rgba(0, 0, 0, 0.4)',
         });
-        const res = await fileUpload(files, query);
+        const api = item.type == '2' ? folderUpload : fileUpload;
+        const res = await api(files, query);
 
         let flag = 'success';
         loading.close();
-        if (res.length) {
+        if (res?.length) {
           res.forEach((element) => {
             if (element.status == 'error') {
               $message.error(element.error);
@@ -87,6 +101,8 @@
           emits('listRefresh');
           input.remove();
         }
+      } else {
+        $message.error('该文件夹下无有效文件');
       }
     });
 

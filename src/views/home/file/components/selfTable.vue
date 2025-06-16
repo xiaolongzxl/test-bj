@@ -118,7 +118,7 @@
   import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
   import Btns from './btns/index.vue';
   import { ElLoading } from 'element-plus';
-  import { fileType, fileUpload, getIsFolder } from '@/utils/util';
+  import { fileType, fileUpload, getIsFolder, folderUpload } from '@/utils/util';
   import { fileFolderSort, pwdSort } from '@/api/file';
   import PreviewModel from '@/views/home/file/components/btns/preview.vue';
   const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList', 'listRefresh']);
@@ -551,24 +551,68 @@
       if (isDropTable.value) isDropTable.value = false;
     }
   };
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     isDropTable.value = false;
-    if (e.dataTransfer.files.length > 0 && !props.isRecycle && fileMenuStore().hasPremission(2)) {
-      uploadFiles(e.dataTransfer.files);
+    // return console.log(e, e.dataTransfer.files, e.dataTransfer.items);
+    const items = Array.from(e.dataTransfer.items); // 获取所有拖拽项
+    if (items.length > 0 && !props.isRecycle && fileMenuStore().hasPremission(2)) {
+      if ('webkitGetAsEntry' in DataTransferItem.prototype) {
+        await handleWebkitEntries(items);
+      } else {
+        // 文件拖拽（例如 Safari、Firefox）
+        uploadFiles(e.dataTransfer.files, 'wj');
+      }
     }
   };
-  const uploadFiles = async (files) => {
+  // 处理 webkitGetAsEntry 返回的条目
+  const handleWebkitEntries = async (items) => {
+    const collectedFiles = [];
+
+    for (let item of items) {
+      const entry = item.webkitGetAsEntry();
+      if (entry) await traverseEntry(entry, '', collectedFiles);
+    }
+    console.log(collectedFiles, '文件夹');
+    uploadFiles(collectedFiles, 'wjj');
+  };
+
+  // 递归处理目录结构
+  const traverseEntry = async (entry, path, collectedFiles) => {
+    if (entry.isFile) {
+      return new Promise((resolve) => {
+        entry.file((file) => {
+          let _path = path + '/' + file.name;
+          _path = _path.slice(1);
+          collectedFiles.push({ file, relativePath: _path });
+          resolve();
+        });
+      });
+    } else if (entry.isDirectory) {
+      const reader = entry.createReader();
+      await new Promise((resolve) => {
+        reader.readEntries(async (entries) => {
+          for (let subEntry of entries) {
+            await traverseEntry(subEntry, path + '/' + entry.name, collectedFiles);
+          }
+          resolve();
+        });
+      });
+    }
+  };
+  const uploadFiles = async (files, uploadType) => {
     const query = {
       folder_category_id: folderQuery.value.folder_category_id,
       folder_id: folderQuery.value.parent_id,
       type: 1,
     };
+    uploadType == 'wjj' && delete query.type;
     const loading = ElLoading.service({
       text: '请稍等...',
       lock: true,
       background: 'rgba(0, 0, 0, 0.4)',
     });
-    const res = await fileUpload(files, query);
+    const api = uploadType == 'wjj' ? folderUpload : fileUpload;
+    const res = await api(files, query);
     let flag = 'success';
     loading.close();
     if (res.length) {

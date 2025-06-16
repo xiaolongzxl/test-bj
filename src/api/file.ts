@@ -214,6 +214,18 @@ export function secondUploadApi(data: {
 }
 
 /***
+ * 上传文件夹
+ */
+export function uploadFolderApi(data: { folder_category_id: string; folder_id: string; relativePath: string; file: any }) {
+  return defHttp.request({
+    timeout: 300000,
+    url: root + '/api/pan/uploadFolder',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 正常上传文件
  */
 export function uploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; file: any }) {

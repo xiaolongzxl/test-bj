@@ -3,7 +3,13 @@
     <Add :addFolderType="addFolderType" @addBtnClick="handleAddBtnClick" />
   </template>
   <template v-if="btnType.includes('upload') && hasPremission(2)">
-    <Upload @listRefresh="listRefresh" :isTrigger="props.isTriggerUpload" @triggerUpload="handleTrigger('upload', {})" />
+    <Upload
+      :noFolder="noFolder"
+      :addFolderType="addFolderType"
+      @listRefresh="listRefresh"
+      :isTrigger="props.isTriggerUpload"
+      @triggerUpload="handleTrigger('upload', {})"
+    />
   </template>
   <template v-if="btnType.includes('download') && hasPremission(5) && props.checkedFiles.length > 0">
     <el-button text bg size="large" class="ml-10" :disabled="props.checkedFiles.length == 0" @click="handleDownload('mutli')"
@@ -107,6 +113,10 @@
     addFolderType: {
       type: String,
       default: '1',
+    },
+    noFolder: {
+      type: Boolean,
+      default: false,
     },
   });
 

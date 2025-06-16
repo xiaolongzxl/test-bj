@@ -3,7 +3,13 @@
     <div class="contain-left">
       <div class="btns">
         <div class="btns-left">
-          <FileBtns @btnClickTrigger="handleTrigger" :isTriggerUpload="true" :btnType="['add', 'upload']" @listRefresh="handleRefresh" />
+          <FileBtns
+            @btnClickTrigger="handleTrigger"
+            :noFolder="true"
+            :isTriggerUpload="true"
+            :btnType="['add', 'upload']"
+            @listRefresh="handleRefresh"
+          />
         </div>
         <div class="btns-right">
           <FileBtns v-model:checkedFiles="btnCheckedList" :btnType="['download', 'move', 'copy', 'del']" @listRefresh="handleRefresh" />

@@ -1,4 +1,13 @@
-import { secondUploadApi, uploadApi, versionSecondUploadApi, versionUploadApi, downloadApi, singleDownloadApi, historyDownloadApi } from '@/api/file';
+import {
+  secondUploadApi,
+  uploadApi,
+  uploadFolderApi,
+  versionSecondUploadApi,
+  versionUploadApi,
+  downloadApi,
+  singleDownloadApi,
+  historyDownloadApi,
+} from '@/api/file';
 import { createSHA256 } from 'hash-wasm';
 export const fileType = (type, isBig = false, retuenKey) => {
   const fileType = [
@@ -129,6 +138,55 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
       formData.append('file', file);
 
       const uploadRes = await upload(formData);
+      if (uploadRes.code !== 200) {
+        throw new Error(`${file.name} 上传失败: ${uploadRes.msg}`);
+      }
+      return { status: 'success', file: file.name, data: uploadRes };
+    } catch (error) {
+      return { status: 'error', file: file.name, error: error.message };
+    }
+  };
+  return Promise.allSettled(Object.values(files).map(UploadPromise))
+    .then((results) => {
+      const formattedResults = results.map((result) => {
+        if (result.status === 'fulfilled') {
+          return result.value;
+        } else {
+          return {
+            status: 'error',
+            file: result.reason.file || '未知文件',
+            error: result.reason.message || '上传过程中发生未知错误',
+          };
+        }
+      });
+      console.log('所有文件上传结果:', formattedResults);
+      return formattedResults;
+    })
+    .catch((err) => {
+      console.error('全局错误:', err);
+      return [{ status: 'error', error: '全局错误，请检查控制台' }];
+    });
+};
+export const folderUpload = (files = [], uploadQuery = {}) => {
+  if (files.length === 0) {
+    return Promise.resolve([]); // 如果没有文件，直接返回空数组
+  }
+
+  const UploadPromise = async (file) => {
+    try {
+      const formData = new FormData();
+      Object.keys(uploadQuery).forEach((key) => {
+        formData.append(key, uploadQuery[key]);
+      });
+      if (file?.file) {
+        formData.append('file', file.file);
+        formData.append('relativePath', file.relativePath);
+      } else {
+        formData.append('file', file);
+        formData.append('relativePath', file.webkitRelativePath);
+      }
+
+      const uploadRes = await uploadFolderApi(formData);
       if (uploadRes.code !== 200) {
         throw new Error(`${file.name} 上传失败: ${uploadRes.msg}`);
       }
