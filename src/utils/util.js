@@ -167,11 +167,12 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
       return [{ status: 'error', error: '全局错误，请检查控制台' }];
     });
 };
-export const folderUpload = (files = [], uploadQuery = {}) => {
+export const folderUpload = async (files = [], uploadQuery = {}) => {
   if (files.length === 0) {
     return Promise.resolve([]); // 如果没有文件，直接返回空数组
   }
 
+  const results = [];
   const UploadPromise = async (file) => {
     try {
       const formData = new FormData();
@@ -187,34 +188,49 @@ export const folderUpload = (files = [], uploadQuery = {}) => {
       }
 
       const uploadRes = await uploadFolderApi(formData);
-      if (uploadRes.code !== 200) {
+      console.log(uploadRes);
+      if (uploadRes?.code !== 200) {
         throw new Error(`${file.name} 上传失败: ${uploadRes.msg}`);
       }
-      return { status: 'success', file: file.name, data: uploadRes };
+      results.push({ status: 'success', file: file.name, data: uploadRes });
     } catch (error) {
-      return { status: 'error', file: file.name, error: error.message };
+      results.push({ status: 'error', file: file.name, error: error.message });
     }
   };
-  return Promise.allSettled(Object.values(files).map(UploadPromise))
-    .then((results) => {
-      const formattedResults = results.map((result) => {
-        if (result.status === 'fulfilled') {
-          return result.value;
-        } else {
-          return {
-            status: 'error',
-            file: result.reason.file || '未知文件',
-            error: result.reason.message || '上传过程中发生未知错误',
-          };
-        }
-      });
-      console.log('所有文件上传结果:', formattedResults);
-      return formattedResults;
-    })
-    .catch((err) => {
-      console.error('全局错误:', err);
-      return [{ status: 'error', error: '全局错误，请检查控制台' }];
-    });
+  try {
+    for (const file of files) {
+      await UploadPromise(file);
+    }
+
+    console.log('所有文件上传结果:', results);
+    return results;
+  } catch (err) {
+    console.error('全局错误:', err);
+    return [{ status: 'error', error: '全局错误，请检查控制台' }];
+  }
+  // return Promise.allSettled(Object.values(files).map(UploadPromise))
+  //   .then((results) => {
+  //     const formattedResults = results.map(
+  //       (result) => result.value
+  //       // {
+  //       //   if (result.status === 'fulfilled') {
+  //       //     return result.value;
+  //       //   }
+  //       //  else {
+  //       //   return {
+  //       //     status: 'error',
+  //       //     file: result.reason.file || '未知文件',
+  //       //     error: result.reason.message || '上传过程中发生未知错误',
+  //       //   };
+  //       // }
+  //     );
+  //     console.log('所有文件上传结果:', formattedResults);
+  //     return formattedResults;
+  //   })
+  //   .catch((err) => {
+  //     console.error('全局错误:', err);
+  //     return [{ status: 'error', error: '全局错误，请检查控制台' }];
+  //   });
 };
 
 export const downLoadSingle = (files, folder_category_id, name, flag = 'normal') => {
