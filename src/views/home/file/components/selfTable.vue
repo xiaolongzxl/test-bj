@@ -553,10 +553,10 @@
   };
   const handleDrop = async (e) => {
     isDropTable.value = false;
-    // return console.log(e, e.dataTransfer.files, e.dataTransfer.items);
+
     const items = Array.from(e.dataTransfer.items); // 获取所有拖拽项
     if (items.length > 0 && !props.isRecycle && fileMenuStore().hasPremission(2)) {
-      if ('webkitGetAsEntry' in DataTransferItem.prototype) {
+      if ('webkitGetAsEntry' in DataTransferItem.prototype && items[0].webkitGetAsEntry()?.isDirectory) {
         await handleWebkitEntries(items);
       } else {
         // 文件拖拽（例如 Safari、Firefox）

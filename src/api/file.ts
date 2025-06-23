@@ -238,6 +238,36 @@ export function uploadApi(data: { folder_category_id: string; folder_id: string;
 }
 
 /***
+ * 分片上传
+ */
+export function chunkUploadApi(data: { folder_category_id: string; folder_id: string; type: string; expiration_time?: string; file: any }) {
+  return defHttp.request({
+    timeout: 300000,
+    url: root + '/api/pan/chunkFind',
+    method: 'POST',
+    data,
+  });
+}
+/***
+ * 合并分片
+ */
+export function mergechunkApi(data: {
+  upload_id: string;
+  folder_category_id: string;
+  folder_id: string;
+  type: string;
+  expiration_time?: string;
+  file: any;
+}) {
+  return defHttp.request({
+    timeout: 300000,
+    url: root + '/api/pan/mergeFind',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 新版本上传前秒传功能
  */
 export function versionSecondUploadApi(data: { folder_category_id: string; name: string; file_id: string; hash: string }) {

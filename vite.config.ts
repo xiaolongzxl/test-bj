@@ -61,7 +61,8 @@ export default defineConfig({
       '/api': {
         // target: 'http://dlwz.souxianlan.com',
         // target: 'https://dlwz.souxianlan.com/',
-        target: 'https://wddl.souxianlan.com',
+        // target: 'https://wddl.souxianlan.com',
+        target: 'https://wddlsz.com/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/api'),
       },

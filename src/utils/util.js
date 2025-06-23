@@ -7,8 +7,12 @@ import {
   downloadApi,
   singleDownloadApi,
   historyDownloadApi,
+  chunkUploadApi,
+  mergechunkApi,
 } from '@/api/file';
 import { createSHA256 } from 'hash-wasm';
+const CHUNK_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 40 * 1024 * 1024;
 export const fileType = (type, isBig = false, retuenKey) => {
   const fileType = [
     {
@@ -120,9 +124,11 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
   const upload = flag == 'normal' ? uploadApi : versionUploadApi;
   const UploadPromise = async (file) => {
     try {
+      // return console.log(file);
       const hash = await getFileHash(file);
       const res = await second({ ...uploadQuery, name: file.name, hash });
       console.log(res);
+
       if (res.code != 200) {
         if (res.msg !== '文件不存在') {
           throw new Error(`${file.name} 上传失败: ${res.msg}`);
@@ -135,6 +141,16 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
       Object.keys(uploadQuery).forEach((key) => {
         formData.append(key, uploadQuery[key]);
       });
+      if (file.size > MAX_FILE_SIZE && flag == 'normal') {
+        const chunkRes = await chunkUpload(file, uploadQuery);
+
+        if (chunkRes.status == 'success') {
+          return { status: 'success', file: file.name, data: chunkRes };
+        } else {
+          throw new Error(`${file.name} 上传失败: ${chunkRes.msg}`);
+        }
+      }
+
       formData.append('file', file);
 
       const uploadRes = await upload(formData);
@@ -149,6 +165,7 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
   return Promise.allSettled(Object.values(files).map(UploadPromise))
     .then((results) => {
       const formattedResults = results.map((result) => {
+        console.log(result);
         if (result.status === 'fulfilled') {
           return result.value;
         } else {
@@ -166,6 +183,76 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
       console.error('全局错误:', err);
       return [{ status: 'error', error: '全局错误，请检查控制台' }];
     });
+};
+// 获取文件后缀
+const getFileExtension = (fileName) => {
+  const names = fileName.split('.');
+  const last = names[names.length - 1];
+  if (!last) return '无后缀';
+  return last.toLowerCase();
+};
+const chunkUploadPromise = async (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await chunkUploadApi(data);
+      if (res.code != 200) {
+        throw new Error(res.msg);
+      }
+      resolve(res);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+const chunkUpload = async (file, query) => {
+  const { size, name, type } = file;
+  const totalChunks = Math.ceil(size / CHUNK_SIZE);
+
+  const uploadChunk = [];
+  const uploadId = 'upload_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+  const uploadQuery = {
+    ...query,
+    upload_id: uploadId,
+    total_chunks: totalChunks,
+    file_name: name,
+    file_size: size,
+    file_extension: getFileExtension(name),
+    mime_type: type,
+  };
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, size);
+    const chunk = file.slice(start, end);
+    uploadQuery.file = chunk;
+    uploadQuery.chunk_index = i;
+    const chunkFormData = new FormData();
+    Object.keys(uploadQuery).forEach((key) => {
+      chunkFormData.append(key, uploadQuery[key]);
+    });
+
+    uploadChunk.push(chunkUploadPromise(chunkFormData));
+  }
+  try {
+    const results = await Promise.all(uploadChunk);
+    console.log('分片全部上传完', results);
+    // promise.resolve({ status: 'success', msg:'上传成功',data:results });
+    const mergeRes = await mergechunkApi({
+      upload_id: uploadId,
+      file_name: name,
+      file_size: size,
+      file_extension: getFileExtension(name),
+      mime_type: type,
+      ...query,
+    });
+    if (mergeRes.code == 200) {
+      return { status: 'success', msg: '上传成功', data: mergeRes };
+    } else {
+      return { status: 'error', msg: mergeRes?.msg || '上传失败', data: mergeRes };
+    }
+  } catch (err) {
+    console.log(e);
+    return { status: 'error', msg: err?.msg || '上传失败', data: err };
+  }
 };
 export const folderUpload = async (files = [], uploadQuery = {}) => {
   if (files.length === 0) {
