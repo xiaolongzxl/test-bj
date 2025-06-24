@@ -291,6 +291,29 @@ export function versionUploadApi(data: { folder_category_id: string; file_id: st
 }
 
 /***
+ * 上传新版本分片上传
+ */
+export function versionChunkUploadApi(data: { folder_category_id: string; file_id: string; file: any }) {
+  return defHttp.request({
+    timeout: 300000,
+    url: root + '/api/pan/chunkXinFind',
+    method: 'POST',
+    data,
+  });
+}
+/***
+ * 上传新版本合并分片
+ */
+export function versionMergeChunkApi(data: { upload_id: string; folder_category_id: string; file: any; file_id: string }) {
+  return defHttp.request({
+    timeout: 300000,
+    url: root + '/api/pan/mergeXinFind',
+    method: 'POST',
+    data,
+  });
+}
+
+/***
  * 查询历史版本
  */
 export function getHistoryVer(data: { folder_category_id: string; id: string }) {

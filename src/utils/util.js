@@ -9,6 +9,8 @@ import {
   historyDownloadApi,
   chunkUploadApi,
   mergechunkApi,
+  versionChunkUploadApi,
+  versionMergeChunkApi,
 } from '@/api/file';
 import { createSHA256 } from 'hash-wasm';
 const CHUNK_SIZE = 10 * 1024 * 1024;
@@ -141,8 +143,8 @@ export const fileUpload = (files = [], uploadQuery = {}, flag = 'normal') => {
       Object.keys(uploadQuery).forEach((key) => {
         formData.append(key, uploadQuery[key]);
       });
-      if (file.size > MAX_FILE_SIZE && flag == 'normal') {
-        const chunkRes = await chunkUpload(file, uploadQuery);
+      if (file.size > MAX_FILE_SIZE) {
+        const chunkRes = await chunkUpload(file, uploadQuery, flag);
 
         if (chunkRes.status == 'success') {
           return { status: 'success', file: file.name, data: chunkRes };
@@ -191,10 +193,10 @@ const getFileExtension = (fileName) => {
   if (!last) return '无后缀';
   return last.toLowerCase();
 };
-const chunkUploadPromise = async (data) => {
+const chunkUploadPromise = async (data, api) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await chunkUploadApi(data);
+      const res = await api(data);
       if (res.code != 200) {
         throw new Error(res.msg);
       }
@@ -204,7 +206,9 @@ const chunkUploadPromise = async (data) => {
     }
   });
 };
-const chunkUpload = async (file, query) => {
+const chunkUpload = async (file, query, flag = 'normal') => {
+  const chunkApi = flag == 'normal' ? chunkUploadApi : versionChunkUploadApi;
+  const mergeApi = flag == 'normal' ? mergechunkApi : versionMergeChunkApi;
   const { size, name, type } = file;
   const totalChunks = Math.ceil(size / CHUNK_SIZE);
 
@@ -230,13 +234,13 @@ const chunkUpload = async (file, query) => {
       chunkFormData.append(key, uploadQuery[key]);
     });
 
-    uploadChunk.push(chunkUploadPromise(chunkFormData));
+    uploadChunk.push(chunkUploadPromise(chunkFormData, chunkApi));
   }
   try {
     const results = await Promise.all(uploadChunk);
     console.log('分片全部上传完', results);
     // promise.resolve({ status: 'success', msg:'上传成功',data:results });
-    const mergeRes = await mergechunkApi({
+    const mergeRes = await mergeApi({
       upload_id: uploadId,
       file_name: name,
       file_size: size,
@@ -250,7 +254,7 @@ const chunkUpload = async (file, query) => {
       return { status: 'error', msg: mergeRes?.msg || '上传失败', data: mergeRes };
     }
   } catch (err) {
-    console.log(e);
+    console.log(err);
     return { status: 'error', msg: err?.msg || '上传失败', data: err };
   }
 };
