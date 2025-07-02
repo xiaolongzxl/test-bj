@@ -99,7 +99,10 @@
           <div :class="(checkedList?.length ? isCheck(item) : true) ? 'drag-handle' : 'drag-no'">
             <div class="flex-col flex-center">
               <div class="grid-file-icon">
-                <img :src="$getAssetsImages(fileType(item.extension, true))" />
+                <template v-if="fileType(item.extension, '', 'type') == 'image' && item?.path">
+                  <img class="grid-file-icon-img" :src="item.path" />
+                </template>
+                <img v-else :src="$getAssetsImages(fileType(item.extension, true))" />
               </div>
               <div class="grid-file-text cursor-pointer" @click.stop="handleChangeFolder(item)">{{ item.name }}</div>
             </div>
