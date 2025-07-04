@@ -15,6 +15,7 @@ import {
 import { createSHA256 } from 'hash-wasm';
 const CHUNK_SIZE = 10 * 1024 * 1024;
 const MAX_FILE_SIZE = 40 * 1024 * 1024;
+import { ElLoading } from 'element-plus';
 export const fileType = (type, isBig = false, retuenKey) => {
   const fileType = [
     {
@@ -327,13 +328,19 @@ export const folderUpload = async (files = [], uploadQuery = {}) => {
 export const downLoadSingle = (files, folder_category_id, name, flag = 'normal') => {
   console.log(files, folder_category_id, flag);
   return new Promise(async (resolve, reject) => {
+    const loading = ElLoading.service({
+      text: '请稍等...',
+      lock: true,
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
     try {
       const file = files[0];
+
       const api = flag == 'normal' ? singleDownloadApi : historyDownloadApi;
       const data = flag == 'normal' ? { folder_category_id, file_id: file.id } : file.id;
       const response = await api(data);
       const res = response.data;
-
+      console.log(response);
       const contentType = response.headers['content-type'];
       if (contentType && contentType.indexOf('application/json') !== -1) {
         // 是一个 JSON 响应，尝试将其转换成文本并解析
@@ -361,6 +368,8 @@ export const downLoadSingle = (files, folder_category_id, name, flag = 'normal')
     } catch (err) {
       console.log(err);
       reject({ type: 'error', msg: err.message });
+    } finally {
+      loading.close();
     }
   });
 };
@@ -373,6 +382,11 @@ export const downLoadFile = async (files, folder_category_id, name) => {
   }
 
   return new Promise(async (resolve, reject) => {
+    const loading = ElLoading.service({
+      text: '请稍等...',
+      lock: true,
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
     try {
       if (files.length == 1) {
       }
@@ -381,6 +395,7 @@ export const downLoadFile = async (files, folder_category_id, name) => {
         data: files,
       });
       const res = response.data;
+      console.log(response);
       const contentType = response.headers['content-type'];
       if (contentType && contentType.indexOf('application/json') !== -1) {
         // 是一个 JSON 响应，尝试将其转换成文本并解析
@@ -408,6 +423,8 @@ export const downLoadFile = async (files, folder_category_id, name) => {
     } catch (err) {
       console.log(err);
       reject({ type: 'error', msg: err.message });
+    } finally {
+      loading.close();
     }
   });
 };

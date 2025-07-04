@@ -5,7 +5,7 @@
     append-to-body
     title="预览"
     v-model="showModel"
-    :width="['word', 'excel', 'ppt', 'pdf', 'video'].includes(rowType) ? 1100 : 600"
+    :width="['word', 'excel', 'ppt', 'pdf', 'video'].includes(rowType) && row.is_see == 1 ? 1100 : 600"
     center
     destroy-on-close
   >
@@ -13,14 +13,16 @@
       <div v-if="loading">加载中...</div>
       <div v-else-if="error">加载失败：{{ errorMessage }}</div>
       <div v-else class="file-preview-container">
-        <!-- Office文件预览 -->
-        <iframe
-          frameborder="0"
-          style="width: 100%; height: 100%"
-          v-if="['word', 'excel', 'ppt', 'pdf'].includes(rowType)"
-          :src="previewUrl"
-          class="office-preview"
-        />
+        <template v-if="['word', 'excel', 'ppt', 'pdf'].includes(rowType)">
+          <!-- Office文件预览 -->
+          <iframe v-if="row.is_see == 1" frameborder="0" style="width: 100%; height: 100%" :src="previewUrl" class="office-preview" />
+          <!-- 不支持预览的格式 -->
+          <div v-else class="unsupported">
+            <div>文件过大，请下载后查看<br /><br /></div>
+            <el-button @click="handleDownload">下载文件</el-button>
+          </div>
+        </template>
+
         <div class="flex-center" v-else-if="rowType === 'image'">
           <img class="img-preview" :src="previewUrl" />
         </div>
@@ -38,7 +40,7 @@
   </el-dialog>
 </template>
 <script setup>
-  import { fileType, getIsFolder, downLoadFile, getAllPath } from '@/utils/util';
+  import { fileType, getIsFolder, downLoadSingle, getAllPath } from '@/utils/util';
   const loading = ref(false);
   const error = ref(false);
   const row = ref();
@@ -55,13 +57,14 @@
     // let path = `http://dlwz.souxianlan.com${row.value.path}`;
     let path = row.value.path;
     if (['word', 'excel', 'ppt'].includes(rowType.value)) {
+      // return `https://view.xdocin.com/view?src=${encodeURIComponent(path)}`;
       return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(path)}`;
     }
 
     return path;
   });
-  const open = (data) => {
-    row.value = data;
+  const open = (data, folder_category_id) => {
+    row.value = { ...data, folder_category_id };
 
     showModel.value = true;
   };
@@ -95,7 +98,18 @@
     // let path = getAllPath(props.lineRow.path);
     let path = props.lineRow.path;
   };
+  const handleDownload = () => {
+    // 创建隐藏的 <a> 标签并模拟点击
+    // const link = document.createElement('a');
+    // link.href = row.value.path;
+    // link.setAttribute('download', `${row.value.name}`); // 设置下载文件名
+    // document.body.appendChild(link);
+    // link.click();
 
+    // document.body.removeChild(link);
+
+    downLoadSingle([row.value], row.value.folder_category_id, row.value.name);
+  };
   defineExpose({
     open,
   });

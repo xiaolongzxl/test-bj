@@ -182,7 +182,7 @@
     emits('update:checkedFiles', item);
   };
   const handlePreview = () => {
-    previewModelRef.value.open(props.lineRow);
+    previewModelRef.value.open(props.lineRow, folderQuery.value.folder_category_id);
   };
   const handleTrigger = (type, item) => {
     emits('btnClickTrigger', { type, item });

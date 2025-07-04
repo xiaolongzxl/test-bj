@@ -145,8 +145,9 @@ export function historyDownloadApi(id: string) {
   return defHttp.request({
     url: root + '/api/pan/versionDownload',
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', isDownload: true },
     responseType: 'blob',
+
     data: { id },
   });
 }

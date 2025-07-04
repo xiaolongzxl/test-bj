@@ -464,7 +464,7 @@
     } else {
       if (!['word', 'excel', 'ppt', 'pdf', 'video', 'audio', 'image'].includes(fileType(item.extension, false, 'type'))) return;
 
-      PreviewModelRef.value.open(item);
+      PreviewModelRef.value.open(item, folderQuery.value.folder_category_id);
     }
   };
   /* 点击全选复选框 */

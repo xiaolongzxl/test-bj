@@ -43,6 +43,7 @@ class HRequest {
             path: '/login',
           });
         }
+        console.log(res);
         if (res.config?.headers?.isDownload) {
           return res;
         }
