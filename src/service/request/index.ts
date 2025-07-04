@@ -13,6 +13,7 @@ class HRequest {
   constructor(config: HRequestConfig) {
     this.instance = axios.create(config);
     this.interceptors = config.interceptors;
+
     // 这里都是从实例取出的拦截器
     this.instance.interceptors.request.use(this.interceptors?.requestInterceptor, this.interceptors?.requestInterceptorCatch);
     this.instance.interceptors.response.use(this.interceptors?.responseInterceptor, this.interceptors?.responseInterceptorCatch);
@@ -43,7 +44,7 @@ class HRequest {
             path: '/login',
           });
         }
-        console.log(res);
+        // console.log(res);
         if (res.config?.headers?.isDownload) {
           return res;
         }

@@ -324,54 +324,75 @@ export const folderUpload = async (files = [], uploadQuery = {}) => {
   //     return [{ status: 'error', error: '全局错误，请检查控制台' }];
   //   });
 };
-
+const objectToGetParams = (obj) => {
+  const params = new URLSearchParams(obj);
+  return params.toString();
+};
 export const downLoadSingle = (files, folder_category_id, name, flag = 'normal') => {
   console.log(files, folder_category_id, flag);
-  return new Promise(async (resolve, reject) => {
-    const loading = ElLoading.service({
-      text: '请稍等...',
-      lock: true,
-      background: 'rgba(0, 0, 0, 0.4)',
-    });
-    try {
-      const file = files[0];
+  const file = files[0];
+  const BASEURL = import.meta.env.VITE_APP_BASE_URL;
+  const api = flag == 'normal' ? '/api/pan/singleDownloadZip' : '/api/pan/versionDownload';
+  const data =
+    flag == 'normal'
+      ? { folder_category_id, file_id: file.id, token: localStorage.getItem('token') }
+      : { id: file.id, token: localStorage.getItem('token') };
+  const url = `${BASEURL}${api}?${objectToGetParams(data)}`;
+  // 创建隐藏的 <a> 标签并模拟点击
 
-      const api = flag == 'normal' ? singleDownloadApi : historyDownloadApi;
-      const data = flag == 'normal' ? { folder_category_id, file_id: file.id } : file.id;
-      const response = await api(data);
-      const res = response.data;
-      console.log(response);
-      const contentType = response.headers['content-type'];
-      if (contentType && contentType.indexOf('application/json') !== -1) {
-        // 是一个 JSON 响应，尝试将其转换成文本并解析
-        const decoder = new TextDecoder('utf-8');
-        const jsonString = decoder.decode(new Uint8Array(response.data));
-        const errorData = JSON.parse(jsonString);
-        if (errorData?.code != 200) {
-          throw new Error(errorData?.msg || '下载失败');
-        }
-      }
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', name || files[0].name); // 设置下载文件名
+  document.body.appendChild(link);
+  link.click();
 
-      const url = window.URL.createObjectURL(new Blob([res], { type: contentType }));
+  // 清理资源
+  document.body.removeChild(link);
+  // return new Promise(async (resolve, reject) => {
+  //   const loading = ElLoading.service({
+  //     text: '请稍等...',
+  //     lock: true,
+  //     background: 'rgba(0, 0, 0, 0.4)',
+  //   });
+  //   try {
+  //     const file = files[0];
 
-      // 创建隐藏的 <a> 标签并模拟点击
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', name || files[0].name); // 设置下载文件名
-      document.body.appendChild(link);
-      link.click();
+  //     const api = flag == 'normal' ? singleDownloadApi : historyDownloadApi;
+  //     const data = flag == 'normal' ? { folder_category_id, file_id: file.id } : file.id;
+  //     const response = await api(data);
+  //     const res = response.data;
+  //     console.log(response);
+  //     const contentType = response.headers['content-type'];
+  //     if (contentType && contentType.indexOf('application/json') !== -1) {
+  //       // 是一个 JSON 响应，尝试将其转换成文本并解析
+  //       const decoder = new TextDecoder('utf-8');
+  //       const jsonString = decoder.decode(new Uint8Array(response.data));
+  //       const errorData = JSON.parse(jsonString);
+  //       if (errorData?.code != 200) {
+  //         throw new Error(errorData?.msg || '下载失败');
+  //       }
+  //     }
 
-      // 清理资源
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      resolve({ type: 'success' });
-    } catch (err) {
-      console.log(err);
-      reject({ type: 'error', msg: err.message });
-    } finally {
-      loading.close();
-    }
-  });
+  //     const url = window.URL.createObjectURL(new Blob([res], { type: contentType }));
+
+  //     // 创建隐藏的 <a> 标签并模拟点击
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.setAttribute('download', name || files[0].name); // 设置下载文件名
+  //     document.body.appendChild(link);
+  //     link.click();
+
+  //     // 清理资源
+  //     document.body.removeChild(link);
+  //     window.URL.revokeObjectURL(url);
+  //     resolve({ type: 'success' });
+  //   } catch (err) {
+  //     console.log(err);
+  //     reject({ type: 'error', msg: err.message });
+  //   } finally {
+  //     loading.close();
+  //   }
+  // });
 };
 export const downLoadFile = async (files, folder_category_id, name) => {
   let _name = name.split('.');
