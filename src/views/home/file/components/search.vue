@@ -41,7 +41,10 @@
       <div class="search-result" v-loading="loading">
         <template v-if="searchResult.length">
           <div class="search-item" v-for="item in searchResult" :key="item.open" @click="handleCheckItem(item)">
-            <img class="search-item-img" :src="$getAssetsImages(fileType(item.extension))" />
+            <template v-if="fileType(item.extension, '', 'type') == 'image' && item?.path">
+              <img class="search-item-img smallimg" :src="item.path" />
+            </template>
+            <img class="search-item-img" v-else :src="$getAssetsImages(fileType(item.extension))" />
             <div class="search-item-name" v-html="formatSearchName(item.name)"> </div>
           </div>
         </template>
@@ -254,6 +257,9 @@
           .select-text-bg {
             background: #fff9a9;
           }
+        }
+        .smallimg {
+          width: 40px;
         }
       }
     }

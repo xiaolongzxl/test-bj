@@ -76,7 +76,7 @@
         <!-- <div class="grid-head-item"> 排序 </div> -->
       </div>
 
-      <div class="grid-body">
+      <div class="grid-body" v-loading="loading">
         <div
           class="grid-file"
           :class="{
@@ -96,8 +96,8 @@
             <Btns v-else :btnType="['tableMore']" tableMoreType="card" :lineRow="item" @listRefresh="emits('listRefresh')" />
           </div>
 
-          <div :class="(checkedList?.length ? isCheck(item) : true) ? 'drag-handle' : 'drag-no'">
-            <div class="flex-col flex-center">
+          <div class="cardItem-wrapper" :class="(checkedList?.length ? isCheck(item) : true) ? 'drag-handle' : 'drag-no'">
+            <div class="flex-col flex-center cardItem">
               <div class="grid-file-icon">
                 <template v-if="fileType(item.extension, '', 'type') == 'image' && item?.path">
                   <img class="grid-file-icon-img" :src="item.path" />
@@ -636,6 +636,13 @@
 </script>
 <style lang="less" scoped>
   @import '../components/common.less';
+  .cardItem {
+    height: 100%;
+    &-wrapper {
+      padding-top: 32px;
+      height: 100%;
+    }
+  }
   .table-wrapper {
     /* 鼠标点击时不显示轮廓 */
     &:focus:not(:focus-visible) {

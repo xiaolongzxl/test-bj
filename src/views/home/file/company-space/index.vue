@@ -140,11 +140,13 @@
       nextTick(async () => {
         folderQuery.value.folder_category_id = route.params.cateId;
         folderQuery.value.parent_id = route.params.folderId;
-        await handleRefresh();
+
         if (fileMenuStore().temporaryChecked && fileMenuStore().temporaryChecked.parent_id == route.params.folderId) {
           handleChangeChecked(fileMenuStore().temporaryChecked);
           fileMenuStore().clearTemporaryChecked();
+          return;
         }
+        await handleRefresh();
       });
     },
     {
@@ -175,10 +177,10 @@
     getFileList();
   };
 
-  const getFileList = async () => {
+  const getFileList = async (searchVal = '') => {
     try {
       tableLoading.value = true;
-      const res = await getFileListApi(folderQuery.value);
+      const res = await getFileListApi({ ...folderQuery.value, keyword: searchVal });
       tableLoading.value = false;
 
       if (res.code != 200) {
@@ -194,7 +196,6 @@
     } catch (err) {
       tableLoading.value = false;
       $message.error(err.message);
-      console.log(err);
     }
   };
 
@@ -221,7 +222,7 @@
       .filter((el) => el.name.includes(e))
       .map((el) => ({ id: el.id, name: el.name, open: el.open, extension: el.extension }));
   };
-  const handleChangeChecked = (e) => {
+  const handleChangeChecked = async (e) => {
     if (!folderQuery.value.parent_id) return;
     if (e?.parent_id != folderQuery.value.parent_id) {
       folderQuery.value.parent_id = e?.parent_id;
@@ -229,10 +230,12 @@
       router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}`);
       fileMenuStore().setTemporaryChecked(e);
     } else {
+      await getFileList(e.name);
       checkedList.value = [e.open];
       clickFile.value = e;
     }
   };
+
   watch(
     () => props.topbarSearchChecked,
     (val, old) => {
