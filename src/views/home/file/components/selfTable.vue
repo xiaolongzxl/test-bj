@@ -39,7 +39,7 @@
                 :data-is-folder="scope.row.type == 'wjj'"
                 @click="handleChangeFolder(scope.row)"
               >
-                <img class="tableFileImg" :src="$getAssetsImages(fileType(scope.row?.extension))" />
+                <el-image loading="lazy" class="tableFileImg" :src="$getAssetsImages(fileType(scope.row?.extension))" />
                 <span class="ml1" style="white-space: nowrap; max-width: calc(100% - 26px); text-overflow: ellipsis; overflow: hidden">{{
                   scope.row.name
                 }}</span>
@@ -100,9 +100,9 @@
             <div class="flex-col flex-center cardItem">
               <div class="grid-file-icon">
                 <template v-if="fileType(item.extension, '', 'type') == 'image' && item?.path">
-                  <img class="grid-file-icon-img" :src="item.path" />
+                  <el-image loading="lazy" class="grid-file-icon-img" :src="item.path" />
                 </template>
-                <img v-else :src="$getAssetsImages(fileType(item.extension, true))" />
+                <el-image v-else loading="lazy" :src="$getAssetsImages(fileType(item.extension, true))" />
               </div>
               <div class="grid-file-text cursor-pointer" @click.stop="handleChangeFolder(item)">{{ item.name }}</div>
             </div>
@@ -303,12 +303,12 @@
       avoidImplicitDeselect: true,
       fallbackTolerance: 3,
       // 核心事件处理
-      onSelect: function ({ item }) {
-        Sortable.utils.deselect(item);
+      onSelect: async ({ item }) => {
+        await Sortable.utils.deselect(item);
       },
 
-      onDeselect: ({ item }) => {
-        Sortable.utils.select(item);
+      onDeselect: async ({ item }) => {
+        await Sortable.utils.select(item);
       },
       onStart: (evt) => {
         tableDrag.value = true;

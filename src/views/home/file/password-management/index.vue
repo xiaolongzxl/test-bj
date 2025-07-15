@@ -129,7 +129,7 @@
   const btnCheckedList = computed({
     get: () => {
       return dataList.value
-        .filter((e) => checkedList.value.includes(e.open))
+        .filter((e) => checkedList.value.includes(e?.open))
         .map((e) => ({ name: e.name, extension: e.extension, id: e.id, open: e.open }));
     },
     set: (vals) => {

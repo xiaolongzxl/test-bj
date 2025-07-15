@@ -89,7 +89,7 @@
     let data = [];
     if (checkedList.value.length) {
       data = dataList.value
-        .filter((e) => checkedList.value.includes(e.open))
+        .filter((e) => checkedList.value.includes(e?.open))
         .map((e) => ({ name: e.name, extension: e.extension, id: e.id, open: e.open }));
     } else {
       data = dataList.value.map((e) => ({ name: e.name, extension: e.extension, id: e.id, open: e.open }));
