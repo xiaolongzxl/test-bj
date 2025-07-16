@@ -289,6 +289,7 @@
     } else {
       containDom = document.querySelector('.el-table__body-wrapper tbody');
     }
+
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const multiDragKey = isMac ? 'Meta' : 'Ctrl';
     // if (!containDom) return;
@@ -307,8 +308,10 @@
         await Sortable.utils.deselect(item);
       },
 
-      onDeselect: async ({ item }) => {
-        await Sortable.utils.select(item);
+      onDeselect: ({ item }) => {
+        nextTick(async () => {
+          await Sortable.utils.select(item);
+        });
       },
       onStart: (evt) => {
         tableDrag.value = true;
@@ -489,11 +492,14 @@
 
     emits('update:checkedList', _checkedList);
   };
-
-  onMounted(() => {
+  const init = () => {
     initRowDrag();
     document.addEventListener('key', handleDragOver);
+  };
+  onMounted(() => {
+    init();
   });
+
   /* 监听复制事件 */
   const handleCtrlC = () => {
     if (checkedDataList.value.length > 0) {
@@ -633,6 +639,10 @@
       emits('listRefresh');
     }
   };
+
+  defineExpose({
+    init,
+  });
 </script>
 <style lang="less" scoped>
   @import '../components/common.less';

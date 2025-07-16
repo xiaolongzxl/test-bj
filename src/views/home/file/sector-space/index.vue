@@ -19,6 +19,7 @@
         </div>
       </div>
       <SelfTable
+        ref="selfTableRef"
         :row="row"
         :loading="tableLoading"
         v-model:checkedList="checkedList"
@@ -40,7 +41,7 @@
   import FileDetail from '@/views/home/file/components/fileDetail/index.vue';
   import { fileType } from '@/utils/util';
   import { getFileListApi } from '@/api/file';
-
+  const selfTableRef = ref(null);
   const props = defineProps({
     topbarSearchChecked: {
       type: Object,
@@ -140,7 +141,7 @@
       nextTick(async () => {
         folderQuery.value.folder_category_id = route.params.cateId;
         folderQuery.value.parent_id = route.params.folderId;
-
+        await selfTableRef.value?.init();
         if (fileMenuStore().temporaryChecked && fileMenuStore().temporaryChecked.parent_id == route.params.folderId) {
           handleChangeChecked(fileMenuStore().temporaryChecked);
           fileMenuStore().clearTemporaryChecked();
@@ -227,8 +228,9 @@
     if (e?.parent_id != folderQuery.value.parent_id) {
       folderQuery.value.parent_id = e?.parent_id;
       let path = route.meta.route;
-      router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}`);
       fileMenuStore().setTemporaryChecked(e);
+      checkedList.value = [];
+      router.push(`${path}/${folderQuery.value.folder_category_id}/${folderQuery.value.parent_id}`);
     } else {
       await getFileList(e.name);
       checkedList.value = [e.open];
