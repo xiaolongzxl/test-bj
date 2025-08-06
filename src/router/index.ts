@@ -72,6 +72,14 @@ routes = [
     },
     component: defineAsyncComponent(() => import('@/views/login/index.vue')),
   },
+  {
+    path: '/graph',
+    name: 'graph',
+    meta: {
+      keepAlive: false,
+    },
+    component: defineAsyncComponent(() => import('@/views/home/price/graph.vue')),
+  },
 ];
 const router = createRouter({
   history: createWebHashHistory(),
