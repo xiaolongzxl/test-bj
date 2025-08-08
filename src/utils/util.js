@@ -328,7 +328,7 @@ const objectToGetParams = (obj) => {
   const params = new URLSearchParams(obj);
   return params.toString();
 };
-export const downLoadSingle = (files, folder_category_id, name, flag = 'normal') => {
+export const downLoadSingle = (files, folder_category_id, name, flag = 'normal', returnUrl = false) => {
   console.log(files, folder_category_id, flag);
   const file = files[0];
   const BASEURL = import.meta.env.VITE_APP_BASE_URL;
@@ -339,7 +339,9 @@ export const downLoadSingle = (files, folder_category_id, name, flag = 'normal')
       : { id: file.id, token: localStorage.getItem('token') };
   const url = `${BASEURL}${api}?${objectToGetParams(data)}`;
   // 创建隐藏的 <a> 标签并模拟点击
-
+  if (returnUrl) {
+    return url;
+  }
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', name || files[0].name); // 设置下载文件名
@@ -348,6 +350,7 @@ export const downLoadSingle = (files, folder_category_id, name, flag = 'normal')
 
   // 清理资源
   document.body.removeChild(link);
+  return Promise.resolve({ status: 'success', msg: '下载成功' });
   // return new Promise(async (resolve, reject) => {
   //   const loading = ElLoading.service({
   //     text: '请稍等...',

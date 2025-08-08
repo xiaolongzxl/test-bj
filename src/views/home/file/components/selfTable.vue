@@ -88,6 +88,8 @@
           :key="item[props.rowKey]"
           :data-index="item[props.rowKey]"
         >
+          <!-- draggable="true"
+          @dragstart="(e) => handleDragStart(e, item)" -->
           <el-checkbox class="showCheckbox" :model-value="isCheck(item)" @change="handleNormalCheck(item)"></el-checkbox>
           <div class="morebtn">
             <template v-if="props.isCustomCardMore">
@@ -121,7 +123,7 @@
   import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
   import Btns from './btns/index.vue';
   import { ElLoading } from 'element-plus';
-  import { fileType, fileUpload, getIsFolder, folderUpload } from '@/utils/util';
+  import { fileType, fileUpload, getIsFolder, folderUpload, downLoadSingle } from '@/utils/util';
   import { fileFolderSort, pwdSort } from '@/api/file';
   import PreviewModel from '@/views/home/file/components/btns/preview.vue';
   const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList', 'listRefresh']);
@@ -491,6 +493,16 @@
     }
 
     emits('update:checkedList', _checkedList);
+  };
+  const handleDragStart = (e, item) => {
+    console.log(e, item, 'dragstart');
+    e.dataTransfer.effectAllowed = 'copy';
+    const url = downLoadSingle([item], folderQuery.value.folder_category_id, item.name, 'normal', true);
+    // 方案1：Chromium 下直接拖出下载
+    e.dataTransfer.setData('DownloadURL', `text/plain:${item.name}:${url}`);
+    e.dataTransfer.setData('text/uri-list', url);
+    e.dataTransfer.setData('text/plain', url);
+    console.log(e.dataTransfer.getData('DownloadURL'));
   };
   const init = () => {
     initRowDrag();
