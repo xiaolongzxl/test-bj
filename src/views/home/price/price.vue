@@ -461,6 +461,14 @@
               </div> -->
             </template>
           </el-table-column>
+
+          <el-table-column label="操作">
+            <template #default="scope">
+              <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary" @click="showConfigBox(scope.row)"
+                >工艺配置</el-button
+              >
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <div class="foot flex-between">
@@ -796,6 +804,105 @@
       </div>
     </template>
   </el-drawer>
+  <el-dialog v-model="configBoxDialog" width="90%" class="dialog-self dialog-self5" :show-close="false" align-center>
+    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="configBoxDialog = false" />
+    <div class="dialog-title pt-27 pb-26"><!-- 规格: -->{{ configBoxTitle }} 结构配置</div>
+    <div class="px-46 mb-40 flex-center" style="height: 80%">
+      <el-tabs type="border-card" class="demo-tabs" style="width: 100%; height: 100%">
+        <el-tab-pane label="电缆结构">
+          <div style="width: 100%; height: 100%" v-if="configBoxDialog">
+            <relation-graph ref="graphRef" :options="options">
+              <template #node="{ node }">
+                <div class="node-box" :style="{ border: '1px solid' + node.data.color }" @click="editNode(node.data)">
+                  <div>
+                    <div style="height: 40px; line-height: 40px" class="font-bold text-center">{{ node.data.name }}</div>
+                    <div class="py-4 px-4 pb-14 info-box">
+                      <div v-for="(item, index) in node.data.list" :key="index" class="flex justify-between items-center px-4 py-2 info-item">
+                        <div>{{ item.label }}</div>
+                        <div>{{ item.value }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </relation-graph>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="电缆用量">
+          <table width="100%" cellspacing="0" cellpadding="0" class="my-table">
+            <tbody>
+              <tr class="total">
+                <th rowspan="2">材料</th>
+                <th colspan="1">导体</th>
+                <th colspan="1">绝缘</th>
+                <th colspan="1">填充</th>
+                <th colspan="1">包带</th>
+                <th colspan="1">外护套</th>
+                <td rowspan="2">合计(元)</td>
+              </tr>
+              <tr class="total">
+                <td>10²铝线--10（1.3）</td>
+                <td>硅烷交联</td>
+                <td>填充绳</td>
+                <td>CPP</td>
+                <td>PVC外护套</td>
+              </tr>
+              <tr>
+                <td>用量</td>
+                <td>25.09克</td>
+                <td>11.22克</td>
+                <td>0克</td>
+                <td>0克</td>
+                <td>46.74克</td>
+                <td>83.05 克</td>
+              </tr>
+              <tr>
+                <td>比重</td>
+                <td>2.7</td>
+                <td>0.95</td>
+                <td>0.68</td>
+                <td>0.92</td>
+                <td>1.54</td>
+                <td rowspan="3">0.835 </td>
+              </tr>
+              <tr>
+                <td>价格</td>
+                <td>20.63</td>
+                <td>8.65</td>
+                <td>3</td>
+                <td>7.8</td>
+                <td>4.7</td>
+              </tr>
+              <tr>
+                <td>合计</td>
+                <td>0.518</td>
+                <td>0.097</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0.22</td>
+              </tr>
+            </tbody>
+          </table>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+    <div class="flex-center">
+      <div class="dialog-btn mr-20" @click="configBoxDialog = false">取消</div>
+      <div class="dialog-btn mr-20 confirm-btn" @click="configBoxDialog = false">确定</div>
+      <div class="dialog-btn mr-20 confirm-btn" @click="configBoxDialog = false">恢复参数</div>
+    </div>
+  </el-dialog>
+  <el-dialog v-model="configEditBoxDialog" width="50%" class="dialog-self dialog-self6" :show-close="false" align-center>
+    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="configEditBoxDialog = false" />
+    <div class="dialog-title pt-27 pb-26"><!-- 规格: -->编辑</div>
+    <div class="px-46 mb-40" style="height: 70%">
+      <div v-for="(item, index) in configEditList" :key="index">{{ item.label }}: {{ item.value }}</div>
+    </div>
+    <div class="flex-center">
+      <div class="dialog-btn mr-20" @click="configEditBoxDialog = false">取消</div>
+      <div class="dialog-btn mr-20 confirm-btn" @click="configEditBoxDialog = false">确定</div>
+    </div>
+  </el-dialog>
   <InfoDetail
     v-if="dialogInfoVisible"
     v-model:dialogInfoVisible="dialogInfoVisible"
@@ -842,6 +949,7 @@
     editSpec,
     quotationSpecSort,
   } from '@/api/price.ts';
+  import RelationGraph from 'relation-graph-vue3';
   import { ArrowRight } from '@element-plus/icons-vue';
   import InfoDetail from './infoDetail.vue';
   import priceList from './priceList.vue';
@@ -1325,6 +1433,184 @@
     } else {
       $message.error(res.msg);
     }
+  }
+  // 工艺配置
+  const configBoxDialog = ref<boolean>(false);
+  const configBoxTitle = ref<string>('');
+  // const configBoxRow = ref<any>({});
+  function showConfigBox(row: any) {
+    configBoxTitle.value = row.spec_name.content;
+    configBoxDialog.value = true;
+    nextTick(() => {
+      initGraph();
+    });
+  }
+
+  const graphRef = ref<any>();
+  const options = ref<any>({
+    disableDragNode: true,
+    defaultFocusRootNode: false,
+    disableNodeClickEffect: true,
+    disableLineClickEffect: true,
+    defaultNodeBorderWidth: 0,
+    defaultLineShape: 6,
+    defaultNodeShape: 1,
+    defaultShowLineLabel: false,
+    defaultJunctionPoint: 'lr',
+    defaultLineMarker: {
+      markerWidth: 20,
+      markerHeight: 20,
+      refX: 3,
+      refY: 3,
+      data: 'M 0 0, V 6, L 4 3, Z',
+    },
+    layouts: [
+      {
+        label: '中心',
+        layoutName: 'tree',
+        centerOffset_x: 0,
+        centerOffset_y: 0,
+        distance_coefficient: 1,
+        layoutDirection: 'h',
+        from: 'left',
+        levelDistance: '',
+        min_per_width: '10',
+        max_per_width: '1000',
+        min_per_height: '10',
+        max_per_height: '1000',
+      },
+    ],
+  });
+
+  async function initGraph() {
+    const jsonData = {
+      rootId: 'a',
+      nodes: [
+        {
+          id: 'a',
+          text: 'a',
+          color: '#ff8c00',
+          data: {
+            name: 'a',
+            color: '#ff8c00',
+            list: [
+              { label: '等芯数', value: '1' },
+              { label: '等芯数', value: '1' },
+              { label: '补偿率', value: '100%' },
+              { label: '外径偏差', value: '' },
+              { label: '外径偏差', value: '' },
+              { label: '计算外径', value: '12.63' },
+              { label: '计算外径', value: '12.63' },
+              { label: '实际外径', value: '12.63' },
+            ],
+          },
+        },
+        {
+          id: 'b',
+          text: 'b',
+          color: '#3f9eff',
+          data: {
+            name: 'b',
+            color: '#3f9eff',
+            list: [
+              { label: '等芯数', value: '3' },
+              { label: '等芯数', value: '1' },
+              { label: '外径偏差', value: '' },
+              { label: '计算外径', value: '12.63' },
+              { label: '实际外径', value: '12.63' },
+            ],
+          },
+        },
+        {
+          id: 'c',
+          text: 'c',
+          color: '#3f9eff',
+          data: {
+            name: 'c',
+            color: '#3f9eff',
+            list: [
+              { label: '等芯数', value: '3' },
+              { label: '等芯数', value: '1' },
+              { label: '补偿率', value: '100%' },
+              { label: '外径偏差', value: '' },
+              { label: '外径偏差', value: '' },
+              { label: '外径偏差', value: '' },
+              { label: '计算外径', value: '12.63' },
+              { label: '实际外径', value: '12.63' },
+            ],
+          },
+        },
+        {
+          id: 'd',
+          text: 'd',
+          color: '#3f9eff',
+          data: {
+            name: 'd',
+            color: '#3f9eff',
+            list: [
+              { label: '等芯数', value: '3' },
+              { label: '等芯数', value: '1' },
+              { label: '计算外径', value: '12.63' },
+              { label: '实际外径', value: '12.63' },
+            ],
+          },
+        },
+        {
+          id: 'e',
+          text: 'e',
+          color: '#3f9eff',
+          data: {
+            name: 'e',
+            color: '#3f9eff',
+            list: [
+              { label: '等芯数', value: '3' },
+              { label: '等芯数', value: '1' },
+              { label: '补偿率', value: '100%' },
+              { label: '外径偏差', value: '' },
+              { label: '实际外径', value: '12.63' },
+            ],
+          },
+        },
+        {
+          id: 'f',
+          text: 'f',
+          color: '#3f9eff',
+          data: {
+            name: 'f',
+            color: '#3f9eff',
+            list: [
+              { label: '等芯数', value: '3' },
+              { label: '等芯数', value: '1' },
+              { label: '补偿率', value: '100%' },
+              { label: '外径偏差', value: '' },
+              { label: '计算外径', value: '12.63' },
+              { label: '实际外径', value: '12.63' },
+              { label: '实际外径', value: '12.63' },
+              { label: '实际外径', value: '12.63' },
+            ],
+          },
+        },
+      ],
+      lines: [
+        { from: 'b', to: 'a' },
+        { from: 'c', to: 'a' },
+        { from: 'd', to: 'a' },
+        { from: 'a', to: 'e' },
+        { from: 'e', to: 'f' },
+      ],
+    };
+    graphRef.value.setJsonData(jsonData);
+    const graphInstance = graphRef.value.getInstance();
+    await graphInstance.doLayout(); // Layout using the layouter set in graphOptions
+    await graphInstance.moveToCenter(); // Find the center based on node distribution and center the view
+    await graphInstance.zoomToFit(); // Zoom to fit, so that all nodes can be displayed in the visible area
+  }
+  const configEditBoxDialog = ref<boolean>(false);
+  const configEditList = ref<any>({});
+  async function editNode(data: any) {
+    console.log(data);
+    configEditBoxDialog.value = true;
+    configEditList.value = data.list;
   }
   // 设置公司
   const shopType = ref<any>(null);
@@ -2783,6 +3069,45 @@
       display: block;
     }
   }
+  :deep(.node-box) {
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    & > {
+      width: 200px;
+    }
+    .info-box {
+      background-color: #ffffff;
+      color: #555555;
+    }
+    .info-item {
+      border-bottom: #efefef solid 1px;
+    }
+  }
+  :deep(.el-tabs__content > div) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .my-table {
+    border: 1px solid #ddd;
+
+    text-align: center;
+    .total {
+      font-weight: bold;
+      background-color: #f2f2f2;
+    }
+    th,
+    td {
+      word-break: break-all;
+      padding: 12px 0;
+      border: 1px solid #ddd;
+      width: 300px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  }
 
   @media screen and (min-width: 1920px) {
     .right-content {
@@ -2905,6 +3230,12 @@
 
   .el-dialog.dialog-self4 {
     height: 240px;
+  }
+  .el-dialog.dialog-self5 {
+    height: 90%;
+  }
+  .el-dialog.dialog-self6 {
+    height: 60%;
   }
 
   .el-dialog__body {
