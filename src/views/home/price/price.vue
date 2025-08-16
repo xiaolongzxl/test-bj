@@ -461,12 +461,14 @@
               </div> -->
             </template>
           </el-table-column>
-
-          <el-table-column label="操作">
+          <el-table-column label="操作" min-width="100">
             <template #default="scope">
-              <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary" @click="showConfigBox(scope.row)"
+              <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary"  @click="showConfigBox(scope.row)"
                 >工艺配置</el-button
-              >
+              > -->
+              <div class="pa-4 cursor-pointer" @click="showConfigBox(scope.row)">
+                <img :src="$getAssetsImages('price/config.png')" alt="" style="width: 20px; height: 20px" />
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -804,16 +806,24 @@
       </div>
     </template>
   </el-drawer>
-  <el-dialog v-model="configBoxDialog" width="90%" class="dialog-self dialog-self5" :show-close="false" align-center>
-    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="configBoxDialog = false" />
+  <el-dialog
+    v-model="configBoxDialog"
+    width="90%"
+    class="dialog-self dialog-self5"
+    :show-close="false"
+    align-center
+    :close-on-press-escape="false"
+    :close-on-click-modal="false"
+  >
+    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="cancelConfig" />
     <div class="dialog-title pt-27 pb-26"><!-- 规格: -->{{ configBoxTitle }} 结构配置</div>
-    <div class="px-46 mb-40 flex-center" style="height: 80%">
+    <div class="px-46 mb-40 flex-center" style="height: calc(100% - 210px)">
       <el-tabs type="border-card" class="demo-tabs" style="width: 100%; height: 100%">
         <el-tab-pane label="电缆结构">
           <div style="width: 100%; height: 100%" v-if="configBoxDialog">
             <relation-graph ref="graphRef" :options="options">
               <template #node="{ node }">
-                <div class="node-box" :style="{ border: '1px solid' + node.data.color }" @click="editNode(node.data)">
+                <div class="node-box" :style="{ border: '1px solid ' + node.data.color }" @click="getNodeDetail(node.data)">
                   <div>
                     <div style="height: 40px; line-height: 40px" class="font-bold text-center">{{ node.data.name }}</div>
                     <div class="py-4 px-4 pb-14 info-box">
@@ -887,20 +897,31 @@
       </el-tabs>
     </div>
     <div class="flex-center">
-      <div class="dialog-btn mr-20" @click="configBoxDialog = false">取消</div>
-      <div class="dialog-btn mr-20 confirm-btn" @click="configBoxDialog = false">确定</div>
-      <div class="dialog-btn mr-20 confirm-btn" @click="configBoxDialog = false">恢复参数</div>
+      <div class="dialog-btn mr-20" @click="cancelConfig">取消</div>
+      <div class="dialog-btn mr-20 confirm-btn" @click="confirmConfig">确定</div>
+      <div class="dialog-btn mr-20 confirm-btn2" @click="resetConfig">恢复参数</div>
     </div>
   </el-dialog>
-  <el-dialog v-model="configEditBoxDialog" width="50%" class="dialog-self dialog-self6" :show-close="false" align-center>
+  <el-dialog
+    v-model="configEditBoxDialog"
+    width="50%"
+    class="dialog-self dialog-self6"
+    :show-close="false"
+    align-center
+    :close-on-press-escape="false"
+    :close-on-click-modal="false"
+  >
     <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="configEditBoxDialog = false" />
     <div class="dialog-title pt-27 pb-26"><!-- 规格: -->编辑</div>
-    <div class="px-46 mb-40" style="height: 70%">
-      <div v-for="(item, index) in configEditList" :key="index">{{ item.label }}: {{ item.value }}</div>
+    <div class="px-46 mb-40" style="height: calc(100% - 220px)">
+      <!-- {{ configEditData.data }} -->
+      <!-- {{ configEditData.data }} -->
+      <!-- {{ configEditData.data }} -->
+      <div v-for="(item, index) in configEditData.data" :key="index"> {{ index }} : {{ item }}</div>
     </div>
     <div class="flex-center">
       <div class="dialog-btn mr-20" @click="configEditBoxDialog = false">取消</div>
-      <div class="dialog-btn mr-20 confirm-btn" @click="configEditBoxDialog = false">确定</div>
+      <div class="dialog-btn mr-20 confirm-btn" @click="confirmConfigItem">确定</div>
     </div>
   </el-dialog>
   <InfoDetail
@@ -948,6 +969,11 @@
     generateQuotation,
     editSpec,
     quotationSpecSort,
+    getlinelist,
+    confirm_parameters,
+    cancel_parameters,
+    get_data_info,
+    get_raw_son,
   } from '@/api/price.ts';
   import RelationGraph from 'relation-graph-vue3';
   import { ArrowRight } from '@element-plus/icons-vue';
@@ -1437,15 +1463,93 @@
   // 工艺配置
   const configBoxDialog = ref<boolean>(false);
   const configBoxTitle = ref<string>('');
+  const configBoxId = ref<any>(null);
   // const configBoxRow = ref<any>({});
+  const graphData = ref<any>({
+    nodes: [],
+    lines: {},
+  });
+
   function showConfigBox(row: any) {
+    configBoxId.value = row.id;
     configBoxTitle.value = row.spec_name.content;
-    configBoxDialog.value = true;
-    nextTick(() => {
-      initGraph();
+    getGraphData(row.id);
+  }
+  // 恢复参数
+  function resetConfig() {
+    getGraphData(configBoxId.value);
+  }
+  // 确认工艺配置
+  async function confirmConfig() {
+    let res = await confirm_parameters({
+      id: configBoxId.value,
     });
+    if (res.code == 200) {
+      $message({
+        message: res.msg,
+        type: 'success',
+      });
+      configBoxId.value = null;
+      configBoxTitle.value = '';
+      configBoxDialog.value = false;
+      graphData.value = {
+        nodes: [],
+        lines: {},
+      };
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
   }
 
+  // 取消配置
+  async function cancelConfig() {
+    let res = await cancel_parameters({
+      id: configBoxId.value,
+    });
+    if (res.code == 200) {
+      $message({
+        message: res.msg,
+        type: 'success',
+      });
+      configBoxId.value = null;
+      configBoxTitle.value = '';
+      configBoxDialog.value = false;
+      graphData.value = {
+        nodes: [],
+        lines: {},
+      };
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
+  }
+  // 获取工艺配置
+  async function getGraphData(id: any) {
+    let res = await getlinelist({
+      id,
+    });
+    if (res.code == 200) {
+      configBoxDialog.value = true;
+      graphData.value = res.data;
+      nextTick(() => {
+        initGraph();
+      });
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+      graphData.value = {
+        nodes: [],
+        lines: {},
+      };
+    }
+  }
   const graphRef = ref<any>();
   const options = ref<any>({
     disableDragNode: true,
@@ -1481,123 +1585,32 @@
       },
     ],
   });
+  const keyName = ref<any>({
+    rawid: '原料', // 特殊下拉框
+    guige: '规格', // 特殊下拉框
+    bizong: '比重',
+    jiage: '价格',
+    xianjing: '线径',
+    genshu: '根数',
+    jiemianji: '截面积',
+    buchanglv: '补偿率',
+    jisuanjiaohe: '计算绞合直径',
+    jinya: '紧压系数',
+    jiaohe: '绞合直径',
+    weigh: '',
+    houdu: '厚度',
+    waijingpiancha: '外径偏差',
+    jisuanwaijing: '计算外径',
+    shijiwaijing: '实际外径',
+    // dengxin 特殊处理
+  });
 
   async function initGraph() {
+    let nodes = graphData.value.list;
+    let lines = graphData.value.line;
     const jsonData = {
-      rootId: 'a',
-      nodes: [
-        {
-          id: 'a',
-          text: 'a',
-          color: '#ff8c00',
-          data: {
-            name: 'a',
-            color: '#ff8c00',
-            list: [
-              { label: '等芯数', value: '1' },
-              { label: '等芯数', value: '1' },
-              { label: '补偿率', value: '100%' },
-              { label: '外径偏差', value: '' },
-              { label: '外径偏差', value: '' },
-              { label: '计算外径', value: '12.63' },
-              { label: '计算外径', value: '12.63' },
-              { label: '实际外径', value: '12.63' },
-            ],
-          },
-        },
-        {
-          id: 'b',
-          text: 'b',
-          color: '#3f9eff',
-          data: {
-            name: 'b',
-            color: '#3f9eff',
-            list: [
-              { label: '等芯数', value: '3' },
-              { label: '等芯数', value: '1' },
-              { label: '外径偏差', value: '' },
-              { label: '计算外径', value: '12.63' },
-              { label: '实际外径', value: '12.63' },
-            ],
-          },
-        },
-        {
-          id: 'c',
-          text: 'c',
-          color: '#3f9eff',
-          data: {
-            name: 'c',
-            color: '#3f9eff',
-            list: [
-              { label: '等芯数', value: '3' },
-              { label: '等芯数', value: '1' },
-              { label: '补偿率', value: '100%' },
-              { label: '外径偏差', value: '' },
-              { label: '外径偏差', value: '' },
-              { label: '外径偏差', value: '' },
-              { label: '计算外径', value: '12.63' },
-              { label: '实际外径', value: '12.63' },
-            ],
-          },
-        },
-        {
-          id: 'd',
-          text: 'd',
-          color: '#3f9eff',
-          data: {
-            name: 'd',
-            color: '#3f9eff',
-            list: [
-              { label: '等芯数', value: '3' },
-              { label: '等芯数', value: '1' },
-              { label: '计算外径', value: '12.63' },
-              { label: '实际外径', value: '12.63' },
-            ],
-          },
-        },
-        {
-          id: 'e',
-          text: 'e',
-          color: '#3f9eff',
-          data: {
-            name: 'e',
-            color: '#3f9eff',
-            list: [
-              { label: '等芯数', value: '3' },
-              { label: '等芯数', value: '1' },
-              { label: '补偿率', value: '100%' },
-              { label: '外径偏差', value: '' },
-              { label: '实际外径', value: '12.63' },
-            ],
-          },
-        },
-        {
-          id: 'f',
-          text: 'f',
-          color: '#3f9eff',
-          data: {
-            name: 'f',
-            color: '#3f9eff',
-            list: [
-              { label: '等芯数', value: '3' },
-              { label: '等芯数', value: '1' },
-              { label: '补偿率', value: '100%' },
-              { label: '外径偏差', value: '' },
-              { label: '计算外径', value: '12.63' },
-              { label: '实际外径', value: '12.63' },
-              { label: '实际外径', value: '12.63' },
-              { label: '实际外径', value: '12.63' },
-            ],
-          },
-        },
-      ],
-      lines: [
-        { from: 'b', to: 'a' },
-        { from: 'c', to: 'a' },
-        { from: 'd', to: 'a' },
-        { from: 'a', to: 'e' },
-        { from: 'e', to: 'f' },
-      ],
+      nodes,
+      lines,
     };
     graphRef.value.setJsonData(jsonData);
     const graphInstance = graphRef.value.getInstance();
@@ -1606,12 +1619,43 @@
     await graphInstance.zoomToFit(); // Zoom to fit, so that all nodes can be displayed in the visible area
   }
   const configEditBoxDialog = ref<boolean>(false);
-  const configEditList = ref<any>({});
-  async function editNode(data: any) {
-    console.log(data);
-    configEditBoxDialog.value = true;
-    configEditList.value = data.list;
+  const configEditData = ref<any>({});
+  async function getNodeDetail(data: any) {
+    let res = await get_data_info({
+      id: data.id,
+    });
+    if (res.code) {
+      configEditBoxDialog.value = true;
+      configEditData.value = res.data;
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
   }
+  async function confirmConfigItem() {
+    let res = await confirm_parameters({
+      id: configBoxId.value,
+      ...configEditData.value.data,
+      // id: configBoxId.value,
+      // item的子类
+    });
+    if (res.code == 200) {
+      $message({
+        message: res.msg,
+        type: 'success',
+      });
+      configEditBoxDialog.value = false;
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
+  }
+  //   get_data_info,
+  // get_raw_son,
   // 设置公司
   const shopType = ref<any>(null);
   async function changeShopType() {
@@ -2626,6 +2670,10 @@
       color: #ffffff;
       background: #197cfa;
     }
+    .confirm-btn2 {
+      color: #ffffff;
+      background: #fc5657;
+    }
   }
 
   .no-radius .drawer-content {
@@ -3235,7 +3283,7 @@
     height: 90%;
   }
   .el-dialog.dialog-self6 {
-    height: 60%;
+    height: 70%;
   }
 
   .el-dialog__body {

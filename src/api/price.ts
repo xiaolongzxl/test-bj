@@ -245,3 +245,43 @@ export function editSpec(data: any) {
     data,
   });
 }
+// 获取线图/恢复参数
+export function getlinelist(data: any) {
+  return defHttp.request({
+    url: root + '/api/lgcode/getlinelist',
+    method: 'post',
+    data,
+  });
+}
+// 最外层确认价格; 确认提交
+export function confirm_parameters(data: any) {
+  return defHttp.request({
+    url: root + '/api/lgcode/confirm_parameters',
+    method: 'post',
+    data,
+  });
+}
+// 最外层取消
+export function cancel_parameters(data: any) {
+  return defHttp.request({
+    url: root + '/api/lgcode/cancel_parameters',
+    method: 'post',
+    data,
+  });
+}
+// 获取某个item的详情
+export function get_data_info(data: any) {
+  return defHttp.request({
+    url: root + '/api/lgcode/get_data_info',
+    method: 'post',
+    data,
+  });
+}
+// 获取子系列列表
+export function get_raw_son(data: any) {
+  return defHttp.request({
+    url: root + '/api/lgcode/get_raw_son',
+    method: 'post',
+    data,
+  });
+}
