@@ -913,11 +913,60 @@
   >
     <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="configEditBoxDialog = false" />
     <div class="dialog-title pt-27 pb-26"><!-- 规格: -->编辑</div>
-    <div class="px-46 mb-40" style="height: calc(100% - 220px)">
-      <!-- {{ configEditData.data }} -->
-      <!-- {{ configEditData.data }} -->
-      <!-- {{ configEditData.data }} -->
-      <div v-for="(item, index) in configEditData.data" :key="index"> {{ index }} : {{ item }}</div>
+    <div class="px-46 mb-40 edit-box" style="height: calc(100% - 220px)">
+      <el-form-item label="原料" v-if="configEditData.data.hasOwnProperty('rawid')">
+        <el-select v-model="configEditData.data.rawid" style="width: 240px" @change="changeRid">
+          <el-option v-for="item in configEditData.raw" :key="item.id" :label="item.raw" :value="item.id" />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="规格" v-if="configEditData.data.hasOwnProperty('guige')">
+        <el-select v-model="configEditData.data.guige" label="" style="width: 240px">
+          <el-option v-for="item in configEditData.rawson" :key="item.id" :label="item.spec" :value="item.id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="等芯数" v-if="configEditData.data.hasOwnProperty('dengxin')">
+        <el-input v-model="item.num" v-for="item in configEditData.data.dengxin" :key="item.id" label="" />
+      </el-form-item>
+      <el-form-item label="比重" v-if="configEditData.data.hasOwnProperty('bizong')">
+        <el-input v-model="configEditData.data.bizong" label="" />
+      </el-form-item>
+      <el-form-item label="价格" v-if="configEditData.data.hasOwnProperty('jiage')">
+        <el-input v-model="configEditData.data.jiage" label="" />
+      </el-form-item>
+      <el-form-item label="线径" v-if="configEditData.data.hasOwnProperty('xianjing')">
+        <el-input v-model="configEditData.data.xianjing" label="" />
+      </el-form-item>
+      <el-form-item label="根数" v-if="configEditData.data.hasOwnProperty('genshu')">
+        <el-input v-model="configEditData.data.genshu" label="" />
+      </el-form-item>
+      <el-form-item label="截面积" v-if="configEditData.data.hasOwnProperty('jiemianji')">
+        <el-input v-model="configEditData.data.jiemianji" label="" />
+      </el-form-item>
+      <el-form-item label="补偿率" v-if="configEditData.data.hasOwnProperty('buchanglv')">
+        <el-input v-model="configEditData.data.buchanglv" label="" />
+      </el-form-item>
+      <el-form-item label="计算绞合直径" v-if="configEditData.data.hasOwnProperty('jisuanjiaohe')">
+        <el-input v-model="configEditData.data.jisuanjiaohe" disabled label="" />
+      </el-form-item>
+      <el-form-item label="紧压系数" v-if="configEditData.data.hasOwnProperty('jinya')">
+        <el-input v-model="configEditData.data.jinya" label="" />
+      </el-form-item>
+      <el-form-item label="绞合直径" v-if="configEditData.data.hasOwnProperty('jiaohe')">
+        <el-input v-model="configEditData.data.jiaohe" label="" />
+      </el-form-item>
+      <el-form-item label="厚度" v-if="configEditData.data.hasOwnProperty('houdu')">
+        <el-input v-model="configEditData.data.houdu" label="" />
+      </el-form-item>
+      <el-form-item label="外径偏差" v-if="configEditData.data.hasOwnProperty('waijingpiancha')">
+        <el-input v-model="configEditData.data.waijingpiancha" label="" />
+      </el-form-item>
+      <el-form-item label="计算外径" v-if="configEditData.data.hasOwnProperty('jisuanwaijing')">
+        <el-input v-model="configEditData.data.jisuanwaijing" disabled label="" />
+      </el-form-item>
+      <el-form-item label="实际外径" v-if="configEditData.data.hasOwnProperty('shijiwaijing')">
+        <el-input v-model="configEditData.data.shijiwaijing" label="" />
+      </el-form-item>
     </div>
     <div class="flex-center">
       <div class="dialog-btn mr-20" @click="configEditBoxDialog = false">取消</div>
@@ -1653,6 +1702,9 @@
         type: 'error',
       });
     }
+  }
+  function changeRid(value: any) {
+    console.log(value);
   }
   //   get_data_info,
   // get_raw_son,
@@ -3483,5 +3535,16 @@
 
   .el-scrollbar__view {
     display: block !important;
+  }
+  .edit-box .el-input__wrapper,
+  .edit-box .el-input__wrapper:hover {
+    box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
+  }
+  .edit-box .el-input__wrapper.is-focus {
+    box-shadow: 0 0 0 1px var(--el-input-focus-border-color) inset;
+  }
+  .edit-box .el-form-item__label {
+    min-width: 100px;
+    text-align: right;
   }
 </style>
