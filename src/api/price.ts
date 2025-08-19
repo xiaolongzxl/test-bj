@@ -253,7 +253,7 @@ export function getlinelist(data: any) {
     data,
   });
 }
-// 最外层确认价格; 确认提交
+// 最外层确认价格;
 export function confirm_parameters(data: any) {
   return defHttp.request({
     url: root + '/api/lgcode/confirm_parameters',
@@ -261,6 +261,15 @@ export function confirm_parameters(data: any) {
     data,
   });
 }
+// 确认提交
+export function confirm_data(data: any) {
+  return defHttp.request({
+    url: root + '/api/lgcode/confirm_data',
+    method: 'post',
+    data,
+  });
+}
+
 // 最外层取消
 export function cancel_parameters(data: any) {
   return defHttp.request({
@@ -281,6 +290,22 @@ export function get_data_info(data: any) {
 export function get_raw_son(data: any) {
   return defHttp.request({
     url: root + '/api/lgcode/get_raw_son',
+    method: 'post',
+    data,
+  });
+}
+// 计算直径
+export function changezhijing(data: any) {
+  return defHttp.request({
+    url: root + '/api/lgcode/changezhijing',
+    method: 'post',
+    data,
+  });
+}
+// 获取用量
+export function gettable(data: any) {
+  return defHttp.request({
+    url: root + '/api/lgcode/gettable',
     method: 'post',
     data,
   });

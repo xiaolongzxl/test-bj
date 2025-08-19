@@ -466,7 +466,7 @@
               <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary"  @click="showConfigBox(scope.row)"
                 >工艺配置</el-button
               > -->
-              <div class="pa-4 cursor-pointer" @click="showConfigBox(scope.row)">
+              <div class="pa-4 cursor-pointer" @click="showConfigBox(scope.row)" v-if="scope.row.process && scope.row.process.content == 1">
                 <img :src="$getAssetsImages('price/config.png')" alt="" style="width: 20px; height: 20px" />
               </div>
             </template>
@@ -818,7 +818,7 @@
     <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="cancelConfig" />
     <div class="dialog-title pt-27 pb-26"><!-- 规格: -->{{ configBoxTitle }} 结构配置</div>
     <div class="px-46 mb-40 flex-center" style="height: calc(100% - 210px)">
-      <el-tabs type="border-card" class="demo-tabs" style="width: 100%; height: 100%">
+      <el-tabs type="border-card" class="demo-tabs" style="width: 100%; height: 100%" @tab-change="changeTab">
         <el-tab-pane label="电缆结构">
           <div style="width: 100%; height: 100%" v-if="configBoxDialog">
             <relation-graph ref="graphRef" :options="options">
@@ -843,53 +843,39 @@
             <tbody>
               <tr class="total">
                 <th rowspan="2">材料</th>
-                <th colspan="1">导体</th>
-                <th colspan="1">绝缘</th>
-                <th colspan="1">填充</th>
-                <th colspan="1">包带</th>
-                <th colspan="1">外护套</th>
-                <td rowspan="2">合计(元)</td>
+                <th v-for="item of configTableData.list" :key="item" :colspan="item.chrlder.length">{{ item.title }}</th>
+                <td rowspan="2">合计</td>
               </tr>
               <tr class="total">
-                <td>10²铝线--10（1.3）</td>
-                <td>硅烷交联</td>
-                <td>填充绳</td>
-                <td>CPP</td>
-                <td>PVC外护套</td>
+                <template v-for="item of configTableData.list" :key="item">
+                  <th v-for="ite of item.chrlder" :key="ite">{{ ite.title }}</th>
+                </template>
               </tr>
               <tr>
                 <td>用量</td>
-                <td>25.09克</td>
-                <td>11.22克</td>
-                <td>0克</td>
-                <td>0克</td>
-                <td>46.74克</td>
-                <td>83.05 克</td>
+                <template v-for="item of configTableData.list" :key="item">
+                  <td v-for="ite of item.chrlder" :key="ite">{{ ite.weigh }}克</td>
+                </template>
+                <td>{{ configTableData.weight }}克</td>
               </tr>
               <tr>
                 <td>比重</td>
-                <td>2.7</td>
-                <td>0.95</td>
-                <td>0.68</td>
-                <td>0.92</td>
-                <td>1.54</td>
-                <td rowspan="3">0.835 </td>
+                <template v-for="item of configTableData.list" :key="item">
+                  <td v-for="ite of item.chrlder" :key="ite">{{ ite.roportion }}</td>
+                </template>
+                <td rowspan="3">{{ configTableData.allprices }}元</td>
               </tr>
               <tr>
                 <td>价格</td>
-                <td>20.63</td>
-                <td>8.65</td>
-                <td>3</td>
-                <td>7.8</td>
-                <td>4.7</td>
+                <template v-for="item of configTableData.list" :key="item">
+                  <td v-for="ite of item.chrlder" :key="ite">{{ ite.price }}</td>
+                </template>
               </tr>
               <tr>
                 <td>合计</td>
-                <td>0.518</td>
-                <td>0.097</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0.22</td>
+                <template v-for="item of configTableData.list" :key="item">
+                  <td v-for="ite of item.chrlder" :key="ite">{{ ite.allprice }}</td>
+                </template>
               </tr>
             </tbody>
           </table>
@@ -913,60 +899,63 @@
   >
     <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="configEditBoxDialog = false" />
     <div class="dialog-title pt-27 pb-26"><!-- 规格: -->编辑</div>
-    <div class="px-46 mb-40 edit-box" style="height: calc(100% - 220px)">
-      <el-form-item label="原料" v-if="configEditData.data.hasOwnProperty('rawid')">
-        <el-select v-model="configEditData.data.rawid" style="width: 240px" @change="changeRid">
-          <el-option v-for="item in configEditData.raw" :key="item.id" :label="item.raw" :value="item.id" />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="规格" v-if="configEditData.data.hasOwnProperty('guige')">
-        <el-select v-model="configEditData.data.guige" label="" style="width: 240px">
-          <el-option v-for="item in configEditData.rawson" :key="item.id" :label="item.spec" :value="item.id" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="等芯数" v-if="configEditData.data.hasOwnProperty('dengxin')">
-        <el-input v-model="item.num" v-for="item in configEditData.data.dengxin" :key="item.id" label="" />
-      </el-form-item>
-      <el-form-item label="比重" v-if="configEditData.data.hasOwnProperty('bizong')">
-        <el-input v-model="configEditData.data.bizong" label="" />
-      </el-form-item>
-      <el-form-item label="价格" v-if="configEditData.data.hasOwnProperty('jiage')">
-        <el-input v-model="configEditData.data.jiage" label="" />
-      </el-form-item>
-      <el-form-item label="线径" v-if="configEditData.data.hasOwnProperty('xianjing')">
-        <el-input v-model="configEditData.data.xianjing" label="" />
-      </el-form-item>
-      <el-form-item label="根数" v-if="configEditData.data.hasOwnProperty('genshu')">
-        <el-input v-model="configEditData.data.genshu" label="" />
-      </el-form-item>
-      <el-form-item label="截面积" v-if="configEditData.data.hasOwnProperty('jiemianji')">
-        <el-input v-model="configEditData.data.jiemianji" label="" />
-      </el-form-item>
-      <el-form-item label="补偿率" v-if="configEditData.data.hasOwnProperty('buchanglv')">
-        <el-input v-model="configEditData.data.buchanglv" label="" />
-      </el-form-item>
-      <el-form-item label="计算绞合直径" v-if="configEditData.data.hasOwnProperty('jisuanjiaohe')">
-        <el-input v-model="configEditData.data.jisuanjiaohe" disabled label="" />
-      </el-form-item>
-      <el-form-item label="紧压系数" v-if="configEditData.data.hasOwnProperty('jinya')">
-        <el-input v-model="configEditData.data.jinya" label="" />
-      </el-form-item>
-      <el-form-item label="绞合直径" v-if="configEditData.data.hasOwnProperty('jiaohe')">
-        <el-input v-model="configEditData.data.jiaohe" label="" />
-      </el-form-item>
-      <el-form-item label="厚度" v-if="configEditData.data.hasOwnProperty('houdu')">
-        <el-input v-model="configEditData.data.houdu" label="" />
-      </el-form-item>
-      <el-form-item label="外径偏差" v-if="configEditData.data.hasOwnProperty('waijingpiancha')">
-        <el-input v-model="configEditData.data.waijingpiancha" label="" />
-      </el-form-item>
-      <el-form-item label="计算外径" v-if="configEditData.data.hasOwnProperty('jisuanwaijing')">
-        <el-input v-model="configEditData.data.jisuanwaijing" disabled label="" />
-      </el-form-item>
-      <el-form-item label="实际外径" v-if="configEditData.data.hasOwnProperty('shijiwaijing')">
-        <el-input v-model="configEditData.data.shijiwaijing" label="" />
-      </el-form-item>
+    <div class="px-6 mb-40 edit-box" style="height: calc(100% - 220px)">
+      <div class="self-scroll-auto px-40" style="height: 100%">
+        <el-form-item label="原料" v-if="configEditData.data.hasOwnProperty('rawid')">
+          <el-select v-model="configEditData.data.rawid" style="width: 240px" @change="changeRid">
+            <el-option v-for="item in configEditData.raw" :key="item.id" :label="item.raw" :value="item.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="规格" v-if="configEditData.data.hasOwnProperty('guige')">
+          <el-select v-model="configEditData.data.guige" label="" style="width: 240px" @change="changeInput('guige')">
+            <el-option v-for="item in configEditData.rawson" :key="item.id" :label="item.spec" :value="item.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="等芯数" v-if="configEditData.data.hasOwnProperty('dengxin')">
+          <el-input v-model="item.num" v-for="item in configEditData.data.dengxin" :key="item.id" type="number" @input="changeInput('dengxin')" />
+        </el-form-item>
+        <el-form-item label="比重" v-if="configEditData.data.hasOwnProperty('bizong')">
+          <el-input v-model="configEditData.data.bizong" type="number" />
+        </el-form-item>
+        <el-form-item label="价格" v-if="configEditData.data.hasOwnProperty('jiage')">
+          <el-input v-model="configEditData.data.jiage" type="number" />
+        </el-form-item>
+        <el-form-item label="线径" v-if="configEditData.data.hasOwnProperty('xianjing')" disabled>
+          <el-input v-model="configEditData.data.xianjing" type="number" />
+        </el-form-item>
+        <el-form-item label="根数" v-if="configEditData.data.hasOwnProperty('genshu')" disabled>
+          <el-input v-model="configEditData.data.genshu" type="number" />
+        </el-form-item>
+        <el-form-item label="截面积" v-if="configEditData.data.hasOwnProperty('jiemianji')" disabled>
+          <el-input v-model="configEditData.data.jiemianji" type="number" />
+        </el-form-item>
+        <el-form-item label="补偿率" v-if="configEditData.data.hasOwnProperty('buchanglv')">
+          <el-input v-model="configEditData.data.buchanglv" type="number" @input="changeInput('buchanglv')">
+            <template #append> % </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="计算绞合直径" v-if="configEditData.data.hasOwnProperty('jisuanjiaohe')">
+          <el-input v-model="configEditData.data.jisuanjiaohe" type="number" disabled />
+        </el-form-item>
+        <el-form-item label="紧压系数" v-if="configEditData.data.hasOwnProperty('jinya')">
+          <el-input v-model="configEditData.data.jinya" type="number" @input="changeInput('jinya')" />
+        </el-form-item>
+        <el-form-item label="绞合直径" v-if="configEditData.data.hasOwnProperty('jiaohe')">
+          <el-input v-model="configEditData.data.jiaohe" type="number" @input="changeInput('jiaohe')" />
+        </el-form-item>
+        <el-form-item label="厚度" v-if="configEditData.data.hasOwnProperty('houdu')">
+          <el-input v-model="configEditData.data.houdu" type="number" @input="changeInput('houdu')" />
+        </el-form-item>
+        <el-form-item label="外径偏差" v-if="configEditData.data.hasOwnProperty('waijingpiancha')">
+          <el-input v-model="configEditData.data.waijingpiancha" type="number" @input="changeInput('waijingpiancha')" />
+        </el-form-item>
+        <el-form-item label="计算外径" v-if="configEditData.data.hasOwnProperty('jisuanwaijing')">
+          <el-input v-model="configEditData.data.jisuanwaijing" type="number" disabled />
+        </el-form-item>
+        <el-form-item label="实际外径" v-if="configEditData.data.hasOwnProperty('shijiwaijing')">
+          <el-input v-model="configEditData.data.shijiwaijing" type="number" @input="changeInput('shijiwaijing')" />
+        </el-form-item>
+      </div>
     </div>
     <div class="flex-center">
       <div class="dialog-btn mr-20" @click="configEditBoxDialog = false">取消</div>
@@ -1020,9 +1009,12 @@
     quotationSpecSort,
     getlinelist,
     confirm_parameters,
+    confirm_data,
     cancel_parameters,
     get_data_info,
     get_raw_son,
+    gettable,
+    changezhijing,
   } from '@/api/price.ts';
   import RelationGraph from 'relation-graph-vue3';
   import { ArrowRight } from '@element-plus/icons-vue';
@@ -1545,6 +1537,7 @@
         nodes: [],
         lines: {},
       };
+      getQuotationInfo(null, false);
     } else {
       $message({
         message: res.msg,
@@ -1577,6 +1570,33 @@
       });
     }
   }
+  const configTableData = ref<any>({
+    list: [],
+    weight: 0,
+    allprices: 0,
+  });
+  async function changeTab(value: any) {
+    console.log(value);
+    if (value == 1) {
+      let res = await gettable({
+        id: configBoxId.value,
+      });
+      if (res.code == 200) {
+        configTableData.value = res.data;
+      } else {
+        configTableData.value = {
+          list: [],
+          weight: 0,
+          allprices: 0,
+        };
+        $message({
+          message: res.msg,
+          type: 'error',
+        });
+      }
+    }
+  }
+
   // 获取工艺配置
   async function getGraphData(id: any) {
     let res = await getlinelist({
@@ -1634,25 +1654,6 @@
       },
     ],
   });
-  const keyName = ref<any>({
-    rawid: '原料', // 特殊下拉框
-    guige: '规格', // 特殊下拉框
-    bizong: '比重',
-    jiage: '价格',
-    xianjing: '线径',
-    genshu: '根数',
-    jiemianji: '截面积',
-    buchanglv: '补偿率',
-    jisuanjiaohe: '计算绞合直径',
-    jinya: '紧压系数',
-    jiaohe: '绞合直径',
-    weigh: '',
-    houdu: '厚度',
-    waijingpiancha: '外径偏差',
-    jisuanwaijing: '计算外径',
-    shijiwaijing: '实际外径',
-    // dengxin 特殊处理
-  });
 
   async function initGraph() {
     let nodes = graphData.value.list;
@@ -1669,7 +1670,9 @@
   }
   const configEditBoxDialog = ref<boolean>(false);
   const configEditData = ref<any>({});
+  const configEditNodeId = ref<any>(null);
   async function getNodeDetail(data: any) {
+    configEditNodeId.value = data.id;
     let res = await get_data_info({
       id: data.id,
     });
@@ -1684,8 +1687,18 @@
     }
   }
   async function confirmConfigItem() {
-    let res = await confirm_parameters({
-      id: configBoxId.value,
+    for (let key in configEditData.value.data) {
+      if (configEditData.value.data[key] === null || configEditData.value.data[key] === '' || configEditData.value.data[key] === undefined) {
+        $message({
+          message: '请填写内容',
+          type: 'error',
+        });
+        return;
+      }
+    }
+
+    let res = await confirm_data({
+      id: configEditNodeId.value,
       ...configEditData.value.data,
       // id: configBoxId.value,
       // item的子类
@@ -1696,6 +1709,8 @@
         type: 'success',
       });
       configEditBoxDialog.value = false;
+      graphData.value = res.data;
+      initGraph();
     } else {
       $message({
         message: res.msg,
@@ -1703,8 +1718,45 @@
       });
     }
   }
-  function changeRid(value: any) {
-    console.log(value);
+  async function changeRid(value: any) {
+    if (configEditData.value.data.hasOwnProperty('guige')) {
+      configEditData.value.data.guige = null;
+      let res = await get_raw_son({
+        id: value,
+      });
+      if (res.code == 200) {
+        configEditData.value.rawson = res.data.rawson;
+      } else {
+        $message({
+          message: res.msg,
+          type: 'error',
+        });
+      }
+    }
+    if (configEditData.value.cate_id == 14) {
+      for (let key in configEditData.value.data) {
+        if (key != 'weigh' && key != 'rawid' && key != 'jiage' && key != 'buchanglv') {
+          configEditData.value.data[key] = null;
+        }
+      }
+    }
+  }
+
+  async function changeInput(type: string) {
+    let res = await changezhijing({
+      id: configEditNodeId.value,
+      changefield: type,
+      data: JSON.stringify(configEditData.value.data),
+    });
+    console.log(res);
+    if (res.code == 200) {
+      configEditData.value.data = res.data.data;
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
   }
   //   get_data_info,
   // get_raw_son,
