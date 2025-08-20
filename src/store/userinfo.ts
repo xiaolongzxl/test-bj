@@ -11,6 +11,7 @@ export const UserStore = defineStore('userInfo', {
       phone: null,
       area: null,
       nickname: null,
+      is_structure: 0,
     };
   },
   getters: {},
@@ -22,6 +23,7 @@ export const UserStore = defineStore('userInfo', {
       this.company_name = userInfo.company_name;
       this.phone = userInfo.phone;
       this.area = userInfo.area;
+      this.is_structure = userInfo.is_structure;
     },
   },
   persist: {

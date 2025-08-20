@@ -64,6 +64,7 @@
       phone: '',
       area: '',
       company_name: '',
+      is_structure: 0,
     };
     userInfoStore.setUserInfo(data);
     fileMenu.clear();

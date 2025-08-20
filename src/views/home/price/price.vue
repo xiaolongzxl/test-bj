@@ -461,7 +461,7 @@
               </div> -->
             </template>
           </el-table-column>
-          <el-table-column label="操作" min-width="100">
+          <el-table-column label="操作" min-width="100" v-if="userInfoStore.is_structure == 1">
             <template #default="scope">
               <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary"  @click="showConfigBox(scope.row)"
                 >工艺配置</el-button
@@ -1025,6 +1025,8 @@
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const showLeft = ref<boolean>(true);
+  const userInfoStore: any = UserStore();
+
   // 一级分类
   onMounted(() => {
     getCategory(); // 查找所有带有波浪线样式的元素
