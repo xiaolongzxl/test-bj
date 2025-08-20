@@ -463,9 +463,9 @@
           </el-table-column>
           <el-table-column label="操作" min-width="100" v-if="userInfoStore.is_structure == 1">
             <template #default="scope">
-              <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary"  @click="showConfigBox(scope.row)"
-                >工艺配置</el-button
-              > -->
+              <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary" @click="showConfigBox(scope.row)">
+                工艺配置 
+              </el-button>-->
               <div class="pa-4 cursor-pointer" @click="showConfigBox(scope.row)" v-if="scope.row.process && scope.row.process.content == 1">
                 <img :src="$getAssetsImages('price/config.png')" alt="" style="width: 20px; height: 20px" />
               </div>
@@ -820,7 +820,7 @@
     <div class="px-46 mb-40 flex-center" style="height: calc(100% - 210px)">
       <el-tabs type="border-card" class="demo-tabs" style="width: 100%; height: 100%" @tab-change="changeTab">
         <el-tab-pane label="电缆结构">
-          <div style="width: 100%; height: 100%" v-if="configBoxDialog">
+          <div style="width: 100%; height: 100%" v-if="configBoxDialog" class="graphBox">
             <relation-graph ref="graphRef" :options="options">
               <template #node="{ node }">
                 <div class="node-box" :style="{ border: '1px solid ' + node.data.color }" @click="getNodeDetail(node.data)">
@@ -888,7 +888,7 @@
       <div class="dialog-btn mr-20 confirm-btn2" @click="resetConfig">恢复参数</div>
     </div>
   </el-dialog>
-  <el-dialog
+  <el-drawer
     v-model="configEditBoxDialog"
     width="50%"
     class="dialog-self dialog-self6"
@@ -896,18 +896,19 @@
     align-center
     :close-on-press-escape="false"
     :close-on-click-modal="false"
+    :append-to="configEditBoxDialog ? '.graphBox' : 'body'"
   >
     <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="configEditBoxDialog = false" />
-    <div class="dialog-title pt-27 pb-26"><!-- 规格: -->编辑</div>
+    <div class="dialog-title pt-27 pb-26">{{ configEditNodeTitle }}</div>
     <div class="px-6 mb-40 edit-box" style="height: calc(100% - 220px)">
       <div class="self-scroll-auto px-40" style="height: 100%">
         <el-form-item label="原料" v-if="configEditData.data.hasOwnProperty('rawid')">
-          <el-select v-model="configEditData.data.rawid" style="width: 240px" @change="changeRid">
+          <el-select v-model="configEditData.data.rawid" @change="changeRid">
             <el-option v-for="item in configEditData.raw" :key="item.id" :label="item.raw" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="规格" v-if="configEditData.data.hasOwnProperty('guige')">
-          <el-select v-model="configEditData.data.guige" label="" style="width: 240px" @change="changeInput('guige')">
+          <el-select v-model="configEditData.data.guige" label="" @change="changeInput('guige')">
             <el-option v-for="item in configEditData.rawson" :key="item.id" :label="item.spec" :value="item.id" />
           </el-select>
         </el-form-item>
@@ -961,7 +962,7 @@
       <div class="dialog-btn mr-20" @click="configEditBoxDialog = false">取消</div>
       <div class="dialog-btn mr-20 confirm-btn" @click="confirmConfigItem">确定</div>
     </div>
-  </el-dialog>
+  </el-drawer>
   <InfoDetail
     v-if="dialogInfoVisible"
     v-model:dialogInfoVisible="dialogInfoVisible"
@@ -1673,8 +1674,10 @@
   const configEditBoxDialog = ref<boolean>(false);
   const configEditData = ref<any>({});
   const configEditNodeId = ref<any>(null);
+  const configEditNodeTitle = ref<any>(null);
   async function getNodeDetail(data: any) {
     configEditNodeId.value = data.id;
+    configEditNodeTitle.value = data.name;
     let res = await get_data_info({
       id: data.id,
     });
@@ -3600,5 +3603,12 @@
   .edit-box .el-form-item__label {
     min-width: 100px;
     text-align: right;
+  }
+  .graphBox .el-overlay {
+    position: absolute;
+  }
+  .graphBox .el-drawer__header {
+    padding: 0;
+    margin-bottom: 0;
   }
 </style>
