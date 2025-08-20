@@ -818,10 +818,10 @@
     <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="cancelConfig" />
     <div class="dialog-title pt-27 pb-26"><!-- 规格: -->{{ configBoxTitle }} 结构配置</div>
     <div class="px-46 mb-40 flex-center" style="height: calc(100% - 210px)">
-      <el-tabs type="border-card" class="demo-tabs" style="width: 100%; height: 100%" @tab-change="changeTab">
-        <el-tab-pane label="电缆结构">
-          <div style="width: 100%; height: 100%" v-if="configBoxDialog" class="graphBox">
-            <relation-graph ref="graphRef" :options="options">
+      <el-tabs type="border-card" class="demo-tabs" style="width: 100%; height: 100%" v-model="activeTab" @tab-change="changeTab">
+        <el-tab-pane label="电缆结构" :name="0">
+          <div style="width: 100%; height: 100%" v-if="configBoxDialog">
+            <relation-graph ref="graphRef" :options="options" class="graphBox">
               <template #node="{ node }">
                 <div class="node-box" :style="{ border: '1px solid ' + node.data.color }" @click="getNodeDetail(node.data)">
                   <div>
@@ -838,7 +838,7 @@
             </relation-graph>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="电缆用量">
+        <el-tab-pane label="电缆用量" :name="1">
           <table width="100%" cellspacing="0" cellpadding="0" class="my-table">
             <tbody>
               <tr class="total">
@@ -1170,7 +1170,6 @@
   const timer2 = ref<any>(null);
   const searchKeyword = ref<any>(null);
   function changeTableSearch(e: any) {
-    console.log(12312312);
     clearTimeout(timer2.value);
     timer2.value = setTimeout(() => {
       searchByTableKeyword(e);
@@ -1535,6 +1534,7 @@
       });
       configBoxId.value = null;
       configBoxTitle.value = '';
+      activeTab.value = 0;
       configBoxDialog.value = false;
       graphData.value = {
         nodes: [],
@@ -1561,6 +1561,7 @@
       });
       configBoxId.value = null;
       configBoxTitle.value = '';
+      activeTab.value = 0;
       configBoxDialog.value = false;
       graphData.value = {
         nodes: [],
@@ -1578,8 +1579,8 @@
     weight: 0,
     allprices: 0,
   });
+  const activeTab = ref<any>(0);
   async function changeTab(value: any) {
-    console.log(value);
     if (value == 1) {
       let res = await gettable({
         id: configBoxId.value,
