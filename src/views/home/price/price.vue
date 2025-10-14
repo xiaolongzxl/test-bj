@@ -809,7 +809,7 @@
   </el-drawer>
   <el-dialog
     v-model="configBoxDialog"
-    width="96%"
+    width="98%"
     class="dialog-self dialog-self5"
     :show-close="false"
     align-center
@@ -1645,6 +1645,8 @@
     moveToCenterWhenRefresh: true,
     useAnimationWhenRefresh: true,
     zoomToFitWhenRefresh: true,
+    graphOffset_x: -40,
+    graphOffset_y: -110,
     // defaultNodeWidth: 280,
     // defaultNodeHeight: 360,
     layouts: [
@@ -1652,15 +1654,15 @@
         label: '中心',
         layoutName: 'tree',
         centerOffset_x: 0,
-        centerOffset_y: -1000,
+        centerOffset_y: 0,
         distance_coefficient: 1,
         layoutDirection: 'h',
         from: 'left',
         levelDistance: '',
-        min_per_width: '280',
-        max_per_width: '280',
-        min_per_height: '360',
-        max_per_height: '360',
+        min_per_width: '400',
+        max_per_width: '400',
+        min_per_height: '420',
+        max_per_height: '420',
       },
     ],
   });
@@ -3397,7 +3399,7 @@
     height: 240px;
   }
   .el-dialog.dialog-self5 {
-    height: 96%;
+    height: 98%;
   }
   .el-dialog.dialog-self6 {
     height: 70%;
