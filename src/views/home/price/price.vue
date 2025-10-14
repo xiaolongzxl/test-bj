@@ -808,7 +808,7 @@
   </el-drawer>
   <el-dialog
     v-model="configBoxDialog"
-    width="90%"
+    width="96%"
     class="dialog-self dialog-self5"
     :show-close="false"
     align-center
@@ -1641,6 +1641,11 @@
       refY: 3,
       data: 'M 0 0, V 6, L 4 3, Z',
     },
+    moveToCenterWhenRefresh: true,
+    useAnimationWhenRefresh: true,
+    zoomToFitWhenRefresh: true,
+    // defaultNodeWidth: 280,
+    // defaultNodeHeight: 360,
     layouts: [
       {
         label: '中心',
@@ -1652,9 +1657,9 @@
         from: 'left',
         levelDistance: '',
         min_per_width: '280',
-        max_per_width: '1000',
+        max_per_width: '280',
         min_per_height: '360',
-        max_per_height: '1000',
+        max_per_height: '360',
       },
     ],
   });
@@ -3390,7 +3395,7 @@
     height: 240px;
   }
   .el-dialog.dialog-self5 {
-    height: 90%;
+    height: 96%;
   }
   .el-dialog.dialog-self6 {
     height: 70%;
