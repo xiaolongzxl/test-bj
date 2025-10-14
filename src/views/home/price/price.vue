@@ -431,19 +431,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="备注信息" min-width="150">
-            <template #default="scope">
-              <div class="flex-center" v-if="scope.row.spec_remark">
-                <el-input
-                  class="table-input"
-                  v-model="scope.row.spec_remark.content"
-                  @focus="setColor(scope.row, 'spec_remark')"
-                  @change="(e) => changeTableValue(e, scope.row, 'spec_remark')"
-                  :class="scope.row.spec_remark.color"
-                />
-              </div>
-            </template>
-          </el-table-column>
+
           <el-table-column label="重量">
             <template #default="scope">
               <!--  v-if="scope.row.reference_weight && scope.row.searchable" -->
@@ -468,6 +456,19 @@
               </el-button>-->
               <div class="pa-4 cursor-pointer" @click="showConfigBox(scope.row)" v-if="scope.row.process && scope.row.process.content == 1">
                 <img :src="$getAssetsImages('price/config.png')" alt="" style="width: 20px; height: 20px" />
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="备注信息" min-width="150">
+            <template #default="scope">
+              <div class="flex-center" v-if="scope.row.spec_remark">
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.spec_remark.content"
+                  @focus="setColor(scope.row, 'spec_remark')"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_remark')"
+                  :class="scope.row.spec_remark.color"
+                />
               </div>
             </template>
           </el-table-column>
@@ -825,7 +826,7 @@
               <template #node="{ node }">
                 <div class="node-box" :style="{ border: '1px solid ' + node.data.color }" @click="getNodeDetail(node.data)">
                   <div>
-                    <div style="height: 40px; line-height: 40px" class="font-bold text-center">{{ node.data.name }}</div>
+                    <div style="height: 40px; line-height: 40px; font-size: 24px" class="font-bold text-center">{{ node.data.name }}</div>
                     <div class="py-4 px-4 pb-14 info-box">
                       <div v-for="(item, index) in node.data.list" :key="index" class="flex justify-between items-center px-4 py-2 info-item">
                         <div>{{ item.label }}</div>
@@ -1651,7 +1652,7 @@
         label: '中心',
         layoutName: 'tree',
         centerOffset_x: 0,
-        centerOffset_y: 0,
+        centerOffset_y: -1000,
         distance_coefficient: 1,
         layoutDirection: 'h',
         from: 'left',
@@ -3237,11 +3238,12 @@
     overflow: hidden;
     cursor: pointer;
     & > {
-      width: 200px;
+      width: 300px;
     }
     .info-box {
       background-color: #ffffff;
       color: #555555;
+      font-size: 20px;
     }
     .info-item {
       border-bottom: #efefef solid 1px;
