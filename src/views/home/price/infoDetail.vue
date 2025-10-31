@@ -27,15 +27,18 @@
               ><img :src="$getAssetsImages('price/icon-copy.png')" alt="" class="w-17px h-16px" /> 一键复制</span
             >
           </div>
-          <div class="cate flex mb-7" v-if="detailInfo.float_list.length > 0">
-            <div
-              class="cate-item"
-              v-for="(item, index) of detailInfo.float_list"
-              :key="item.id"
-              :class="{ active: activePriceIndex == index }"
-              @click="changePrice(index, item)"
-              >{{ item.name }}</div
-            >
+          <div class="self-scroll-auto" style="max-width: 480px; margin-bottom: 8px">
+            <div class="cate flex mb-7" v-if="detailInfo.float_list.length > 0">
+              <div
+                class="cate-item"
+                v-for="(item, index) of detailInfo.float_list"
+                :key="item.id"
+                :class="{ active: activePriceIndex == index }"
+                @click="changePrice(index, item)"
+                >{{ item.name }}</div
+              >
+              <div style="flex: 0 0 10px"></div>
+            </div>
           </div>
           <div class="price-box flex-between items-center px-20 mb-20">
             <div class="text-center">
@@ -398,10 +401,11 @@
         }
       }
       .cate {
+        width: 100%;
         height: 22px;
         line-height: 22px;
         .cate-item {
-          margin-right: 45px;
+          margin-right: 30px;
           font-family: Microsoft YaHei;
           font-weight: bold;
           font-size: 14px;
@@ -409,6 +413,8 @@
           text-align: center;
           font-style: normal;
           text-transform: none;
+          white-space: nowrap;
+          cursor: pointer;
           &.active {
             position: relative;
             color: #2d6cff;
