@@ -295,12 +295,12 @@
                     class="cursor-pointer w-18px h-18px"
                     @click="delQuotationItem(scope.row.id)"
                   />
-                  <img
+                  <!-- <img
                     :src="$getAssetsImages('price/icon-add-one.png')"
                     alt=""
                     class="cursor-pointer ml-4 w-18px h-18px"
                     @click="appendNewItemToPrice(scope.row.id)"
-                  />
+                  /> -->
                 </div>
               </div>
             </template>
@@ -628,7 +628,26 @@
           >
             <el-table-column label="序号" width="60">
               <template #default="scope">
-                <div class="flex-center"> {{ scope.row.index }} </div>
+                <!-- <div class="flex-center"> {{ scope.row.index }} </div> -->
+                <div class="table-index">
+                  <div class="flex-center"> {{ scope.row.index }} </div>
+                </div>
+                <div class="table-btns">
+                  <div class="flex-center">
+                    <img
+                      :src="$getAssetsImages('price/icon-del-one.png')"
+                      alt=""
+                      class="cursor-pointer w-18px h-18px"
+                      @click="delQuotationItem(scope.row.id)"
+                    />
+                    <!-- <img
+                    :src="$getAssetsImages('price/icon-add-one.png')"
+                    alt=""
+                    class="cursor-pointer ml-4 w-18px h-18px"
+                    @click="appendNewItemToPrice(scope.row.id)"
+                  /> -->
+                  </div>
+                </div>
               </template>
             </el-table-column>
             <el-table-column label="产品名称" min-width="180">
@@ -660,29 +679,31 @@
             <el-table-column label="单位" prop="number" width="90">
               <template #default="scope">
                 <!-- <div class="flex-center" :class="scope.row.spec_unit.color">{{ scope.row.spec_unit.content }}</div> -->
-                <el-input
-                  class="table-input"
-                  v-model="scope.row.spec_unit.content"
-                  style="width: 80px"
-                  @change="(e) => changeTableValue(e, scope.row, 'spec_unit')"
-                  placeholder=""
-                  :class="scope.row.spec_unit.color"
-                />
+                <div class="flex-center">
+                  <el-input
+                    class="table-input"
+                    v-model="scope.row.spec_unit.content"
+                    style="width: 80px"
+                    @change="(e) => changeTableValue(e, scope.row, 'spec_unit')"
+                    placeholder=""
+                    :class="scope.row.spec_unit.color"
+                /></div>
                 <!--   @focus="setColor(scope.row, 'spec_unit')" -->
               </template>
             </el-table-column>
             <el-table-column label="数量" prop="number" width="90">
               <template #default="scope">
                 <!-- <div class="flex-center" :class="scope.row.quantity.color">{{ scope.row.quantity.content }}</div> -->
-                <el-input
-                  class="table-input quantity-input"
-                  type="number"
-                  v-model="scope.row.quantity.content"
-                  style="width: 80px"
-                  @change="(e) => changeTableValue(e, scope.row, 'quantity')"
-                  placeholder=""
-                  :class="scope.row.quantity.color"
-                />
+                <div>
+                  <el-input
+                    class="table-input quantity-input"
+                    type="number"
+                    v-model="scope.row.quantity.content"
+                    style="width: 80px"
+                    @change="(e) => changeTableValue(e, scope.row, 'quantity')"
+                    placeholder=""
+                    :class="scope.row.quantity.color"
+                /></div>
                 <!--   @focus="setColor(scope.row, 'quantity')" -->
               </template>
             </el-table-column>
@@ -1544,40 +1565,40 @@
   }
   // const isLoading = ref<any>(false);
   // 再指定位置插入
-  async function appendNewItemToPrice(id: any) {
-    let loadingInstance = ElLoading.service({
-      lock: true,
-      text: 'Loading',
-      background: 'rgba(0, 0, 0, 0.4)',
-    });
-    let ind: any = '';
-    if (id) {
-      ind = quotationTableData.value.findIndex((item: any) => {
-        return item.id == id;
-      });
-    } else {
-      ind = quotationTableData.value.length - 1;
-    }
-    let res = await addQuotation({
-      spec_list: JSON.stringify([{ sort: ind + 1 }]),
-    });
-    setTimeout(() => {
-      loadingInstance.close();
-    }, 300);
-    if (res.code == 200) {
-      quotationInfo.value.generation_amount = res.data.generation_amount;
-      quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
-      quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
-      quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
-      quotationTableData.value.splice(ind + 1, 0, res.data.spec_list[0]);
-      quotationTableData.value.map((item: any, index: any) => {
-        item.index = index + 1;
-      });
-      quotationTableRef.value.setCurrentRow(quotationTableData.value[ind + 1]);
-    } else {
-      $message.error(res.msg);
-    }
-  }
+  // async function appendNewItemToPrice(id: any) {
+  //   let loadingInstance = ElLoading.service({
+  //     lock: true,
+  //     text: 'Loading',
+  //     background: 'rgba(0, 0, 0, 0.4)',
+  //   });
+  //   let ind: any = '';
+  //   if (id) {
+  //     ind = quotationTableData.value.findIndex((item: any) => {
+  //       return item.id == id;
+  //     });
+  //   } else {
+  //     ind = quotationTableData.value.length - 1;
+  //   }
+  //   let res = await addQuotation({
+  //     spec_list: JSON.stringify([{ sort: ind + 1 }]),
+  //   });
+  //   setTimeout(() => {
+  //     loadingInstance.close();
+  //   }, 300);
+  //   if (res.code == 200) {
+  //     quotationInfo.value.generation_amount = res.data.generation_amount;
+  //     quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
+  //     quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
+  //     quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
+  //     quotationTableData.value.splice(ind + 1, 0, res.data.spec_list[0]);
+  //     quotationTableData.value.map((item: any, index: any) => {
+  //       item.index = index + 1;
+  //     });
+  //     quotationTableRef.value.setCurrentRow(quotationTableData.value[ind + 1]);
+  //   } else {
+  //     $message.error(res.msg);
+  //   }
+  // }
   // 工艺配置
   const configBoxDialog = ref<boolean>(false);
   const configBoxTitle = ref<string>('');
