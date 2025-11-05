@@ -205,10 +205,10 @@
           <div class="add-btns ml-10" @click="changeColor('isBlackText')" :style="isBlackText ? 'opacity:1' : 'opacity:.5'">
             <img :src="$getAssetsImages('price/icon-black.png')" alt="" />
           </div>
-          <div class="add-btns ml-10" @click="appendNewItemToPrice(null)" v-loading="isLoading">
+          <!-- <div class="add-btns ml-10" @click="appendNewItemToPrice(null)" v-loading="isLoading">
             <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
             <span>新增数据</span>
-          </div>
+          </div> -->
           <div class="add-btns ml-10" @click="showAdjustPrice">
             <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
             <span>价格调整</span>
@@ -312,6 +312,7 @@
                 v-model="scope.row.name.content"
                 placeholder=""
                 @focus="setColor(scope.row, 'name')"
+                @change="(e) => changeTableValue(e, scope.row, 'name')"
                 :class="scope.row.name.color"
                 v-if="scope.row.searchable"
               />
@@ -375,10 +376,10 @@
           </el-table-column>
           <el-table-column label="单价" width="90" v-if="quotationType == 0">
             <template #default="scope">
-              <!-- <div class="flex-center" :style="{ color: scope.row.spec_price.color }" v-if="scope.row.spec_price">
+              <div class="flex-center" :style="{ color: scope.row.spec_price.color }" v-if="scope.row.spec_price">
                 {{ scope.row.spec_price.content }}
-              </div> -->
-              <div class="flex-center" v-if="scope.row.spec_price">
+              </div>
+              <!-- <div class="flex-center" v-if="scope.row.spec_price">
                 <el-input
                   class="table-input quantity-input"
                   type="number"
@@ -387,15 +388,15 @@
                   @change="(e) => changeTableValue(e, scope.row, 'spec_price')"
                   :class="scope.row.spec_price.color"
                 />
-              </div>
+              </div> -->
             </template>
           </el-table-column>
           <el-table-column label="专票价格" width="90" v-if="quotationType == 1">
             <template #default="scope">
-              <!-- <div class="flex-center" :style="{ color: scope.row.spec_price_tax.color }" v-if="scope.row.spec_price_tax">
+              <div class="flex-center" :style="{ color: scope.row.spec_price_tax.color }" v-if="scope.row.spec_price_tax">
                 {{ scope.row.spec_price_tax.content }}
-              </div>-->
-              <div class="flex-center" v-if="scope.row.spec_price_tax">
+              </div>
+              <!-- <div class="flex-center" v-if="scope.row.spec_price_tax">
                 <el-input
                   type="number"
                   class="table-input quantity-input"
@@ -404,15 +405,15 @@
                   @change="(e) => changeTableValue(e, scope.row, 'spec_price_tax')"
                   :class="scope.row.spec_price_tax.color"
                 />
-              </div>
+              </div> -->
             </template>
           </el-table-column>
           <el-table-column label="普票价格" width="90" v-if="quotationType == 2">
             <template #default="scope">
-              <!-- <div class="flex-center" :style="{ color: scope.row.spec_price_tax_ordinary.color }" v-if="scope.row.spec_price_tax_ordinary">
+              <div class="flex-center" :style="{ color: scope.row.spec_price_tax_ordinary.color }" v-if="scope.row.spec_price_tax_ordinary">
                 {{ scope.row.spec_price_tax_ordinary.content }}
-              </div>-->
-              <div class="flex-center" v-if="scope.row.spec_price_tax_ordinary">
+              </div>
+              <!-- <div class="flex-center" v-if="scope.row.spec_price_tax_ordinary">
                 <el-input
                   type="number"
                   class="table-input quantity-input"
@@ -421,7 +422,7 @@
                   @change="(e) => changeTableValue(e, scope.row, 'spec_price_tax_ordinary')"
                   :class="scope.row.spec_price_tax_ordinary.color"
                 />
-              </div>
+              </div> -->
             </template>
           </el-table-column>
           <el-table-column label="金额" width="90">
@@ -622,6 +623,7 @@
             style="width: 100%; border-radius: 0"
             height="402px"
             table-layout="fixed"
+            class-name="self-hover-table"
             highlight-current-row
           >
             <el-table-column label="序号" width="60">
@@ -631,33 +633,98 @@
             </el-table-column>
             <el-table-column label="产品名称" min-width="180">
               <template #default="scope">
-                <div class="flex-center" :class="scope.row.name.color">{{ scope.row.name.content }}</div>
+                <!-- <div class="flex-center" :class="scope.row.name.color">{{ scope.row.name.content }}</div> -->
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.name.content"
+                  placeholder=""
+                  @change="(e) => changeTableValue(e, scope.row, 'name')"
+                  :class="scope.row.name.color"
+                />
+                <!-- v-if="scope.row.searchable"  @focus="setColor(scope.row, 'name')" -->
               </template>
             </el-table-column>
             <el-table-column label="型号规格" min-width="180">
               <template #default="scope">
-                <div class="flex-center" :class="scope.row.spec_name.color">{{ scope.row.spec_name.content }}</div>
+                <!-- <div class="flex-center" :class="scope.row.spec_name.color">{{ scope.row.spec_name.content }}</div> -->
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.spec_name.content"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_name')"
+                  placeholder=""
+                  :class="scope.row.spec_name.color"
+                />
+                <!--    @focus="setColor(scope.row, 'spec_name')" -->
               </template>
             </el-table-column>
             <el-table-column label="单位" prop="number" width="90">
               <template #default="scope">
-                <div class="flex-center" :class="scope.row.spec_unit.color">{{ scope.row.spec_unit.content }}</div>
+                <!-- <div class="flex-center" :class="scope.row.spec_unit.color">{{ scope.row.spec_unit.content }}</div> -->
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.spec_unit.content"
+                  style="width: 80px"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_unit')"
+                  placeholder=""
+                  :class="scope.row.spec_unit.color"
+                />
+                <!--   @focus="setColor(scope.row, 'spec_unit')" -->
               </template>
             </el-table-column>
             <el-table-column label="数量" prop="number" width="90">
               <template #default="scope">
-                <div class="flex-center" :class="scope.row.quantity.color">{{ scope.row.quantity.content }}</div>
+                <!-- <div class="flex-center" :class="scope.row.quantity.color">{{ scope.row.quantity.content }}</div> -->
+                <el-input
+                  class="table-input quantity-input"
+                  type="number"
+                  v-model="scope.row.quantity.content"
+                  style="width: 80px"
+                  @change="(e) => changeTableValue(e, scope.row, 'quantity')"
+                  placeholder=""
+                  :class="scope.row.quantity.color"
+                />
+                <!--   @focus="setColor(scope.row, 'quantity')" -->
               </template>
             </el-table-column>
             <el-table-column label="单价" prop="number" width="90">
               <template #default="scope">
-                <div class="flex-center" v-if="quotationType == 0" :class="scope.row.spec_price.color">{{ scope.row.spec_price.content }}</div>
+                <!-- <div class="flex-center" v-if="quotationType == 0" :class="scope.row.spec_price.color">{{ scope.row.spec_price.content }}</div>
                 <div class="flex-center" v-if="quotationType == 1" :class="scope.row.spec_price_tax.color">{{
                   scope.row.spec_price_tax.content
                 }}</div>
                 <div class="flex-center" v-if="quotationType == 2" :class="scope.row.spec_price_tax_ordinary.color">{{
                   scope.row.spec_price_tax_ordinary.content
-                }}</div>
+                }}</div> -->
+                <div class="flex-center" v-if="quotationType == 0">
+                  <el-input
+                    class="table-input quantity-input"
+                    type="number"
+                    v-model="scope.row.spec_price.content"
+                    @change="(e) => changeTableValue(e, scope.row, 'spec_price')"
+                    :class="scope.row.spec_price.color"
+                  />
+                </div>
+                <!-- @focus="setColor(scope.row, 'spec_price')" -->
+                <div class="flex-center" v-if="quotationType == 1">
+                  <el-input
+                    type="number"
+                    class="table-input quantity-input"
+                    v-model="scope.row.spec_price_tax.content"
+                    @change="(e) => changeTableValue(e, scope.row, 'spec_price_tax')"
+                    :class="scope.row.spec_price_tax.color"
+                  />
+                </div>
+                <!--  @focus="setColor(scope.row, 'spec_price_tax')"  -->
+                <div class="flex-center" v-if="quotationType == 2">
+                  <el-input
+                    type="number"
+                    class="table-input quantity-input"
+                    v-model="scope.row.spec_price_tax_ordinary.content"
+                    @change="(e) => changeTableValue(e, scope.row, 'spec_price_tax_ordinary')"
+                    :class="scope.row.spec_price_tax_ordinary.color"
+                  />
+                  <!-- @focus="setColor(scope.row, 'spec_price_tax_ordinary')" -->
+                </div>
               </template>
             </el-table-column>
             <el-table-column label="金额" prop="number" width="90">
@@ -665,14 +732,21 @@
                 <div class="flex-center" :class="scope.row.amount.color">{{ scope.row.amount.content }}</div>
               </template>
             </el-table-column>
-            <el-table-column label="备注信息" prop="number">
-              <template #default="scope">
-                <div class="flex-center" :class="scope.row.spec_remark.color">{{ scope.row.spec_remark.content }}</div>
-              </template>
-            </el-table-column>
             <el-table-column label="总重量" prop="number">
               <template #default="scope">
                 <div class="flex-center" :class="scope.row.reference_weight_total.color">{{ scope.row.reference_weight_total.content }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="备注信息" prop="number">
+              <template #default="scope">
+                <!-- <div class="flex-center" :class="scope.row.spec_remark.color">{{ scope.row.spec_remark.content }}</div> -->
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.spec_remark.content"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_remark')"
+                  :class="scope.row.spec_remark.color"
+                />
+                <!-- @focus="setColor(scope.row, 'spec_remark')" -->
               </template>
             </el-table-column>
           </el-table>
@@ -1468,7 +1542,7 @@
     });
     getQuotationInfo(null, false);
   }
-  const isLoading = ref<any>(false);
+  // const isLoading = ref<any>(false);
   // 再指定位置插入
   async function appendNewItemToPrice(id: any) {
     let loadingInstance = ElLoading.service({
