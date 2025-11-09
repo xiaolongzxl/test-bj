@@ -1017,14 +1017,14 @@
         <el-form-item label="价格" v-if="configEditData.data.hasOwnProperty('jiage')">
           <el-input v-model="configEditData.data.jiage" type="number" />
         </el-form-item>
-        <el-form-item label="线径" v-if="configEditData.data.hasOwnProperty('xianjing')" disabled>
-          <el-input v-model="configEditData.data.xianjing" type="number" />
+        <el-form-item label="线径" v-if="configEditData.data.hasOwnProperty('xianjing')">
+          <el-input v-model="configEditData.data.xianjing" type="number" @input="changeInput('xianjing')" />
         </el-form-item>
-        <el-form-item label="根数" v-if="configEditData.data.hasOwnProperty('genshu')" disabled>
-          <el-input v-model="configEditData.data.genshu" type="number" />
+        <el-form-item label="根数" v-if="configEditData.data.hasOwnProperty('genshu')">
+          <el-input v-model="configEditData.data.genshu" type="number" @input="changeInput('genshu')" />
         </el-form-item>
-        <el-form-item label="截面积" v-if="configEditData.data.hasOwnProperty('jiemianji')" disabled>
-          <el-input v-model="configEditData.data.jiemianji" type="number" />
+        <el-form-item label="截面积" v-if="configEditData.data.hasOwnProperty('jiemianji')">
+          <el-input v-model="configEditData.data.jiemianji" type="number" @input="changeInput('jiemianji')" />
         </el-form-item>
         <el-form-item label="补偿率" v-if="configEditData.data.hasOwnProperty('buchanglv')">
           <el-input v-model="configEditData.data.buchanglv" type="number" @input="changeInput('buchanglv')">
