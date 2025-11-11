@@ -305,7 +305,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="产品名称" prop="name" min-width="180">
+          <el-table-column label="产品名称" prop="name" min-width="240">
             <template #default="scope">
               <el-input
                 class="table-input"
@@ -329,7 +329,7 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="型号规格" prop="spec_name" min-width="180">
+          <el-table-column label="型号规格" prop="spec_name" min-width="220">
             <template #default="scope">
               <div class="flex-center" v-if="scope.row.spec_name">
                 <el-input
