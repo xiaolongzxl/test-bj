@@ -132,7 +132,7 @@
       >
         <!-- @current-change="handleCurrentChange" -->
         <el-table-column type="selection" width="60" :reserve-selection="true" />
-        <el-table-column label="产品名称">
+        <el-table-column label="型号规格">
           <template #default="scope">
             <div class="table-name">{{ scope.row.spec_name }}</div>
           </template>
