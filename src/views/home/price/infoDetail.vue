@@ -40,7 +40,7 @@
               <div style="flex: 0 0 10px"></div>
             </div>
           </div>
-          <div class="price-box flex-between items-center px-20 mb-20">
+          <div class="price-box flex-between items-center px-20">
             <div class="text-center">
               <span>单价：</span>
               <span>{{ activePrice.spec_price }}</span>
@@ -54,7 +54,21 @@
               <span>{{ activePrice.spec_price_tax_ordinary }}</span>
             </div>
           </div>
-          <div class="info-unit flex flex-wrap">
+          <!-- <div class="price-box flex-between items-center px-20">
+            <div class="text-center">
+              <span>单价：</span>
+              <span>{{ activePrice.spec_price }}/公斤</span>
+            </div>
+            <div class="text-center">
+              <span>专票：</span>
+              <span>{{ activePrice.spec_price_tax }}/公斤</span>
+            </div>
+            <div class="text-center">
+              <span>普票：</span>
+              <span>{{ activePrice.spec_price_tax_ordinary }}/公斤</span>
+            </div>
+          </div> -->
+          <div class="info-unit flex flex-wrap mt-20">
             <div v-for="(item, index) of detailInfo.accurate" :key="index">
               <span class="label">{{ item.attribute }}：</span>
               <span class="value">{{ item.value }}</span>

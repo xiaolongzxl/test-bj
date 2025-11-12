@@ -305,7 +305,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="产品名称" prop="name" min-width="240">
+          <el-table-column label="产品名称" prop="name" min-width="180">
             <template #default="scope">
               <el-input
                 class="table-input"
@@ -329,7 +329,7 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="型号规格" prop="spec_name" min-width="220">
+          <el-table-column label="型号规格" prop="spec_name" min-width="240">
             <template #default="scope">
               <div class="flex-center" v-if="scope.row.spec_name">
                 <el-input
@@ -650,7 +650,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="产品名称" min-width="240">
+            <el-table-column label="产品名称" min-width="180">
               <template #default="scope">
                 <!-- <div class="flex-center" :class="scope.row.name.color">{{ scope.row.name.content }}</div> -->
                 <el-input
@@ -663,7 +663,7 @@
                 <!-- v-if="scope.row.searchable"  @focus="setColor(scope.row, 'name')" -->
               </template>
             </el-table-column>
-            <el-table-column label="型号规格" min-width="220">
+            <el-table-column label="型号规格" min-width="240">
               <template #default="scope">
                 <!-- <div class="flex-center" :class="scope.row.spec_name.color">{{ scope.row.spec_name.content }}</div> -->
                 <el-input
