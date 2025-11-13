@@ -209,6 +209,10 @@
             <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
             <span>新增数据</span>
           </div> -->
+          <div class="add-btns ml-10" @click="showChangeType">
+            <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
+            <span>切换单位类型</span>
+          </div>
           <div class="add-btns ml-10" @click="showAdjustPrice">
             <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
             <span>价格调整</span>
@@ -455,7 +459,16 @@
               <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary" @click="showConfigBox(scope.row)">
                 工艺配置 
               </el-button>-->
-              <div class="pa-4 cursor-pointer" @click="showConfigBox(scope.row)" v-if="scope.row.process && scope.row.process.content == 1">
+              <el-button
+                v-if="scope.row.unit_switch == 1 && scope.row.searchable"
+                size="small"
+                type="primary"
+                @click="changeTableValue(scope.row.unit_type == 1 ? 2 : 1, scope.row, 'unit_type')"
+              >
+                {{ scope.row.unit_type == 1 ? '切换为公斤' : '切换为米' }}
+                <!--  1 长度米 2 重量公斤 -->
+              </el-button>
+              <div class="pa-4 cursor-pointer ml-4" @click="showConfigBox(scope.row)" v-if="scope.row.process && scope.row.process.content == 1">
                 <img :src="$getAssetsImages('price/config.png')" alt="" style="width: 20px; height: 20px" />
               </div>
             </template>
@@ -544,6 +557,18 @@
     <div class="flex-center">
       <div class="dialog-btn mr-20" @click="updatePrice(0)">取消</div>
       <div class="dialog-btn confirm-btn" @click="updatePrice(1)">确定</div>
+    </div>
+  </el-dialog>
+  <el-dialog v-model="changeTypeDialog" width="475" class="dialog-self dialog-self4" :show-close="false" align-center>
+    <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="changeTypeDialog = false" />
+    <div class="dialog-title pt-27 pb-26">切换类型提示</div>
+    <div class="px-46 mb-40 flex-center">
+      <div class="tip" style="font-size: 16px">是否批量切换单位类型</div>
+    </div>
+    <div class="flex-center">
+      <div class="dialog-btn mr-20" @click="changeTypeDialog = false">取消</div>
+      <div class="dialog-btn confirm-btn mr-20" @click="changeType(1)">切换为米</div>
+      <div class="dialog-btn confirm-btn" @click="changeType(2)">切换为公斤</div>
     </div>
   </el-dialog>
   <el-dialog v-model="clearDialog" width="375" class="dialog-self dialog-self4" :show-close="false" align-center>
@@ -1112,6 +1137,7 @@
     get_raw_son,
     gettable,
     changezhijing,
+    editSpecUnitType,
   } from '@/api/price.ts';
   import RelationGraph from 'relation-graph-vue3';
   import { ArrowRight } from '@element-plus/icons-vue';
@@ -1443,14 +1469,15 @@
   }
   // 添加到报价单
   async function appendItemToPrice(item: any) {
-    addQuotationInfo(JSON.stringify([{ spec_id: item.spec_id, quantity: Number(item.quantity) || 1 }]), false);
+    console.log(item);
+    addQuotationInfo(JSON.stringify([{ spec_id: item.spec_id, quantity: Number(item.quantity) || 1, unit_type: item.unit_type || 1 }]), false);
     item.quantity = null;
   }
   // 将选择的都添加到报价单
   async function appendSelectToPrice() {
     let data: any = [];
     multipleSelection.value.map((item: any) => {
-      data.push({ spec_id: item.spec_id, quantity: Number(item.quantity) || 1 });
+      data.push({ spec_id: item.spec_id, quantity: Number(item.quantity) || 1, unit_type: item.unit_type || 1 });
       item.quantity = null;
     });
     if (data.length == 0) {
@@ -1935,6 +1962,46 @@
     }
     getQuotationInfo(null, false);
   }
+  const changeTypeDialog = ref<boolean>(false);
+  function showChangeType() {
+    let data = multipleQuotationSelection.value.filter((item: any) => {
+      return item.unit_switch == 1;
+    });
+    if (data.length == 0 || data.length != multipleQuotationSelection.value.length) {
+      $message({
+        message: '请选择可以切换单位类型的产品',
+        type: 'warning',
+      });
+      return;
+    }
+    changeTypeDialog.value = true;
+  }
+  async function changeType(unit_type: number) {
+    console.log(multipleQuotationSelection.value);
+    let data = multipleQuotationSelection.value.map((item: any) => {
+      return item.id;
+    });
+    let res = await editSpecUnitType({
+      quotation_id: quotationInfo.value.id,
+      spec_list_ids: data.join(','),
+      unit_type,
+    });
+    console.log(res);
+    if (res.code == 200) {
+      $message({
+        message: '修改成功',
+        type: 'success',
+      });
+      changeTypeDialog.value = false;
+      getQuotationInfo(null, false);
+    } else {
+      $message({
+        message: res.msg,
+        type: 'error',
+      });
+    }
+  }
+
   // 删除报价单数据
   function delQuotationItem(id: any) {
     let data: any = [];

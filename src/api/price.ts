@@ -103,6 +103,16 @@ export function addQuotation(data: any) {
     data,
   });
 }
+/***
+ * 加入报价单
+ */
+export function editSpecUnitType(data: any) {
+  return defHttp.request({
+    url: root + '/api/quotation_pc/editSpecUnitType',
+    method: 'post',
+    data,
+  });
+}
 
 /***
  * 产品名搜索

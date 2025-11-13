@@ -54,18 +54,35 @@
               <span>{{ activePrice.spec_price_tax_ordinary }}</span>
             </div>
           </div>
+          <div
+            class="price-box flex-between items-center px-20"
+            v-if="activePrice.weight_spec_price || activePrice.weight_spec_price_tax || activePrice.weight_spec_price_tax_ordinary"
+          >
+            <div class="text-center">
+              <span>公斤单价：</span>
+              <span>{{ activePrice.weight_spec_price }}</span>
+            </div>
+            <div class="text-center">
+              <span>公斤专票单价：</span>
+              <span>{{ activePrice.weight_spec_price_tax }}</span>
+            </div>
+            <div class="text-center">
+              <span>公斤普票单价：</span>
+              <span>{{ activePrice.weight_spec_price_tax_ordinary }}</span>
+            </div>
+          </div>
           <!-- <div class="price-box flex-between items-center px-20">
             <div class="text-center">
-              <span>单价：</span>
-              <span>{{ activePrice.spec_price }}/公斤</span>
+              <span>短米浮动公斤单价：</span>
+              <span>{{ activePrice.weight_spec_price }}</span>
             </div>
             <div class="text-center">
-              <span>专票：</span>
-              <span>{{ activePrice.spec_price_tax }}/公斤</span>
+              <span>短米浮动公斤专票单价：</span>
+              <span>{{ activePrice.weight_spec_price_tax }}</span>
             </div>
             <div class="text-center">
-              <span>普票：</span>
-              <span>{{ activePrice.spec_price_tax_ordinary }}/公斤</span>
+              <span>短米浮动公斤普票单价：</span>
+              <span>{{ activePrice.weight_spec_price_tax_ordinary }}</span>
             </div>
           </div> -->
           <div class="info-unit flex flex-wrap mt-20">
@@ -171,6 +188,9 @@
         spec_price: res.data.spec_price,
         spec_price_tax: res.data.spec_price_tax,
         spec_price_tax_ordinary: res.data.spec_price_tax_ordinary,
+        weight_spec_price: res.data.weight_spec_price,
+        weight_spec_price_tax: res.data.weight_spec_price_tax,
+        weight_spec_price_tax_ordinary: res.data.weight_spec_price_tax_ordinary,
       };
       let images = JSON.parse(JSON.stringify(res.data.image_arr));
       const result = [];
@@ -214,6 +234,9 @@
     spec_price: '',
     spec_price_tax: '',
     spec_price_tax_ordinary: '',
+    weight_spec_price: '',
+    weight_spec_price_tax: '',
+    weight_spec_price_tax_ordinary: '',
   });
   function changePrice(index: any, item: any) {
     activePriceIndex.value = index;
@@ -221,6 +244,9 @@
       spec_price: item.spec_price,
       spec_price_tax: item.spec_price_tax,
       spec_price_tax_ordinary: item.spec_price_tax_ordinary,
+      weight_spec_price: item.weight_spec_price,
+      weight_spec_price_tax: item.weight_spec_price_tax,
+      weight_spec_price_tax_ordinary: item.weight_spec_price_tax_ordinary,
     };
   }
 
