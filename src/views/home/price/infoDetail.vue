@@ -40,7 +40,7 @@
               <div style="flex: 0 0 10px"></div>
             </div>
           </div>
-          <div class="price-box flex-between items-center px-20">
+          <div class="price-box flex-between items-center">
             <div class="text-center">
               <span>单价：</span>
               <span>{{ activePrice.spec_price }}</span>
@@ -55,7 +55,7 @@
             </div>
           </div>
           <div
-            class="price-box flex-between items-center px-20"
+            class="price-box flex-between items-center"
             v-if="activePrice.weight_spec_price || activePrice.weight_spec_price_tax || activePrice.weight_spec_price_tax_ordinary"
           >
             <div class="text-center">
@@ -63,28 +63,14 @@
               <span>{{ activePrice.weight_spec_price }}</span>
             </div>
             <div class="text-center">
-              <span>公斤专票单价：</span>
+              <span>公斤专票：</span>
               <span>{{ activePrice.weight_spec_price_tax }}</span>
             </div>
             <div class="text-center">
-              <span>公斤普票单价：</span>
+              <span>公斤普票：</span>
               <span>{{ activePrice.weight_spec_price_tax_ordinary }}</span>
             </div>
           </div>
-          <!-- <div class="price-box flex-between items-center px-20">
-            <div class="text-center">
-              <span>短米浮动公斤单价：</span>
-              <span>{{ activePrice.weight_spec_price }}</span>
-            </div>
-            <div class="text-center">
-              <span>短米浮动公斤专票单价：</span>
-              <span>{{ activePrice.weight_spec_price_tax }}</span>
-            </div>
-            <div class="text-center">
-              <span>短米浮动公斤普票单价：</span>
-              <span>{{ activePrice.weight_spec_price_tax_ordinary }}</span>
-            </div>
-          </div> -->
           <div class="info-unit flex flex-wrap mt-20">
             <div v-for="(item, index) of detailInfo.accurate" :key="index">
               <span class="label">{{ item.attribute }}：</span>
