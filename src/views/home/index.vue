@@ -65,6 +65,7 @@
       area: '',
       company_name: '',
       is_structure: 0,
+      is_discount: 0,
     };
     userInfoStore.setUserInfo(data);
     fileMenu.clear();

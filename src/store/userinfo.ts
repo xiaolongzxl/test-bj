@@ -12,6 +12,7 @@ export const UserStore = defineStore('userInfo', {
       area: null,
       nickname: null,
       is_structure: 0,
+      is_discount: 0,
     };
   },
   getters: {},
@@ -24,6 +25,7 @@ export const UserStore = defineStore('userInfo', {
       this.phone = userInfo.phone;
       this.area = userInfo.area;
       this.is_structure = userInfo.is_structure;
+      this.is_discount = userInfo.is_discount;
     },
   },
   persist: {

@@ -184,6 +184,7 @@
             area: res.data.user_info.area,
             company_name: res.data.user_info.company_name,
             is_structure: res.data.user_info.is_structure,
+            is_discount: res.data.user_info.is_discount,
           };
           userInfoStore.setUserInfo(data);
           window.localStorage.setItem('token', res.data.token);

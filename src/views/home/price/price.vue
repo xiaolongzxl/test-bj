@@ -210,7 +210,7 @@
             <span>新增数据</span>
           </div> -->
           <div class="add-btns ml-10" @click="showChangeType">
-            <img :src="$getAssetsImages('price/icon-jgtz.png')" alt="" class="mr-4" />
+            <img :src="$getAssetsImages('price/icon-change.png')" alt="" class="mr-4" />
             <span>切换单位类型</span>
           </div>
           <div class="add-btns ml-10" @click="showAdjustPrice">
@@ -506,11 +506,22 @@
       </div>
     </div>
   </div>
-  <el-dialog v-model="adjustPriceDialog" width="375" class="dialog-self" :show-close="false" align-center>
+  <el-dialog
+    v-model="adjustPriceDialog"
+    width="375"
+    class="dialog-self"
+    :class="userInfoStore.is_discount == 1 ? 'dialog-self8' : ''"
+    :show-close="false"
+    align-center
+  >
     <img :src="$getAssetsImages('price/icon-close.png')" alt="" class="close" @click="adjustPriceDialog = false" />
     <div class="dialog-title pt-27 pb-26">价格调整</div>
     <div class="px-46 mb-40">
-      <div class="flex mb-20">
+      <div class="change-btn" v-if="userInfoStore.is_discount == 1">
+        <div :class="{ active: adjustPriceFromType == 1 }" @click="adjustPriceFromType = 1">调价</div>
+        <div :class="{ active: adjustPriceFromType == 2 }" @click="adjustPriceFromType = 2">折扣</div>
+      </div>
+      <div class="flex mb-20" v-if="adjustPriceFromType == 1">
         <div class="text1">调价1：</div>
         <div class="flex-between operator-box mx-8">
           <img v-if="adjustPriceFrom.type1 == 2" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
@@ -520,7 +531,7 @@
         </div>
         <el-input v-model="adjustPriceFrom.number1" class="adjust-input" placeholder="请输入调价系数"> </el-input>
       </div>
-      <div class="flex mb-20">
+      <div class="flex mb-20" v-if="adjustPriceFromType == 1">
         <div class="text1">调价2：</div>
         <div class="flex-between operator-box mx-8">
           <img v-if="adjustPriceFrom.type2 == 2" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
@@ -530,7 +541,7 @@
         </div>
         <el-input v-model="adjustPriceFrom.number2" class="adjust-input" placeholder="请输入调价系数"> </el-input>
       </div>
-      <div class="flex mb-20">
+      <div class="flex mb-20" v-if="adjustPriceFromType == 1">
         <div class="text1">调价3：</div>
         <div class="flex-between operator-box mx-8">
           <img v-if="adjustPriceFrom.type3 == 2" :src="$getAssetsImages('price/cheng-select.png')" alt="" />
@@ -540,6 +551,12 @@
         </div>
         <el-input v-model="adjustPriceFrom.number3" class="adjust-input" placeholder="请输入调价系数"> </el-input>
       </div>
+      <div class="flex mb-20" v-if="adjustPriceFromType == 2" style="height: 32px"> </div>
+      <div class="flex mb-20" v-if="adjustPriceFromType == 2">
+        <div class="text1">打<span style="opacity: 0">打</span>折：</div>
+        <el-input v-model="adjustPriceFrom.number4" class="discount-input" placeholder="请输入折扣数（0-100）"> </el-input>
+      </div>
+      <div class="flex mb-20" v-if="adjustPriceFromType == 2" style="height: 32px"> </div>
       <div class="flex">
         <div class="text1">小数位：</div>
         <div class="flex-between operator-box mx-8" style="width: 88px">
@@ -2112,6 +2129,7 @@
   }
   // 调整价格
   const adjustPriceDialog = ref<boolean>(false);
+  const adjustPriceFromType = ref<number>(1);
   const adjustPriceFrom = ref<any>({
     type1: 2,
     number1: '',
@@ -2120,7 +2138,9 @@
     type3: 2,
     number3: '',
     decimal_places: 2,
+    number4: '',
   });
+
   function showAdjustPrice() {
     if (multipleQuotationSelection.value.length == 0) {
       $message({
@@ -2135,15 +2155,26 @@
     let ids: any = multipleQuotationSelection.value.map((item: any) => {
       return item.id;
     });
+    let data = {};
+    if (adjustPriceFromType.value == 1) {
+      data = {
+        price_adjustment_type: adjustPriceFrom.value.type1,
+        price_adjustment_ratio: adjustPriceFrom.value.number1,
+        price_adjustment_type_2: adjustPriceFrom.value.type2,
+        price_adjustment_ratio_2: adjustPriceFrom.value.number2,
+        price_adjustment_type_3: adjustPriceFrom.value.type3,
+        price_adjustment_ratio_3: adjustPriceFrom.value.number3,
+      };
+    } else {
+      data = {
+        price_adjustment_ratio_4: adjustPriceFrom.value.number4,
+      };
+    }
     let res = await priceAdjustment({
       quotation_id: quotationInfo.value.id,
       spec_list_ids: ids.join(','),
-      price_adjustment_type: adjustPriceFrom.value.type1,
-      price_adjustment_ratio: adjustPriceFrom.value.number1,
-      price_adjustment_type_2: adjustPriceFrom.value.type2,
-      price_adjustment_ratio_2: adjustPriceFrom.value.number2,
-      price_adjustment_type_3: adjustPriceFrom.value.type3,
-      price_adjustment_ratio_3: adjustPriceFrom.value.number3,
+      ...data,
+      adjust_price_type: adjustPriceFromType.value,
       decimal_places: adjustPriceFrom.value.decimal_places,
     });
     if (res.code == 200) {
@@ -2883,7 +2914,32 @@
       text-align: center;
       cursor: default;
     }
-
+    .change-btn {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      & > div {
+        width: 142px;
+        height: 32px;
+        line-height: 32px;
+        background: #fff;
+        border: 1px solid #197cfa;
+        box-shadow: none;
+        color: #197cfa;
+        text-align: center;
+        cursor: pointer;
+        &:first-of-type {
+          border-radius: 4px 0 0 4px;
+        }
+        &:last-of-type {
+          border-radius: 0 4px 4px 0;
+        }
+        &.active {
+          background: #197cfa;
+          color: #fff;
+        }
+      }
+    }
     .close {
       position: absolute;
       top: 27px;
@@ -2938,6 +2994,14 @@
 
     .adjust-input {
       width: 160px;
+      height: 32px;
+      background: #ffffff;
+      border-radius: 0px 0px 0px 0px;
+      border: 1px solid #e9e9e9;
+      box-shadow: none;
+    }
+    .discount-input {
+      width: 226px;
       height: 32px;
       background: #ffffff;
       border-radius: 0px 0px 0px 0px;
@@ -3346,6 +3410,10 @@
     border: 0;
     box-shadow: none;
   }
+  :deep(.discount-input .el-input__wrapper) {
+    border: 0;
+    box-shadow: none;
+  }
 
   :deep(.el-radio) {
     margin-right: 16px;
@@ -3561,7 +3629,9 @@
   .el-dialog.dialog-self {
     height: 380px;
   }
-
+  .el-dialog.dialog-self8 {
+    height: 440px;
+  }
   .el-dialog.dialog-self2 {
     height: 80%;
   }
