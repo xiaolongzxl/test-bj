@@ -454,12 +454,12 @@
               </div> -->
             </template>
           </el-table-column>
-          <el-table-column label="操作" min-width="100" v-if="userInfoStore.is_structure == 1">
+          <el-table-column label="操作" min-width="100">
             <template #default="scope">
               <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary" @click="showConfigBox(scope.row)">
                 工艺配置 
               </el-button>-->
-              <div style="display: flex; align-items: center">
+              <div style="display: flex; align-items: center; justify-content: center">
                 <el-button
                   v-if="scope.row.unit_switch == 1 && scope.row.searchable"
                   size="small"
@@ -469,7 +469,11 @@
                   {{ scope.row.unit_type == 1 ? '切换为公斤' : '切换为米' }}
                   <!--  1 长度米 2 重量公斤 -->
                 </el-button>
-                <div class="pa-4 cursor-pointer ml-4" @click="showConfigBox(scope.row)" v-if="scope.row.process && scope.row.process.content == 1">
+                <div
+                  class="pa-4 cursor-pointer ml-4"
+                  @click="showConfigBox(scope.row)"
+                  v-if="userInfoStore.is_structure == 1 && scope.row.process && scope.row.process.content == 1"
+                >
                   <img :src="$getAssetsImages('price/config.png')" alt="" style="width: 20px; height: 20px" />
                 </div>
               </div>
