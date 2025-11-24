@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vite --host --open",
     "build": "vue-tsc && vite build",
+    "nbuild:prod": "vue-tsc && vite build --mode production",
     "preview": "vite preview",
     "prepare": "husky install",
     "prettier": "prettier --write .",
     "postinstall": "husky install",
-    "build:prod": "yarn build --mode prodution"
+    "build:prod": "yarn build --mode production"
   },
   "dependencies": {
     "@unocss/preset-attributify": "^66.0.0",

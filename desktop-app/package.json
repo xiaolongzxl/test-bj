@@ -1,0 +1,51 @@
+{
+  "name": "desktop-app",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cross-env NODE_ENV=development electron .",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "build-h5": "cd .. && npm run nbuild:prod"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "electron": "latest",
+    "electron-builder": "latest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "build": {
+    "appId": "com.wanhedianli.myapp",
+    "productName": "万达电力",
+    "asar": true,
+    "publish": [],
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "dist/**/*"
+    ],
+    "extraResources": [],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "nsis": {
+      "language": "2052",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
