@@ -1,6 +1,8 @@
 // main.js
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
+
+require('./utils/drag-file');
 
 Menu.setApplicationMenu(null);
 function createWindow() {
@@ -19,10 +21,10 @@ function createWindow() {
   });
 
   // 加载本地 H5 项目（推荐）
-  win.loadFile(path.join(__dirname, 'dist/index.html'));
+  // win.loadFile(path.join(__dirname, 'dist/index.html'));
 
   // 或加载远程 URL（不推荐用于生产）
-  // win.loadURL('https://your-app.com');
+  win.loadURL('http://localhost:5173/');
 
   // 开发时打开 DevTools
   if (process.env.NODE_ENV === 'development') {

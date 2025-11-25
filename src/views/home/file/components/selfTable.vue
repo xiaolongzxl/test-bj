@@ -316,6 +316,22 @@
         });
       },
       onStart: (evt) => {
+        // console.log(evt, 'start');
+        // console.log(window);
+        // if (window.electronAPI) {
+        //   evt.preventDefault();
+        //   // 获取所有选中项的远程 URL
+        //   let items = !evt.items.length && evt.item ? [evt.item] : evt.items;
+
+        //   const selectedItems = items;
+        //   const fileUrls = Array.from(selectedItems).map((item) => item.dataset.fileUrl);
+        //   console.log(window.electronAPI);
+        //   if (fileUrls.length > 0) {
+        //     window.electronAPI.dragRemoteFiles(fileUrls);
+        //   }
+        //   return false;
+        // }
+
         tableDrag.value = true;
       },
       onMove(evt) {

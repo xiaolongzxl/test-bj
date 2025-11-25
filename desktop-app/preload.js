@@ -1,4 +1,6 @@
 // preload.js
-window.addEventListener('DOMContentLoaded', () => {
-  // 可暴露有限 API 给渲染进程
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  dragRemoteFiles: (fileUrls) => ipcRenderer.invoke('drag-remote-files', fileUrls),
 });
