@@ -27,7 +27,14 @@
         <el-table-column v-bind="item" :sortable="item.isSort">
           <template #default="scope">
             <template v-if="item.key == 'drag'">
-              <img v-show="checkedList?.length ? isCheck(scope.row) : true" class="drag-handle" :src="$getAssetsImages('file/table-drag.png')" />
+              <img
+                draggable="true"
+                @dragend="itemDragEnd"
+                @dragstart="(e) => handleDragStart(e, scope.row)"
+                v-show="checkedList?.length ? isCheck(scope.row) : true"
+                class="drag-handle"
+                :src="$getAssetsImages('file/table-drag.png')"
+              />
             </template>
             <template v-if="item.custom">
               <slot :name="`${item.key}Custom`" :row="scope.row" :index="scope.$index"></slot>
@@ -38,6 +45,12 @@
                 style="overflow-hidden"
                 :data-is-folder="scope.row.type == 'wjj'"
                 @click="handleChangeFolder(scope.row)"
+                draggable="false"
+                @dragstart="
+                  (e) => {
+                    e.preventDefault();
+                  }
+                "
               >
                 <el-image loading="lazy" class="tableFileImg" :src="$getAssetsImages(fileType(scope.row?.extension))" />
                 <span class="ml1" style="white-space: nowrap; max-width: calc(100% - 26px); text-overflow: ellipsis; overflow: hidden">{{
@@ -87,7 +100,11 @@
           v-for="(item, index) in dataList"
           :key="item[props.rowKey]"
           :data-index="item[props.rowKey]"
+          draggable="true"
+          @dragend="itemDragEnd"
+          @dragstart="(e) => handleDragStart(e, item)"
         >
+          <!-- @dragstart="(e) => handleCustomDrag(e, item)" -->
           <!-- draggable="true"
           @dragstart="(e) => handleDragStart(e, item)" -->
           <el-checkbox class="showCheckbox" :model-value="isCheck(item)" @change="handleNormalCheck(item)"></el-checkbox>
@@ -123,7 +140,7 @@
   import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
   import Btns from './btns/index.vue';
   import { ElLoading } from 'element-plus';
-  import { fileType, fileUpload, getIsFolder, folderUpload, downLoadSingle } from '@/utils/util';
+  import { fileType, fileUpload, getIsFolder, folderUpload, downLoadSingle, downLoadFile } from '@/utils/util';
   import { fileFolderSort, pwdSort } from '@/api/file';
   import PreviewModel from '@/views/home/file/components/btns/preview.vue';
   const emits = defineEmits(['clickFile', 'dbClick', 'update:checkedList', 'update:dataList', 'listRefresh']);
@@ -272,6 +289,7 @@
 
   // 初始化拖拽
   const initRowDrag = () => {
+    return;
     if (!props.row && !props.row?.find((e) => e.key == 'drag')) return;
     const isGrid = props.fileShowType === 'ggst';
     if (sortInstance) {
@@ -510,18 +528,140 @@
 
     emits('update:checkedList', _checkedList);
   };
+  window.electronAPI.on('drag-complete', () => {
+    console.log('拖拽完成:');
+    tableDrag.value = false;
+  });
   const handleDragStart = (e, item) => {
-    console.log(e, item, 'dragstart');
-    e.dataTransfer.effectAllowed = 'copy';
-    const url = downLoadSingle([item], folderQuery.value.folder_category_id, item.name, 'normal', true);
-    // 方案1：Chromium 下直接拖出下载
-    e.dataTransfer.setData('DownloadURL', `text/plain:${item.name}:${url}`);
-    e.dataTransfer.setData('text/uri-list', url);
-    e.dataTransfer.setData('text/plain', url);
-    console.log(e.dataTransfer.getData('DownloadURL'));
+    console.log(e, item, 'dragstart', checkedDataList.value);
+    if (!fileMenuStore().hasPremission(5)) return;
+    tableDrag.value = true;
+
+    // -------------------------------------
+    // e.dataTransfer.effectAllowed = 'copy';
+    // const url = downLoadSingle([item], folderQuery.value.folder_category_id, item.name, 'normal', true);
+    // // 方案1：Chromium 下直接拖出下载
+    // e.dataTransfer.setData('DownloadURL', `text/plain:${item.name}:${url}`);
+    // e.dataTransfer.setData('text/uri-list', url);
+    // e.dataTransfer.setData('text/plain', url);
+    // // 可选：自定义拖拽预览图像（显示文件名，增强 UX）
+    // const dragImage = createDragImage(item.name);
+    // e.dataTransfer.setDragImage(dragImage, 10, 10); // 偏移量，避免挡住鼠标
+    // console.log(e.dataTransfer.getData('DownloadURL'));
+    // -------------------------------------
+
+    // const url = downLoadSingle([item], folderQuery.value.folder_category_id, item.name, 'normal', true);
+    // // 关键：用我们自己注册的协议
+    // const fakeUrl = `dragfile://download/${encodeURIComponent(url)}`;
+
+    // e.dataTransfer.setData('DownloadURL', `application/octet-stream:${item.name}:${fakeUrl}`);
+
+    // // 可选：拖拽预览美观点
+    // const img = document.createElement('div');
+    // img.textContent = item.name;
+    // img.style.cssText = `padding:8px 16px; background:rgba(0,0,0,0.75); color:white; border-radius:8px; font-size:13px;`;
+    // document.body.appendChild(img);
+    // e.dataTransfer.setDragImage(img, 10, 10);
+    // setTimeout(() => img.remove(), 100);
+    // ----------------------------------------------
+    let downloadItems = [];
+    let isZip = false;
+    if (checkedDataList.value.length) {
+      downloadItems = [...checkedDataList.value];
+      isZip = checkedDataList.value.length > 1 || getIsFolder(checkedDataList.value[0]?.extension) ? true : false;
+    } else {
+      isZip = getIsFolder(item?.extension);
+
+      downloadItems = [item];
+    }
+    const lines = [];
+
+    let fileName = '';
+    let mime = 'application/octet-stream';
+    let url;
+    if (isZip) {
+      fileName = downloadItems[0].name + '.zip';
+      mime = 'application/zip';
+      url = `dragzip://folder?files=${encodeURIComponent(
+        JSON.stringify(downloadItems.map((e) => ({ id: e.id, type: getIsFolder(e.extension) ? '1' : '2' })))
+      )}&category_id=${folderQuery.value.folder_category_id}&name=${encodeURIComponent(fileName)}&token=${localStorage.getItem('token')}`;
+    } else {
+      fileName = downloadItems[0].name;
+      // 单个普通文件
+      url = downLoadSingle(downloadItems, folderQuery.value.folder_category_id, fileName, 'normal', true);
+      // 可选：更精确的 mime（图片、视频、pdf 等）
+      if (fileName.endsWith('.pdf')) mime = 'application/pdf';
+      else if (/\.(jpe?g|png|gif|webp)$/i.test(fileName)) mime = 'image/jpeg';
+      else if (/\.(mp4|webm|ogg)$/i.test(fileName)) mime = 'video/mp4';
+
+      // 关键：用我们自己注册的协议
+      url = `dragfile://download?fileName=${encodeURIComponent(fileName)}&fakeUrl=${encodeURIComponent(url)}`;
+    }
+    lines.push(`${mime}:${fileName}:${url}`);
+    console.log(lines, '------------');
+    // 一次性写入所有文件（多文件会显示 “N 个项目”）
+    e.dataTransfer.setData('DownloadURL', lines.join('\n'));
+
+    // ====================== 美化拖拽预览 ======================
+    const preview = document.createElement('div');
+    preview.style.cssText = `
+  padding: 10px 16px;
+  background: ${isZip ? '#0066ff' : '#00a0e9'};
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  /* 确保不会被隐藏 */
+  position: fixed;
+  top: -999px; /* 先放屏幕外，避免闪烁 */
+  left: -999px;
+  z-index: 999999;
+`;
+
+    if (downloadItems.length === 1) {
+      preview.textContent = downloadItems[0].name + (isZip ? ' (文件夹)' : '');
+    } else {
+      preview.textContent = `${downloadItems.length} 个项目`;
+    }
+
+    document.body.appendChild(preview);
+
+    e.dataTransfer.setDragImage(preview, 20, 20);
+
+    // 稍后移除（比如 1 秒后）
+    setTimeout(() => {
+      if (preview.parentNode) {
+        preview.parentNode.removeChild(preview);
+      }
+    }, 1000);
   };
+  const itemDragEnd = () => {
+    tableDrag.value = false;
+    isDropTable.value = false;
+  };
+
+  // 创建拖拽时的预览图像（类似网盘的半透明文件名标签）
+  function createDragImage(fileName) {
+    const div = document.createElement('div');
+    div.style.cssText = `
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;  /* 避免干扰 */
+  `;
+    div.textContent = fileName;
+    document.body.appendChild(div);
+    return div;
+  }
   const init = () => {
     initRowDrag();
+    tableDrag.value = false;
     document.addEventListener('key', handleDragOver);
   };
   onMounted(() => {
@@ -589,6 +729,7 @@
     }
   };
   const handleDrop = async (e) => {
+    if (tableDrag.value) return;
     isDropTable.value = false;
 
     const items = Array.from(e.dataTransfer.items); // 获取所有拖拽项

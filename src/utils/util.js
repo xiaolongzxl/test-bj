@@ -397,14 +397,22 @@ export const downLoadSingle = (files, folder_category_id, name, flag = 'normal',
   //   }
   // });
 };
-export const downLoadFile = async (files, folder_category_id, name) => {
+export const downLoadFile = async (files, folder_category_id, name, returnUrl = false) => {
   let _name = name.split('.');
   if (_name.length > 1) {
     _name = _name.slice(0, _name.length - 1).join('.');
   } else {
     _name = _name[0];
   }
-
+  if (returnUrl) {
+    const data = {
+      folder_category_id,
+      data: files,
+    };
+    const BASEURL = import.meta.env.VITE_APP_BASE_URL;
+    console.log(`${BASEURL}/api/pan/downloadZip?${objectToGetParams(data)}`);
+    return `${BASEURL}/api/pan/downloadZip?${objectToGetParams(data)}`;
+  }
   return new Promise(async (resolve, reject) => {
     const loading = ElLoading.service({
       text: '请稍等...',

@@ -99,8 +99,8 @@ ipcMain.handle('drag-remote-files', async (event, fileUrls) => {
       const filename = extractFilename(url, 0);
       const localPath = path.join(tempDir, `drag_single_${Date.now()}_${filename}`);
 
-      await downloadFile(url, localPath);
-
+      const res = await downloadFile(url, localPath);
+      console.log(res, '----------------------', '--------------------');
       const iconPath = path.join(app.getAppPath(), 'assets', 'logo.png');
       win.webContents.startDrag({
         file: localPath,
@@ -155,6 +155,29 @@ ipcMain.handle('drag-remote-files', async (event, fileUrls) => {
   } catch (err) {
     console.error('拖拽远程文件失败:', err);
     // 可选：发送错误到前端
-    // win.webContents.send('drag-error', err.message);
+    win.webContents.send('drag-error', err);
   }
+});
+
+ipcMain.on('start-drag', (event, file) => {
+  const { fileName, url } = file;
+
+  event.sender.startDrag({
+    file: undefined, // 我们不用本地文件
+    icon: path.join(__dirname, 'assets/logo.png'), // 可选：拖拽时显示的图标
+
+    // 关键：用原生方式发起下载，完全没有 Referrer
+    async getDragData() {
+      // 这里直接用 Node 去请求你的接口（完全没有浏览器 Referrer）
+      const response = await fetch(url);
+
+      const buffer = await response.arrayBuffer();
+
+      // 把下载的文件临时写到系统临时目录
+      const tempPath = path.join(app.getPath('temp'), fileName);
+      require('fs').writeFileSync(tempPath, Buffer.from(buffer));
+
+      return tempPath; // 返回本地临时文件路径
+    },
+  });
 });
