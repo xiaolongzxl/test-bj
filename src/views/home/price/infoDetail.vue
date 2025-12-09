@@ -74,7 +74,10 @@
           <div class="info-unit flex flex-wrap mt-20">
             <div v-for="(item, index) of detailInfo.accurate" :key="index">
               <span class="label">{{ item.attribute }}：</span>
-              <span class="value">{{ item.value }}</span>
+              <span class="value" v-if="item.type == 1">{{ item.value }}</span>
+              <span class="value" v-if="item.type == 2" @click="viewImages(item.value)">
+                <img :src="$getAssetsImages('price/11.png')" style="width: 24px; vertical-align: middle" alt="" />
+              </span>
             </div>
           </div>
           <div class="mt-20">
@@ -263,6 +266,14 @@
     emit('show-preview-pdf', link);
   }
   // 查看图片
+  function viewImages(value: any) {
+    let list = value.split(',').map((item: any) => {
+      return { src: 'https://wddlsz.com' + item, name: '' };
+    });
+    $viewerApi({
+      images: list,
+    }).view(0);
+  }
   function previewImg() {
     let activeIndex = 0;
     let list = detailInfo.value.image_arr.map((item: any, index: any) => {
