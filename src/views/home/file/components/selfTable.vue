@@ -528,12 +528,17 @@
 
     emits('update:checkedList', _checkedList);
   };
-  window.electronAPI.on('drag-complete', () => {
-    console.log('拖拽完成:');
-    tableDrag.value = false;
-  });
+  if (window?.electronAPI) {
+    window.electronAPI.on('drag-complete', () => {
+      console.log('拖拽完成:');
+      tableDrag.value = false;
+    });
+  }
+
   const handleDragStart = (e, item) => {
     console.log(e, item, 'dragstart', checkedDataList.value);
+    tableDrag.value = true;
+    if (!window.electronAPI) return;
     if (!fileMenuStore().hasPremission(5)) return;
     tableDrag.value = true;
 
