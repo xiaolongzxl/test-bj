@@ -3639,7 +3639,9 @@
   .el-dialog.dialog-self3 {
     height: 100%;
   }
-
+  .el-dialog.dialog-self33 {
+    height: 70%;
+  }
   .el-dialog.dialog-self4 {
     height: 240px;
   }

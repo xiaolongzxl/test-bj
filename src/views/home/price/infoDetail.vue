@@ -75,7 +75,7 @@
             <div v-for="(item, index) of detailInfo.accurate" :key="index">
               <span class="label">{{ item.attribute }}：</span>
               <span class="value" v-if="item.type == 1">{{ item.value }}</span>
-              <span class="value" v-if="item.type == 2" @click="viewImages(item.value)">
+              <span class="value" v-if="item.type == 2" @click="showDialogImages(item)">
                 <img :src="$getAssetsImages('price/11.png')" style="width: 24px; vertical-align: middle" alt="" />
               </span>
             </div>
@@ -126,6 +126,31 @@
       </el-table>
     </div>
   </el-dialog>
+  <el-dialog v-model="dialogImages" width="800" class="dialog-self dialog-self33" :show-close="false" align-center>
+    <img :src="$getAssetsImages('price/icon-clos.png')" alt="" class="close2" @click="dialogImages = false" />
+    <div class="dialog-title2 pt-24 pb-24">{{ activeDialogImage.attribute }}</div>
+    <div class="px-46 scroll-none" style="height: calc(100% - 120px)">
+      <div class="mb-30 flex flex-wrap">
+        <img
+          @click="viewImages(item)"
+          v-for="item of activeDialogImage.value.split(',')"
+          :key="item"
+          :src="'https://wddlsz.com' + item"
+          alt=""
+          style="
+            width: 200px;
+            height: 200px;
+            border: 1px solid #ccc;
+            padding: 4px;
+            border-radius: 10px;
+            object-fit: contain;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 20px 0 0;
+          "
+        />
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -135,6 +160,8 @@
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const $viewerApi: any = getCurrentInstance()?.appContext.config.globalProperties.$viewerApi;
   const dialogInfoVisible: any = defineModel('dialogInfoVisible');
+  const dialogImages: any = ref<boolean>(false);
+  const activeDialogImage = ref<any>({});
   const emit = defineEmits(['append-item-to-price', 'show-preview-pdf']);
   const props = defineProps({
     infoDetailId: [Number, String],
@@ -143,6 +170,10 @@
   onMounted(() => {
     getDetail();
   });
+  function showDialogImages(item: any) {
+    dialogImages.value = true;
+    activeDialogImage.value = item;
+  }
   const detailInfo = ref<any>({
     id: null,
     name: null,
@@ -272,7 +303,7 @@
     });
     $viewerApi({
       images: list,
-    }).view(0);
+    }).view('https://wddlsz.com' + value);
   }
   function previewImg() {
     let activeIndex = 0;
@@ -377,7 +408,8 @@
       background: #197cfa;
     }
   }
-  .dialog-self2 {
+  .dialog-self2,
+  .dialog-self33 {
     height: 80%;
     .dialog-title2 {
       line-height: 30px;
