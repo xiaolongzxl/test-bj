@@ -132,8 +132,8 @@
     <div class="px-46 scroll-none" style="height: calc(100% - 120px)">
       <div class="mb-30 flex flex-wrap">
         <img
-          @click="viewImages(item)"
-          v-for="item of activeDialogImage.value.split(',')"
+          @click="viewImages(index)"
+          v-for="(item, index) of activeDialogImage.value.split(',')"
           :key="item"
           :src="'https://wddlsz.com' + item"
           alt=""
@@ -151,9 +151,35 @@
       </div>
     </div>
   </el-dialog>
+  <div
+    style="width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 99999; background: rgba(0, 0, 0, 0.4); padding: 20px"
+    v-if="swiperDialog"
+  >
+    <SwiperGroup :slides="swiperImages" :initialSlide="swiperIndex" />
+    <div
+      style="
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        z-index: 99999;
+        border-radius: 50%;
+      "
+      @click="swiperDialog = false"
+    >
+      <img :src="$getAssetsImages('price/icon-close3.png')" alt="" style="width: 30px; height: 30px; margin: auto" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
+  import SwiperGroup from '@/views/home/price/swiperGroup.vue';
   import { ElLoading } from 'element-plus';
   import { seriesSpecInfo } from '@/api/price.ts';
   const $getAssetsImages = getCurrentInstance()?.appContext.config.globalProperties.$getAssetsImages;
@@ -296,14 +322,19 @@
   function showPdfLink(link: any) {
     emit('show-preview-pdf', link);
   }
+  const swiperDialog = ref<any>(false);
+  const swiperImages = ref<any>([]);
+  const swiperIndex = ref<any>(0);
   // 查看图片
-  function viewImages(value: any) {
-    let list = value.split(',').map((item: any) => {
+  function viewImages(index: any) {
+    swiperImages.value = activeDialogImage.value.value.split(',').map((item: any) => {
       return { src: 'https://wddlsz.com' + item, name: '' };
     });
-    $viewerApi({
-      images: list,
-    }).view('https://wddlsz.com' + value);
+    swiperIndex.value = index;
+    swiperDialog.value = true;
+    // $viewerApi({
+    //   images: list,
+    // }).view('https://wddlsz.com' + value);
   }
   function previewImg() {
     let activeIndex = 0;
