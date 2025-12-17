@@ -1,5 +1,5 @@
 <template>
-  <div class="home-header flex-between pl-24 pr-40">
+  <div class="home-header flex-between pl-24 pr-20">
     <div class="flex-between left-logo">
       <img :src="$getAssetsImages('logo/logo.png')" alt="" style="height: 36px" />
       <div class="card-tab flex">
@@ -9,8 +9,13 @@
         <div :class="{ active: activePage == '/file' }" @click="changePage('/file')" class="no-select cursor-pointer flex-center">文件管理</div>
       </div>
     </div>
+    <div @click="handleRefresh" class="refreshIcon" :class="isRefresh ? 'rotating' : ''" style="margin: 0 10px 0 auto"
+      ><el-icon size="20"><Refresh /></el-icon
+    ></div>
+
     <el-dropdown placement="bottom">
       <img :src="userInfoStore.avatar" class="w-45px h-45px" alt="" style="border-radius: 50%" />
+
       <template #dropdown>
         <div class="login-out">
           <div class="info flex-center">
@@ -29,7 +34,7 @@
     </el-dropdown>
   </div>
   <div class="home-content flex">
-    <router-view></router-view>
+    <router-view :key="route.fullPath"></router-view>
   </div>
 </template>
 
@@ -52,6 +57,16 @@
     }
     return activePath;
   });
+  const isRefresh = ref(false);
+  const handleRefresh = () => {
+    isRefresh.value = true;
+
+    router.replace({ path: route.fullPath, query: { ...route.query, t: Date.now() } });
+
+    setTimeout(() => {
+      isRefresh.value = false;
+    }, 600);
+  };
   function changePage(path: any) {
     console.log(path);
     router.push(path);
@@ -108,6 +123,21 @@
           background: #0066ff;
           border-radius: 0px 0px 0px 0px;
         }
+      }
+    }
+    .refreshIcon {
+      cursor: pointer;
+      &.rotating .el-icon {
+        animation: rotateIcon 0.6s linear;
+      }
+    }
+
+    @keyframes rotateIcon {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
       }
     }
   }
