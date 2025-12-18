@@ -588,7 +588,7 @@
     <div class="px-46 mb-40 flex-center">
       <div class="tip" style="font-size: 16px">是否批量切换单位类型</div>
     </div>
-    <div class="flex-center">
+    <div class="flex-center pb-20">
       <div class="dialog-btn mr-20" @click="changeTypeDialog = false">取消</div>
       <div class="dialog-btn confirm-btn mr-20" @click="changeType(1)">切换为米</div>
       <div class="dialog-btn confirm-btn" @click="changeType(2)">切换为公斤</div>
@@ -3625,30 +3625,37 @@
     box-shadow: 0px 6px 58px 0px rgba(121, 145, 173, 0.2);
     background: linear-gradient(180deg, #e7f0fc 0%, #fff 56px, #fff 56px);
   }
-
-  .el-dialog.dialog-self {
+  div.el-dialog {
+    height: 80%;
+    padding: 0;
+    border-radius: 12px 12px 12px 12px;
+    background: #ffffff;
+    box-shadow: 0px 6px 58px 0px rgba(121, 145, 173, 0.2);
+    background: linear-gradient(180deg, #e7f0fc 0%, #fff 56px, #fff 56px);
+  }
+  div.el-dialog.dialog-self {
     height: 380px;
   }
-  .el-dialog.dialog-self8 {
+  div.el-dialog.dialog-self8 {
     height: 440px;
   }
-  .el-dialog.dialog-self2 {
+  div.el-dialog.dialog-self2 {
     height: 80%;
   }
 
-  .el-dialog.dialog-self3 {
+  div.el-dialog.dialog-self3 {
     height: 100%;
   }
-  .el-dialog.dialog-self33 {
+  div.el-dialog.dialog-self33 {
     height: 70%;
   }
-  .el-dialog.dialog-self4 {
+  div.el-dialog.dialog-self4 {
     height: 240px;
   }
-  .el-dialog.dialog-self5 {
+  div.el-dialog.dialog-self5 {
     height: 98%;
   }
-  .el-dialog.dialog-self6 {
+  div.el-dialog.dialog-self6 {
     height: 70%;
   }
 
