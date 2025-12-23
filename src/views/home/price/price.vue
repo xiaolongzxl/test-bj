@@ -47,7 +47,7 @@
     <div class="zhe-die" @click="showLeft = !showLeft">
       <img :src="$getAssetsImages('home/icon-zhedie.png')" alt="" :class="showLeft ? '' : 'show'" />
     </div>
-    <div class="list mr-10">
+    <div class="list" v-if="showSpecName">
       <div class="search">
         <el-input
           placeholder="请输入关键词"
@@ -180,7 +180,11 @@
         </el-table-column>
       </el-table>
     </div>
-    <div class="add-content">
+
+    <div class="add-content ml-20" :class="{ 'fill-content': !showSpecName }">
+      <div class="zhe-die2" @click="showSpecName = !showSpecName">
+        <img :src="$getAssetsImages('home/icon-zhedie.png')" alt="" :class="showSpecName ? '' : 'show'" />
+      </div>
       <div class="head-title flex-between px-20 mb-6">
         <div class="left-title">报价单</div>
         <div class="add-btns" @click="drawerPriseList = true">
@@ -210,7 +214,7 @@
             <span>新增数据</span>
           </div> -->
           <div class="add-btns ml-10" @click="showChangeType">
-            <img :src="$getAssetsImages('price/icon-change.png')" alt="" class="mr-4" />
+            <!-- <img :src="$getAssetsImages('price/icon-change.png')" alt="" class="mr-4" /> -->
             <span>切换单位类型</span>
           </div>
           <div class="add-btns ml-10" @click="showAdjustPrice">
@@ -436,7 +440,6 @@
               </div>
             </template>
           </el-table-column>
-
           <el-table-column label="重量">
             <template #default="scope">
               <!--  v-if="scope.row.reference_weight && scope.row.searchable" -->
@@ -1172,7 +1175,6 @@
   const $message: any = getCurrentInstance()?.appContext.config.globalProperties.$message;
   const showLeft = ref<boolean>(true);
   const userInfoStore: any = UserStore();
-
   // 一级分类
   onMounted(() => {
     getCategory(); // 查找所有带有波浪线样式的元素
@@ -1957,6 +1959,7 @@
     }
   }
   // 数量选择
+  const showSpecName = ref<boolean>(true);
   const quotationTableData = ref<any>([]);
   const multipleQuotationSelection = ref<any>([]);
   function SelectionQuotationChange(val: any) {
@@ -2666,34 +2669,10 @@
       max-width: 100%;
     }
 
-    .zhe-die {
-      position: relative;
-      width: 12px;
-      height: 64px;
-      background: rgba(144, 163, 191, 0.5);
-      border-radius: 0px 12px 12px 0px;
-      position: absolute;
-      left: 0;
-      top: 40%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-
-      img {
-        width: 8px;
-        height: 13px;
-
-        &.show {
-          transform: rotate(180deg);
-        }
-      }
-    }
-
     .list {
       padding: 16px;
-      flex: 0 0 calc(42% - 10px);
-      max-width: calc(42% - 10px);
+      flex: 0 0 calc(42% - 20px);
+      max-width: calc(42% - 20px);
       height: 100%;
       background: #ffffff;
       box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
@@ -2701,6 +2680,7 @@
     }
 
     .add-content {
+      position: relative;
       flex: 0 0 58%;
       max-width: 58%;
       height: 100%;
@@ -2734,8 +2714,58 @@
         }
       }
     }
+    .fill-content {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
   }
 
+  .zhe-die {
+    position: relative;
+    width: 12px;
+    height: 64px;
+    background: rgba(144, 163, 191, 0.5);
+    border-radius: 0px 12px 12px 0px;
+    position: absolute;
+    left: 0;
+    top: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    img {
+      width: 8px;
+      height: 13px;
+
+      &.show {
+        transform: rotate(180deg);
+      }
+    }
+  }
+  .zhe-die2 {
+    position: relative;
+    width: 12px;
+    height: 64px;
+    background: rgba(144, 163, 191, 0.5);
+    border-radius: 12px 0px 0px 12px;
+    position: absolute;
+    left: -12px;
+    top: calc(40% - 4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    img {
+      width: 8px;
+      height: 13px;
+
+      &.show {
+        transform: rotate(180deg);
+      }
+    }
+  }
   .foot {
     height: 60px;
     background: rgba(233, 239, 255, 0.5);
@@ -3530,6 +3560,10 @@
         flex: 0 0 calc(100% - 650px);
         max-width: calc(100% - 650px);
       }
+      .fill-content {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
     }
 
     .right-content.show {
@@ -3541,6 +3575,10 @@
       .add-content {
         flex: 0 0 calc(100% - 850px);
         max-width: calc(100% - 850px);
+      }
+      .fill-content {
+        flex: 0 0 100%;
+        max-width: 100%;
       }
     }
   }
@@ -3556,6 +3594,10 @@
         flex: 0 0 calc(100% - 570px);
         max-width: calc(100% - 570px);
       }
+      .fill-content {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
     }
 
     .right-content.show {
@@ -3567,6 +3609,10 @@
       .add-content {
         flex: 0 0 calc(100% - 770px);
         max-width: calc(100% - 770px);
+      }
+      .fill-content {
+        flex: 0 0 100%;
+        max-width: 100%;
       }
     }
   }
@@ -3582,6 +3628,10 @@
         flex: 0 0 calc(100% - 500px);
         max-width: calc(100% - 500px);
       }
+      .fill-content {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
     }
 
     .right-content.show {
@@ -3593,6 +3643,10 @@
       .add-content {
         flex: 0 0 calc(100% - 700px);
         max-width: calc(100% - 700px);
+      }
+      .fill-content {
+        flex: 0 0 100%;
+        max-width: 100%;
       }
     }
   }
