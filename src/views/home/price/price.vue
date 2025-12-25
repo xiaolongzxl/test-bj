@@ -209,10 +209,10 @@
           <div class="add-btns ml-10" @click="changeColor('isBlackText')" :style="isBlackText ? 'opacity:1' : 'opacity:.5'">
             <img :src="$getAssetsImages('price/icon-black.png')" alt="" />
           </div>
-          <!-- <div class="add-btns ml-10" @click="appendNewItemToPrice(null)" v-loading="isLoading">
+          <div class="add-btns ml-10" @click="appendNewItemToPrice(null)" v-loading="isLoading">
             <img :src="$getAssetsImages('price/icon-add.png')" alt="" class="mr-4" />
             <span>新增数据</span>
-          </div> -->
+          </div>
           <div class="add-btns ml-10" @click="showChangeType">
             <!-- <img :src="$getAssetsImages('price/icon-change.png')" alt="" class="mr-4" /> -->
             <span>切换单位类型</span>
@@ -303,12 +303,12 @@
                     class="cursor-pointer w-18px h-18px"
                     @click="delQuotationItem(scope.row.id)"
                   />
-                  <!-- <img
+                  <img
                     :src="$getAssetsImages('price/icon-add-one.png')"
                     alt=""
                     class="cursor-pointer ml-4 w-18px h-18px"
                     @click="appendNewItemToPrice(scope.row.id)"
-                  /> -->
+                  />
                 </div>
               </div>
             </template>
@@ -370,12 +370,14 @@
             <template #default="scope">
               <div class="flex-center" v-if="scope.row.quantity">
                 <el-input
-                  class="table-input quantity-input"
+                  class="table-input quantity-input quantity-up-down"
                   type="number"
                   v-model="scope.row.quantity.content"
                   style="width: 80px"
                   @focus="setColor(scope.row, 'quantity')"
                   @change="(e) => changeTableValue(e, scope.row, 'quantity')"
+                  @keydown.up.prevent="(e) => nextInput(e, 'quantity-up-down', scope.$index)"
+                  @keydown.down.prevent="(e) => nextInput(e, 'quantity-up-down', scope.$index)"
                   placeholder=""
                   :class="scope.row.quantity.color"
                 />
@@ -460,7 +462,7 @@
           <el-table-column label="操作" min-width="100">
             <template #default="scope">
               <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary" @click="showConfigBox(scope.row)">
-                工艺配置
+                工艺配置 
               </el-button>-->
               <div style="display: flex; align-items: center; justify-content: center">
                 <el-button
@@ -747,11 +749,13 @@
                 <!-- <div class="flex-center" :class="scope.row.quantity.color">{{ scope.row.quantity.content }}</div> -->
                 <div>
                   <el-input
-                    class="table-input quantity-input"
+                    class="table-input quantity-input quantity-up-down-2"
                     type="number"
                     v-model="scope.row.quantity.content"
                     style="width: 80px"
                     @change="(e) => changeTableValue(e, scope.row, 'quantity')"
+                    @keydown.up.prevent="(e) => nextInput2(e, 'quantity-up-down-2', scope.$index)"
+                    @keydown.down.prevent="(e) => nextInput2(e, 'quantity-up-down-2', scope.$index)"
                     placeholder=""
                     :class="scope.row.quantity.color"
                 /></div>
@@ -1618,42 +1622,42 @@
     });
     getQuotationInfo(null, false);
   }
-  // const isLoading = ref<any>(false);
+  const isLoading = ref<any>(false);
   // 再指定位置插入
-  // async function appendNewItemToPrice(id: any) {
-  //   let loadingInstance = ElLoading.service({
-  //     lock: true,
-  //     text: 'Loading',
-  //     background: 'rgba(0, 0, 0, 0.4)',
-  //   });
-  //   let ind: any = '';
-  //   if (id) {
-  //     ind = quotationTableData.value.findIndex((item: any) => {
-  //       return item.id == id;
-  //     });
-  //   } else {
-  //     ind = quotationTableData.value.length - 1;
-  //   }
-  //   let res = await addQuotation({
-  //     spec_list: JSON.stringify([{ sort: ind + 1 }]),
-  //   });
-  //   setTimeout(() => {
-  //     loadingInstance.close();
-  //   }, 300);
-  //   if (res.code == 200) {
-  //     quotationInfo.value.generation_amount = res.data.generation_amount;
-  //     quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
-  //     quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
-  //     quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
-  //     quotationTableData.value.splice(ind + 1, 0, res.data.spec_list[0]);
-  //     quotationTableData.value.map((item: any, index: any) => {
-  //       item.index = index + 1;
-  //     });
-  //     quotationTableRef.value.setCurrentRow(quotationTableData.value[ind + 1]);
-  //   } else {
-  //     $message.error(res.msg);
-  //   }
-  // }
+  async function appendNewItemToPrice(id: any) {
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      text: 'Loading',
+      background: 'rgba(0, 0, 0, 0.4)',
+    });
+    let ind: any = '';
+    if (id) {
+      ind = quotationTableData.value.findIndex((item: any) => {
+        return item.id == id;
+      });
+    } else {
+      ind = quotationTableData.value.length - 1;
+    }
+    let res = await addQuotation({
+      spec_list: JSON.stringify([{ sort: ind + 1 }]),
+    });
+    setTimeout(() => {
+      loadingInstance.close();
+    }, 300);
+    if (res.code == 200) {
+      quotationInfo.value.generation_amount = res.data.generation_amount;
+      quotationInfo.value.generation_tax_amount = res.data.generation_tax_amount;
+      quotationInfo.value.generation_tax_ordinary_amount = res.data.generation_tax_ordinary_amount;
+      quotationInfo.value.reference_weight_total = res.data.reference_weight_total;
+      quotationTableData.value.splice(ind + 1, 0, res.data.spec_list[0]);
+      quotationTableData.value.map((item: any, index: any) => {
+        item.index = index + 1;
+      });
+      quotationTableRef.value.setCurrentRow(quotationTableData.value[ind + 1]);
+    } else {
+      $message.error(res.msg);
+    }
+  }
   // 工艺配置
   const configBoxDialog = ref<boolean>(false);
   const configBoxTitle = ref<string>('');
@@ -2097,6 +2101,32 @@
         }
       });
     }
+  }
+  function nextInput(v: any, key: any, index: any) {
+    let els: any = document.getElementsByClassName(key);
+    let nextIndex = null;
+    if (v.key == 'ArrowUp') {
+      if (index == 0) return;
+      nextIndex = index - 1;
+    } else if (v.code == 'ArrowDown') {
+      if (index == els.length - 1) return;
+      nextIndex = index + 1;
+    }
+    els[nextIndex].getElementsByClassName('el-input__inner')[0].focus();
+    quotationTableRef.value.setCurrentRow(quotationTableData.value[nextIndex]);
+  }
+  function nextInput2(v: any, key: any, index: any) {
+    let els: any = document.getElementsByClassName(key);
+    let nextIndex = null;
+    if (v.key == 'ArrowUp') {
+      if (index == 0) return;
+      nextIndex = index - 1;
+    } else if (v.code == 'ArrowDown') {
+      if (index == els.length - 1) return;
+      nextIndex = index + 1;
+    }
+    els[nextIndex].getElementsByClassName('el-input__inner')[0].focus();
+    quotationSortTableRef.value.setCurrentRow(quotationTableData.value[nextIndex]);
   }
   // 修改数据
   async function changeTableValue(v: any, item: any, key: any) {
