@@ -45,12 +45,12 @@
                   <div class="table-name">{{ scope.row.index }}</div>
                 </template>
               </el-table-column>
-              <el-table-column label="产品名称">
+              <el-table-column label="产品名称" min-width="160">
                 <template #default="scope">
                   <div class="table-name" :class="scope.row.name.color">{{ scope.row.name.content }}</div>
                 </template>
               </el-table-column>
-              <el-table-column label="型号规格">
+              <el-table-column label="型号规格" min-width="200">
                 <template #default="scope">
                   <div class="table-name" :class="scope.row.spec_name.color">{{ scope.row.spec_name.content }}</div>
                 </template>
@@ -95,7 +95,7 @@
                   <div class="table-name" :class="scope.row.spec_amount_tax_ordinary.color">{{ scope.row.spec_amount_tax_ordinary.content }}</div>
                 </template>
               </el-table-column>
-              <el-table-column label="备注信息">
+              <el-table-column label="备注信息" min-width="160">
                 <template #default="scope">
                   <div class="table-name" :class="scope.row.spec_remark.color">{{ scope.row.spec_remark.content }}</div>
                 </template>
