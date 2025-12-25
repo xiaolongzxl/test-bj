@@ -459,6 +459,20 @@
               </div> -->
             </template>
           </el-table-column>
+
+          <el-table-column label="备注信息" min-width="150">
+            <template #default="scope">
+              <div class="flex-center" v-if="scope.row.spec_remark">
+                <el-input
+                  class="table-input"
+                  v-model="scope.row.spec_remark.content"
+                  @focus="setColor(scope.row, 'spec_remark')"
+                  @change="(e) => changeTableValue(e, scope.row, 'spec_remark')"
+                  :class="scope.row.spec_remark.color"
+                />
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" min-width="100">
             <template #default="scope">
               <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary" @click="showConfigBox(scope.row)">
@@ -481,19 +495,6 @@
                 >
                   <img :src="$getAssetsImages('price/config.png')" alt="" style="width: 20px; height: 20px" />
                 </div>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="备注信息" min-width="150">
-            <template #default="scope">
-              <div class="flex-center" v-if="scope.row.spec_remark">
-                <el-input
-                  class="table-input"
-                  v-model="scope.row.spec_remark.content"
-                  @focus="setColor(scope.row, 'spec_remark')"
-                  @change="(e) => changeTableValue(e, scope.row, 'spec_remark')"
-                  :class="scope.row.spec_remark.color"
-                />
               </div>
             </template>
           </el-table-column>
