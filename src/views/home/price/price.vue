@@ -460,7 +460,7 @@
           <el-table-column label="操作" min-width="100">
             <template #default="scope">
               <!-- <el-button v-if="scope.row.reference_weight && scope.row.searchable" size="small" type="primary" @click="showConfigBox(scope.row)">
-                工艺配置 
+                工艺配置
               </el-button>-->
               <div style="display: flex; align-items: center; justify-content: center">
                 <el-button
@@ -3713,12 +3713,12 @@
     height: 70%;
   }
 
-  .el-dialog__body {
+  div.el-dialog__body {
     height: 100%;
     overflow: hidden;
   }
 
-  .el-dialog__header {
+  header.el-dialog__header {
     padding: 0;
     height: 0;
   }
