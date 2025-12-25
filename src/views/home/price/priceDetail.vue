@@ -60,6 +60,11 @@
                   <div class="table-name" :class="scope.row.quantity.color">{{ scope.row.quantity.content }}</div>
                 </template>
               </el-table-column>
+              <el-table-column label="单位">
+                <template #default="scope">
+                  <div class="table-name" :class="scope.row.spec_unit.color">{{ scope.row.spec_unit.content }}</div>
+                </template>
+              </el-table-column>
               <el-table-column label="单价" v-if="detailInfo.is_unit_price == 1">
                 <template #default="scope">
                   <div class="table-name" :class="scope.row.spec_price.color">{{ scope.row.spec_price.content }}</div>
@@ -88,6 +93,11 @@
               <el-table-column label="含税总价" v-if="detailInfo.is_special_invoice == 1">
                 <template #default="scope">
                   <div class="table-name" :class="scope.row.spec_amount_tax_ordinary.color">{{ scope.row.spec_amount_tax_ordinary.content }}</div>
+                </template>
+              </el-table-column>
+              <el-table-column label="备注信息">
+                <template #default="scope">
+                  <div class="table-name" :class="scope.row.spec_remark.color">{{ scope.row.spec_remark.content }}</div>
                 </template>
               </el-table-column>
             </el-table>
