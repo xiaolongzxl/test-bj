@@ -521,3 +521,23 @@ export function pwdSort(data: { data: { id: string; sort: string } }) {
     data,
   });
 }
+
+/***
+ * 获取右侧工具栏宽度
+ */
+export function getRightWidth() {
+  return defHttp.request({
+    url: root + '/api/pan/getUserWidth',
+    method: 'POST',
+  });
+}
+/***
+ * 设置右侧工具栏宽度
+ */
+export function setRightWidth(width: number) {
+  return defHttp.request({
+    url: root + '/api/pan/setUserWidth',
+    method: 'POST',
+    data: { width },
+  });
+}

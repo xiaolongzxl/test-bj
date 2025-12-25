@@ -1,5 +1,6 @@
 <template>
-  <div class="fileDetail" v-if="folderQuery?.folder_category_id">
+  <div ref="fileDetailEl" class="fileDetail" :style="`width:${rightWidth}px`" v-if="folderQuery?.folder_category_id">
+    <div class="drag-handle" @mousedown="startResize"></div>
     <div class="file-info" v-loading="loading">
       <div class="file-title">
         <img class="flex-none" :src="$getAssetsImages(fileType(fileDetail?.extension))" />
@@ -48,7 +49,7 @@
 </template>
 <script setup>
   const { $getAssetsImages, $message } = getCurrentInstance().appContext.config.globalProperties;
-  import { getFolderDetailApi, getFileDetailApi, getMenuDetailApi } from '@/api/file';
+  import { getFolderDetailApi, getFileDetailApi, getMenuDetailApi, setRightWidth } from '@/api/file';
   const emits = defineEmits(['listRefresh']);
 
   import History from './history.vue';
@@ -59,6 +60,7 @@
   const route = useRoute();
 
   const folderQuery = inject('folderQuery');
+  const rightWidth = inject('rightBarWidth');
   const loading = ref(false);
   const remarkModelRef = ref(null);
   const hasPremission = fileMenuStore().hasPremission;
@@ -95,6 +97,59 @@
     return tabs.value.filter((e) => !e.hidden).length >= 1;
   });
   const fileDetail = ref({});
+  const fileDetailEl = ref(null);
+  const isResizing = ref(false);
+  let removeMouseMove = null;
+  let removeMouseUp = null;
+  let startX = 0; // 鼠标按下时的 X 坐标
+  let startWidth = 0; // 拖拽开始时的原始宽度
+  const newWidth = ref(0);
+  const startResize = (e) => {
+    if (!fileDetailEl.value) return;
+    isResizing.value = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    e.preventDefault();
+    // ✅ 记录初始状态
+    startX = e.clientX;
+    startWidth = parseInt(getComputedStyle(fileDetailEl.value).width, 10);
+    // 定义 move 和 up 回调
+    const onMouseMove = (e) => {
+      if (!isResizing.value) return;
+      // ✅ 计算鼠标移动的距离
+      const deltaX = e.clientX - startX;
+      newWidth.value = startWidth - deltaX;
+
+      // 限制范围（按需调整）
+      const minWidth = 250;
+      const maxWidth = 600;
+      console.log(newWidth.value, deltaX, startWidth);
+      newWidth.value = Math.max(minWidth, Math.min(maxWidth, newWidth.value));
+
+      fileDetailEl.value.style.width = `${newWidth.value}px`;
+    };
+
+    const onMouseUp = () => {
+      if (!isResizing.value) return;
+
+      isResizing.value = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      setRightWidth(newWidth.value + '');
+      // 清理事件
+      if (removeMouseMove) removeMouseMove();
+      if (removeMouseUp) removeMouseUp();
+      removeMouseMove = null;
+      removeMouseUp = null;
+    };
+
+    // 添加全局监听，并保存移除函数
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    removeMouseMove = () => document.removeEventListener('mousemove', onMouseMove);
+    removeMouseUp = () => document.removeEventListener('mouseup', onMouseUp);
+  };
   const handleClick = () => {};
   const handleGetDetail = async () => {
     if (!folderQuery.value?.folder_category_id) return;
@@ -121,6 +176,7 @@
     }
   };
   isZg.value;
+  console.log(rightWidth.value);
   const handleOpenRemark = () => {
     const { remark, id, extension } = fileDetail.value;
 
@@ -143,6 +199,13 @@
 
   /* 修改说明 */
   const handleChangeRemark = (val) => {};
+  // 组件卸载时清理（防止内存泄漏）
+  onUnmounted(() => {
+    if (removeMouseMove) removeMouseMove();
+    if (removeMouseUp) removeMouseUp();
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
 </script>
 
 <style lang="less" scoped>
@@ -150,10 +213,21 @@
     flex: none;
     height: 100%;
     width: 380px;
-    box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
+    // box-shadow: 0px 3px 6px 0px rgba(72, 94, 132, 0.1);
     padding: 33px 0;
     display: flex;
     flex-direction: column;
+    position: relative;
+    .drag-handle {
+      left: 0;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      cursor: col-resize;
+      position: absolute;
+      background: rgba(72, 94, 132, 0.1);
+      filter: blur(1px);
+    }
     .file {
       &-info {
         flex: none;

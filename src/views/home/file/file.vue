@@ -23,10 +23,12 @@
 </template>
 
 <script setup>
+  import { getRightWidth } from '@/api/file';
   import leftBar from './components/left-navbar/index.vue';
   import Search from './components/search.vue';
 
   const topbarSearchChecked = ref({});
+  const rightBarWidth = ref(380);
   const route = useRoute();
   const title = computed(() => {
     return route.meta.title;
@@ -43,12 +45,20 @@
     },
     { immediate: true }
   );
+  const getRightBarWidth = async () => {
+    const res = await getRightWidth();
 
+    if (res.data.width) {
+      rightBarWidth.value = res.data.width;
+    }
+  };
   const changeChecked = (item) => {
     console.log(item);
     topbarSearchChecked.value = { ...item };
   };
+  getRightBarWidth();
   // provide('topbarSearchChecked', topbarSearchChecked.value);
+  provide('rightBarWidth', rightBarWidth);
 </script>
 
 <style scoped lang="less">
