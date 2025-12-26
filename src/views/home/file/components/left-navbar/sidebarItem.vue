@@ -1,7 +1,7 @@
 <template>
   <div v-if="!item.meta?.hidden">
     <template v-if="hasOneShowingChild(item.children, item)">
-      <RouterLink :to="resolvePath(oneChild.path)">
+      <RouterLink draggable="true" class="routerlink" :to="resolvePath(oneChild.path)" @dragstart="(e) => onDragStart(e, resolvePath(oneChild.path))">
         <el-menu-item :index="resolvePath(oneChild.path)">
           <div class="flex flex-center menuitem">
             <img v-if="oneChild.meta?.icon" class="menuitem-icon" :src="$getAssetsImages(imgIcon)" />
@@ -36,9 +36,12 @@
 </template>
 
 <script setup>
+  import { da } from 'element-plus/es/locale/index.mjs';
   import SidebarItem from './sidebarItem.vue';
   const { $getAssetsImages } = getCurrentInstance().appContext.config.globalProperties;
-
+  const isDragging = ref(false);
+  const dragData = ref({});
+  const wasDraggedOutside = ref(false);
   const props = defineProps({
     isChangePath: {
       type: Boolean,
@@ -117,6 +120,61 @@
     }
 
     return res;
+  };
+
+  const onDragStart = (e, path) => {
+    if (!window.electronAPI) return;
+    const dt = e.dataTransfer;
+    if (!dt) return;
+
+    // 👇 关键1：设置无效数据 + 禁用拖放效果
+    dt.setData('text/plain', ''); // 设为空
+    dt.effectAllowed = 'copyMove';
+
+    dragData.value = path;
+    isDragging.value = true;
+
+    startDragTracking();
+  };
+
+  const startDragTracking = () => {
+    const handleDragOver = (e) => {
+      if (!isDragging.value || !dragData.value) return;
+
+      const bounds = window.electronAPI?.getWindowBounds?.();
+      if (!bounds) return;
+      const { height, width } = bounds;
+      // 获取当前窗口可视区域尺寸
+      const { clientWidth, clientHeight } = document.documentElement;
+      const mouseX = e.screenX; // 相对于浏览器 viewport 左上角
+      const mouseY = e.screenY;
+
+      // 判断是否在 viewport 外（留 5px 容差）
+
+      const outside =
+        mouseX < clientWidth - 10 || mouseX > clientWidth + width + 10 || mouseY < clientHeight - 10 || mouseY > clientHeight + height + 10;
+
+      if (outside) {
+        wasDraggedOutside.value = true;
+      }
+    };
+
+    const handleDragEnd = () => {
+      // 👇 核心逻辑：只有拖出过 + 松手，才创建窗口
+      if (wasDraggedOutside.value) {
+        window.electronAPI?.createDetachedWindow(dragData.value);
+      }
+
+      cleanup();
+    };
+    const cleanup = () => {
+      isDragging.value = false;
+      dragData.value = null;
+      window.removeEventListener('dragover', handleDragOver, true);
+      window.removeEventListener('dragend', handleDragEnd, true);
+    };
+    window.addEventListener('dragover', handleDragOver, true);
+    window.addEventListener('dragend', handleDragEnd, true);
   };
 </script>
 <style scoped lang="less">

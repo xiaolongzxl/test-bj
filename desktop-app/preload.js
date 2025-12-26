@@ -10,4 +10,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return ipcRenderer.on(channel, (event, ...args) => callback(...args));
     }
   },
+  // 同步获取当前窗口位置
+  getWindowBounds: () => ipcRenderer.sendSync('get-window-bounds'),
+
+  // 创建独立窗口
+  createDetachedWindow: (data) => ipcRenderer.send('create-detached-window', data),
 });

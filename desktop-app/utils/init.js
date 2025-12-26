@@ -1,8 +1,9 @@
-const { app, BrowserWindow, Menu, protocol } = require('electron');
+const { app, BrowserWindow, Menu, protocol, ipcMain } = require('electron');
 const path = require('path');
 const { drag } = require('./drag');
 
 let win = null;
+
 Menu.setApplicationMenu(null);
 protocol.registerSchemesAsPrivileged([
   {
@@ -80,6 +81,41 @@ function createWindow() {
     win.webContents.openDevTools();
   }
 }
+// 👇 新增：提供窗口位置
+ipcMain.on('get-window-bounds', (event) => {
+  if (win && !win.isDestroyed()) {
+    event.returnValue = win.getBounds();
+  } else {
+    event.returnValue = { x: 0, y: 0, width: 1200, height: 800 };
+  }
+});
+
+// 👇 新增：创建独立窗口
+ipcMain.on('create-detached-window', (event, newPath) => {
+  // console.log(event, newPath);
+  const win = new BrowserWindow({
+    width: 1200,
+    height: 700,
+    webPreferences: {
+      nodeIntegration: false, // 安全起见关闭 Node 集成（除非你需要）
+      contextIsolation: true,
+      frame: false,
+      // 👇 关键：隐藏顶部菜单栏
+      autoHideMenuBar: true, // 隐藏但可通过 Alt 键呼出（Windows
+      preload: path.join(__dirname, '../preload.js'), // 可选：用于安全通信
+    },
+  });
+
+  let url;
+  if (process.env.NODE_ENV === 'development') {
+    url = `http://localhost:5173/#${newPath}`;
+  } else {
+    // 生产环境：file:// + hash 路由
+    url = `file://${path.join(__dirname, '../dist', 'index.html')}#${newPath}`;
+  }
+
+  win.loadURL(url);
+});
 // 工具函数
 
 app.whenReady().then(async () => {
