@@ -689,6 +689,12 @@
                 <div class="table-btns">
                   <div class="flex-center">
                     <img
+                      :src="$getAssetsImages('price/sortable.png')"
+                      alt=""
+                      class="cursor-pointer w-18px h-18px drag-handle"
+                      style="margin-right: 8px"
+                    />
+                    <img
                       :src="$getAssetsImages('price/icon-del-one.png')"
                       alt=""
                       class="cursor-pointer w-18px h-18px"
@@ -1588,6 +1594,11 @@
       }
       if (showDialog) {
         drawerAddPrise.value = true;
+        nextTick(() => {
+          setTimeout(() => {
+            initSortable();
+          }, 500);
+        });
       }
     } else {
       quotationTableData.value = [];
@@ -2292,6 +2303,8 @@
     const table = quotationSortTableRef.value.$el.querySelector('.el-table__body-wrapper tbody');
     Sortable.create(table, {
       animation: 150, // 拖拽动画时长（毫秒）
+      // filter: '.el-input',
+      handle: '.drag-handle',
       onEnd({ newIndex, oldIndex, from, to, item }: any) {
         /*将sortable移动过去的DOM复位*/
         to.removeChild(item); //删掉已移过去的dom
@@ -2365,7 +2378,7 @@
   const updateResetId = ref<any>(null);
   // 更新报价
   function updatePrice(flag: any) {
-    getQuotationInfo(updateResetId.value, false, flag);
+    getQuotationInfo(updateResetId.value, true, flag);
     updateDialog.value = false;
   }
   // 产品详情
