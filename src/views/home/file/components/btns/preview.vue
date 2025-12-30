@@ -5,7 +5,7 @@
     append-to-body
     title="预览"
     v-model="showModel"
-    :width="['word', 'excel', 'ppt', 'pdf', 'video'].includes(rowType) && row.is_see == 1 ? 1100 : 600"
+    :width="['word', 'excel', 'ppt', 'pdf', 'video', 'image'].includes(rowType) && row.is_see == 1 ? '80%' : '800'"
     center
     destroy-on-close
   >
@@ -49,6 +49,7 @@
 </template>
 <script setup>
   import { fileType, getIsFolder, downLoadSingle, getAllPath } from '@/utils/util';
+  const $viewerApi = getCurrentInstance()?.appContext.config.globalProperties.$viewerApi;
   const loading = ref(false);
   const error = ref(false);
   const row = ref();
@@ -91,8 +92,13 @@
   }));
   const open = (data, folder_category_id) => {
     row.value = { ...data, folder_category_id };
-
-    showModel.value = true;
+    if (rowType.value == 'image') {
+      $viewerApi({
+        images: [{ src: row.value.path, name: '' }],
+      }).view(0);
+    } else {
+      showModel.value = true;
+    }
   };
   const getVideoType = async () => {
     const video = document.createElement('video');
