@@ -1,5 +1,6 @@
 const { protocol, net, session, Notification } = require('electron');
 const axios = require('axios');
+
 function drag(win) {
   // 工具函数
   function streamToString(stream) {

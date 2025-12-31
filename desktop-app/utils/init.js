@@ -1,6 +1,8 @@
 const { app, BrowserWindow, Menu, protocol, ipcMain } = require('electron');
+
 const path = require('path');
 const { drag } = require('./drag');
+const { checkForUpdates } = require('./update');
 
 let win = null;
 
@@ -26,7 +28,7 @@ function createWindow() {
       contextIsolation: true,
       frame: false,
       // 👇 关键：隐藏顶部菜单栏
-      autoHideMenuBar: true, // 隐藏但可通过 Alt 键呼出（Windows
+      autoHideMenuBar: false, // 隐藏但可通过 Alt 键呼出（Windows
 
       preload: path.join(__dirname, '../preload.js'), // 可选：用于安全通信
     },
@@ -80,7 +82,12 @@ function createWindow() {
   if (process.env.NODE_ENV === 'development') {
     win.webContents.openDevTools();
   }
+  // 启动后延迟检查更新（避免卡住启动）
+  setTimeout(() => {
+    checkForUpdates(win);
+  }, 3000);
 }
+
 // 👇 新增：提供窗口位置
 ipcMain.on('get-window-bounds', (event) => {
   if (win && !win.isDestroyed()) {

@@ -8,7 +8,8 @@
     "start": "electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "build-h5": "cd .. && npm run nbuild:prod"
+    "build-h5": "cd .. && npm run nbuild:prod",
+    "publish": "cross-env GITHUB_TOKEN=%GITHUB_TOKEN% electron-builder --win --publish always"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
@@ -23,7 +24,12 @@
     "appId": "com.wanhedianli.myapp",
     "productName": "万达电力",
     "asar": false,
-    "publish": [],
+    "publish": {
+      "provider": "github",
+      "owner": "xiaolongzxl",
+      "repo": "test-bj",
+      "releaseType": "release"
+    },
     "files": [
       "main.js",
       "preload.js",
@@ -52,6 +58,8 @@
   },
   "dependencies": {
     "archiver": "^7.0.1",
-    "axios": "^1.13.2"
+    "axios": "^1.13.2",
+    "electron-log": "^5.4.3",
+    "electron-updater": "^6.6.2"
   }
 }
