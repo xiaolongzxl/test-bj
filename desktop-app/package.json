@@ -1,6 +1,6 @@
 {
   "name": "desktop-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -21,14 +21,12 @@
   "license": "ISC",
   "description": "",
   "build": {
-    "appId": "com.wanhedianli.myapp",
+    "appId": "com.wandadianli.myapp",
     "productName": "万达电力",
     "asar": false,
     "publish": {
-      "provider": "github",
-      "owner": "xiaolongzxl",
-      "repo": "test-bj",
-      "releaseType": "release"
+      "provider": "generic",
+      "url": "https://wddlsz.oss-cn-hangzhou.aliyuncs.com/electron/"
     },
     "files": [
       "main.js",
@@ -43,11 +41,31 @@
       "output": "release"
     },
     "win": {
-      "target": "nsis",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "build/logo.ico"
     },
     "mac": {
-      "target": "dmg",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "build/icon.icns"
     },
     "nsis": {
